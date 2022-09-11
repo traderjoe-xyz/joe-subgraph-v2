@@ -1,6 +1,6 @@
 specVersion: 0.0.4
 description: Joe-v2 Liquidity Book subgraph
-repository: https://github.com/traderjoe-xyz/lb-subgraph
+repository: https://github.com/traderjoe-xyz/joe-subgraph-v2
 schema:
   file: ./schema.graphql
 dataSources:
