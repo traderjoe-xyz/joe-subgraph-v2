@@ -7,7 +7,7 @@ import {
   BIG_DECIMAL_ZERO,
 } from "../constants";
 
-export function getLBFactory(id: Address = LBFACTORY_ADDRESS): LBFactoryEntity {
+export function loadLBFactory(id: Address = LBFACTORY_ADDRESS): LBFactoryEntity {
   let lbFactory = LBFactoryEntity.load(id.toHexString());
   const contract = LBFactory.bind(id);
   const flashloanFee = contract.try_flashLoanFee();
@@ -28,6 +28,8 @@ export function getLBFactory(id: Address = LBFACTORY_ADDRESS): LBFactoryEntity {
     } else {
       lbFactory.flashloanFee = flashloanFee.value;
     }
+    lbFactory.feesUSD = BIG_DECIMAL_ZERO;
+    lbFactory.feesAVAX = BIG_DECIMAL_ZERO;
 
     lbFactory.save();
   }

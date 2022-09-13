@@ -3,22 +3,22 @@ import {
   LiquidityPositionSnapshot,
   LiquidityPosition,
 } from "../../generated/schema";
-import { getToken } from "./token";
-import { getLbPair } from "./lbPair";
-import { getBundle } from "./bundle";
+import { loadToken } from "./token";
+import { loadLbPair } from "./lbPair";
+import { loadBundle } from "./bundle";
 
 export function saveLiquidityPositionSnapshot(
   liquidityPosition: LiquidityPosition,
   event: ethereum.Event
 ): LiquidityPositionSnapshot | null {
-  const lbPair = getLbPair(Address.fromString(liquidityPosition.LBPair));
+  const lbPair = loadLbPair(Address.fromString(liquidityPosition.LBPair));
   if (!lbPair) {
     return null;
   }
 
-  const bundle = getBundle();
-  const token0 = getToken(Address.fromString(lbPair.token0));
-  const token1 = getToken(Address.fromString(lbPair.token1));
+  const bundle = loadBundle();
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
   const id = liquidityPosition.id
     .concat("#")
     .concat(event.block.number.toString());
@@ -29,14 +29,14 @@ export function saveLiquidityPositionSnapshot(
   liquidityPositionSnapshot.timestamp = event.block.timestamp.toI32();
   liquidityPositionSnapshot.block = event.block.number.toI32();
   liquidityPositionSnapshot.LBPair = liquidityPosition.LBPair;
-  liquidityPositionSnapshot.token0PriceUSD = token0.derivedAVAX.times(
+  liquidityPositionSnapshot.tokenXPriceUSD = tokenX.derivedAVAX.times(
     bundle.avaxPriceUSD
   );
-  liquidityPositionSnapshot.token1PriceUSD = token1.derivedAVAX.times(
+  liquidityPositionSnapshot.tokenYPriceUSD = tokenY.derivedAVAX.times(
     bundle.avaxPriceUSD
   );
-  liquidityPositionSnapshot.reserve0 = lbPair.reserve0;
-  liquidityPositionSnapshot.reserve1 = lbPair.reserve1;
+  liquidityPositionSnapshot.reserveX = lbPair.reserveX;
+  liquidityPositionSnapshot.reserveY = lbPair.reserveY;
   liquidityPositionSnapshot.totalValueLockedUSD = lbPair.totalValueLockedUSD;
   liquidityPositionSnapshot.lbTokenTotalSupply = lbPair.totalSupply;
   liquidityPositionSnapshot.lbTokenBalance = liquidityPosition.lbTokenBalance;

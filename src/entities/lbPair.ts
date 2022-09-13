@@ -6,54 +6,54 @@ import {
   LBFACTORY_ADDRESS,
   WHITELIST_TOKENS,
 } from "../constants";
-import { getToken } from "./token";
+import { loadToken } from "./token";
 import { LBPairCreated } from "../../generated/LBFactory/LBFactory";
 import { LBPair } from "../../generated/LBFactory/LBPair";
 
-export function getLbPair(id: Address): LBPairEntity | null {
+export function loadLbPair(id: Address): LBPairEntity | null {
   let lbPair = LBPairEntity.load(id.toHexString());
   return lbPair as LBPairEntity;
 }
 
-// should be used if getLBPair() evaluates to null
-export function saveLBPair(event: LBPairCreated): LBPairEntity | null {
+// should be used if loadLBPair() evaluates to null
+export function createLBPair(event: LBPairCreated): LBPairEntity | null {
   const lbPair = new LBPairEntity(event.params.LBPair.toHexString());
   const lbPairContract = LBPair.bind(event.params.LBPair);
 
-  const token0Call = lbPairContract.try_tokenX();
-  const token1Call = lbPairContract.try_tokenY();
-  if (token0Call.reverted || token1Call.reverted) {
+  const tokenXCall = lbPairContract.try_tokenX();
+  const tokenYCall = lbPairContract.try_tokenY();
+  if (tokenXCall.reverted || tokenYCall.reverted) {
     return null;
   }
 
-  const token0 = getToken(token1Call.value);
-  const token1 = getToken(token1Call.value);
+  const tokenX = loadToken(tokenYCall.value);
+  const tokenY = loadToken(tokenYCall.value);
 
   lbPair.factory = LBFACTORY_ADDRESS.toHexString();
-  lbPair.name = token0.symbol
+  lbPair.name = tokenX.symbol
     .concat("-")
-    .concat(token1.symbol)
+    .concat(tokenY.symbol)
     .concat("-")
     .concat(event.params.binStep.toString());
-  lbPair.token0 = token0Call.value.toHexString();
-  lbPair.token1 = token1Call.value.toHexString();
+  lbPair.tokenX = tokenXCall.value.toHexString();
+  lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = event.params.binStep;
 
-  lbPair.reserve0 = BIG_DECIMAL_ZERO;
-  lbPair.reserve1 = BIG_DECIMAL_ZERO;
+  lbPair.reserveX = BIG_DECIMAL_ZERO;
+  lbPair.reserveY = BIG_DECIMAL_ZERO;
   lbPair.totalSupply = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedUSD = BIG_DECIMAL_ZERO;
   lbPair.trackedReserveAVAX = BIG_DECIMAL_ZERO;
-  lbPair.token0Price = BIG_DECIMAL_ZERO;
-  lbPair.token1Price = BIG_DECIMAL_ZERO;
-  lbPair.volumeToken0 = BIG_DECIMAL_ZERO;
-  lbPair.volumeToken1 = BIG_DECIMAL_ZERO;
+  lbPair.tokenXPrice = BIG_DECIMAL_ZERO;
+  lbPair.tokenYPrice = BIG_DECIMAL_ZERO;
+  lbPair.volumeTokenX = BIG_DECIMAL_ZERO;
+  lbPair.volumeTokenY = BIG_DECIMAL_ZERO;
   lbPair.volumeUSD = BIG_DECIMAL_ZERO;
   lbPair.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
   lbPair.txCount = BIG_INT_ZERO;
-  lbPair.feesToken0 = BIG_DECIMAL_ZERO;
-  lbPair.feesToken1 = BIG_DECIMAL_ZERO;
+  lbPair.feesTokenX = BIG_DECIMAL_ZERO;
+  lbPair.feesTokenY = BIG_DECIMAL_ZERO;
   lbPair.feesUSD = BIG_DECIMAL_ZERO;
   lbPair.liquidityProviderCount = BIG_INT_ZERO;
 
@@ -61,20 +61,20 @@ export function saveLBPair(event: LBPairCreated): LBPairEntity | null {
   lbPair.block = event.block.number;
 
   // update whitelisted lbPairs
-  if (WHITELIST_TOKENS.includes(Address.fromString(token0.id))) {
-    let whitelistPools = token0.whitelistPools;
+  if (WHITELIST_TOKENS.includes(Address.fromString(tokenX.id))) {
+    let whitelistPools = tokenX.whitelistPools;
     whitelistPools.push(lbPair.id);
-    token0.whitelistPools = whitelistPools;
+    tokenX.whitelistPools = whitelistPools;
   }
-  if (WHITELIST_TOKENS.includes(Address.fromString(token1.id))) {
-    let whitelistPools = token1.whitelistPools;
+  if (WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))) {
+    let whitelistPools = tokenY.whitelistPools;
     whitelistPools.push(lbPair.id);
-    token1.whitelistPools = whitelistPools;
+    tokenY.whitelistPools = whitelistPools;
   }
 
   lbPair.save();
-  token0.save();
-  token1.save();
+  tokenX.save();
+  tokenY.save();
 
   return lbPair as LBPairEntity;
 }

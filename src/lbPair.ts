@@ -22,10 +22,10 @@ import {
   Swap as SwapEntity,
 } from "../generated/schema";
 import {
-  getLbPair,
-  getToken,
-  getBundle,
-  getLBFactory,
+  loadLbPair,
+  loadToken,
+  loadBundle,
+  loadLBFactory,
   loadTraderJoeHourData,
   loadTraderJoeDayData,
   loadTokenHourData,
@@ -46,94 +46,92 @@ import {
 } from "./utils";
 
 export function handleSwap(event: Swap): void {
-  // entities affected by swap
-  const bundle = getBundle();
-  const lbPair = getLbPair(event.address);
-  // const lbPairContract = LBPairContract.bind(event.address);
+  const bundle = loadBundle();
+  const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
     return;
   }
 
   // reset tvl aggregates until new amounts calculated
-  const lbFactory = getLBFactory();
+  const lbFactory = loadLBFactory();
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
     lbPair.totalValueLockedAVAX
   );
 
-  const token0 = getToken(Address.fromString(lbPair.token0));
-  const token1 = getToken(Address.fromString(lbPair.token1));
-  const token0PriceUSD = token0.derivedAVAX.times(bundle.avaxPriceUSD);
-  const token1PriceUSD = token1.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
-  const amount0In = formatTokenAmountByDecimals(
+  const amountXIn = formatTokenAmountByDecimals(
     event.params.amountXIn,
-    token0.decimals
+    tokenX.decimals
   );
-  const amount0Out = formatTokenAmountByDecimals(
+  const amountXOut = formatTokenAmountByDecimals(
     event.params.amountXOut,
-    token0.decimals
+    tokenX.decimals
   );
-  const amount1In = formatTokenAmountByDecimals(
+  const amountYIn = formatTokenAmountByDecimals(
     event.params.amountYIn,
-    token1.decimals
+    tokenY.decimals
   );
-  const amount1Out = formatTokenAmountByDecimals(
+  const amountYOut = formatTokenAmountByDecimals(
     event.params.amountYOut,
-    token1.decimals
+    tokenY.decimals
   );
-  const amount0Total = amount0In.plus(amount0Out);
-  const amount1Total = amount1In.plus(amount1Out);
-  const fees0 = formatTokenAmountByDecimals(
+  const amountXTotal = amountXIn.plus(amountXOut);
+  const amountYTotal = amountYIn.plus(amountYOut);
+  const feesX = formatTokenAmountByDecimals(
     event.params.feesX,
-    token0.decimals
+    tokenX.decimals
   );
-  const fees1 = formatTokenAmountByDecimals(
+  const feesY = formatTokenAmountByDecimals(
     event.params.feesY,
-    token1.decimals
+    tokenY.decimals
   );
-  const feesUSD = fees0
-    .times(token0.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(fees1.times(token1.derivedAVAX.times(bundle.avaxPriceUSD)));
+  const feesUSD = feesX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(feesY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const trackedVolumeUSD = getTrackedLiquidityUSD(
-    amount0Total,
-    token0 as Token,
-    amount1Total,
-    token1 as Token
+    amountXTotal,
+    tokenX as Token,
+    amountYTotal,
+    tokenY as Token
   );
   const trackedVolumeAVAX = trackedVolumeUSD.div(bundle.avaxPriceUSD);
-  const derivedAmountAVAX = token0.derivedAVAX
-    .times(amount0Total)
-    .plus(token1.derivedAVAX.times(amount1Total))
+  const derivedAmountAVAX = tokenX.derivedAVAX
+    .times(amountXTotal)
+    .plus(tokenY.derivedAVAX.times(amountYTotal))
     .div(BigDecimal.fromString("2"));
   const untrackedVolumeUSD = derivedAmountAVAX.times(bundle.avaxPriceUSD);
 
   // LBPair
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  lbPair.reserve0 = lbPair.reserve0.plus(amount0In).minus(amount0Out);
-  lbPair.reserve1 = lbPair.reserve1.plus(amount1In).minus(amount1Out);
-  lbPair.totalValueLockedAVAX = lbPair.reserve0
-    .times(token0.derivedAVAX)
-    .plus(lbPair.reserve1.times(token1.derivedAVAX));
+  lbPair.reserveX = lbPair.reserveX.plus(amountXIn).minus(amountXOut);
+  lbPair.reserveY = lbPair.reserveY.plus(amountYIn).minus(amountYOut);
+  lbPair.totalValueLockedAVAX = lbPair.reserveX
+    .times(tokenX.derivedAVAX)
+    .plus(lbPair.reserveY.times(tokenY.derivedAVAX));
   lbPair.totalValueLockedUSD = lbPair.totalValueLockedAVAX.times(
     bundle.avaxPriceUSD
   );
   lbPair.trackedReserveAVAX = getTrackedLiquidityUSD(
-    lbPair.reserve0,
-    token0 as Token,
-    lbPair.reserve1,
-    token1 as Token
+    lbPair.reserveX,
+    tokenX as Token,
+    lbPair.reserveY,
+    tokenY as Token
   ).div(bundle.avaxPriceUSD);
-  lbPair.token0Price = token0PriceUSD;
-  lbPair.token1Price = token1PriceUSD;
-  lbPair.volumeToken0 = lbPair.volumeToken0.plus(amount0Total);
-  lbPair.volumeToken1 = lbPair.volumeToken1.plus(amount1Total);
+  lbPair.tokenXPrice = tokenXPriceUSD;
+  lbPair.tokenYPrice = tokenYPriceUSD;
+  lbPair.volumeTokenX = lbPair.volumeTokenX.plus(amountXTotal);
+  lbPair.volumeTokenY = lbPair.volumeTokenY.plus(amountYTotal);
   lbPair.volumeUSD = lbPair.volumeUSD.plus(trackedVolumeUSD);
   lbPair.untrackedVolumeUSD = lbPair.untrackedVolumeUSD.plus(
     untrackedVolumeUSD
   );
-  lbPair.feesToken0 = lbPair.feesToken0.plus(fees0);
-  lbPair.feesToken1 = lbPair.feesToken1.plus(fees1);
+  lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
+  lbPair.feesTokenY = lbPair.feesTokenY.plus(feesY);
   lbPair.feesUSD = lbPair.feesUSD.plus(feesUSD);
   lbPair.save();
 
@@ -143,11 +141,11 @@ export function handleSwap(event: Swap): void {
     lbPair as LBPair
   );
   lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
-  lbPairHourData.reserve0 = lbPair.reserve0;
-  lbPairHourData.reserve1 = lbPair.reserve1;
+  lbPairHourData.reserveX = lbPair.reserveX;
+  lbPairHourData.reserveY = lbPair.reserveY;
   lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-  lbPairHourData.volumeToken0 = lbPairHourData.volumeToken0.plus(amount0Total);
-  lbPairHourData.volumeToken1 = lbPairHourData.volumeToken1.plus(amount1Total);
+  lbPairHourData.volumeTokenX = lbPairHourData.volumeTokenX.plus(amountXTotal);
+  lbPairHourData.volumeTokenY = lbPairHourData.volumeTokenY.plus(amountYTotal);
   lbPairHourData.volumeUSD = lbPairHourData.volumeUSD.plus(trackedVolumeUSD);
   lbPairHourData.untrackedVolumeUSD = lbPairHourData.untrackedVolumeUSD.plus(
     untrackedVolumeUSD
@@ -161,11 +159,11 @@ export function handleSwap(event: Swap): void {
     lbPair as LBPair
   );
   lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
-  lbPairDayData.reserve0 = lbPair.reserve0;
-  lbPairDayData.reserve1 = lbPair.reserve1;
+  lbPairDayData.reserveX = lbPair.reserveX;
+  lbPairDayData.reserveY = lbPair.reserveY;
   lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-  lbPairDayData.volumeToken0 = lbPairDayData.volumeToken0.plus(amount0Total);
-  lbPairDayData.volumeToken1 = lbPairDayData.volumeToken1.plus(amount1Total);
+  lbPairDayData.volumeTokenX = lbPairDayData.volumeTokenX.plus(amountXTotal);
+  lbPairDayData.volumeTokenY = lbPairDayData.volumeTokenY.plus(amountYTotal);
   lbPairDayData.volumeUSD = lbPairDayData.volumeUSD.plus(trackedVolumeUSD);
   lbPairDayData.untrackedVolumeUSD = lbPairDayData.untrackedVolumeUSD.plus(
     untrackedVolumeUSD
@@ -224,147 +222,147 @@ export function handleSwap(event: Swap): void {
   traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
   traderJoeDayData.save();
 
-  // Token0
-  token0.txCount = token0.txCount.plus(BIG_INT_ONE);
-  token0.volume = token0.volume.plus(amount0Total);
-  token0.volumeUSD = token0.volumeUSD.plus(trackedVolumeUSD);
-  token0.untrackedVolumeUSD = token0.untrackedVolumeUSD.plus(
+  // TokenX
+  tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
+  tokenX.volume = tokenX.volume.plus(amountXTotal);
+  tokenX.volumeUSD = tokenX.volumeUSD.plus(trackedVolumeUSD);
+  tokenX.untrackedVolumeUSD = tokenX.untrackedVolumeUSD.plus(
     untrackedVolumeUSD
   );
-  token0.totalValueLocked = token0.totalValueLocked
-    .plus(amount0In)
-    .minus(amount0Out);
-  token0.totalValueLockedUSD = token0.totalValueLockedUSD.plus(
-    token0.totalValueLocked.times(token0PriceUSD)
+  tokenX.totalValueLocked = tokenX.totalValueLocked
+    .plus(amountXIn)
+    .minus(amountXOut);
+  tokenX.totalValueLockedUSD = tokenX.totalValueLockedUSD.plus(
+    tokenX.totalValueLocked.times(tokenXPriceUSD)
   );
-  token0.feesUSD = token0.feesUSD.plus(fees0.times(token0PriceUSD));
+  tokenX.feesUSD = tokenX.feesUSD.plus(feesX.times(tokenXPriceUSD));
 
-  // Token1
-  token1.txCount = token1.txCount.plus(BIG_INT_ONE);
-  token1.volume = token1.volume.plus(amount1Total);
-  token1.volumeUSD = token1.volumeUSD.plus(trackedVolumeUSD);
-  token1.untrackedVolumeUSD = token1.untrackedVolumeUSD.plus(
+  // TokenY
+  tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
+  tokenY.volume = tokenY.volume.plus(amountYTotal);
+  tokenY.volumeUSD = tokenY.volumeUSD.plus(trackedVolumeUSD);
+  tokenY.untrackedVolumeUSD = tokenY.untrackedVolumeUSD.plus(
     untrackedVolumeUSD
   );
-  token1.totalValueLocked = token1.totalValueLocked
-    .plus(amount1In)
-    .minus(amount1Out);
-  token1.totalValueLockedUSD = token1.totalValueLockedUSD.plus(
-    token1.totalValueLocked.times(token1PriceUSD)
+  tokenY.totalValueLocked = tokenY.totalValueLocked
+    .plus(amountYIn)
+    .minus(amountYOut);
+  tokenY.totalValueLockedUSD = tokenY.totalValueLockedUSD.plus(
+    tokenY.totalValueLocked.times(tokenYPriceUSD)
   );
-  token1.feesUSD = token1.feesUSD.plus(fees1.times(token1PriceUSD));
+  tokenY.feesUSD = tokenY.feesUSD.plus(feesY.times(tokenYPriceUSD));
 
   // update USD pricing
   bundle.avaxPriceUSD = getAvaxPriceInUSD();
   bundle.save();
-  token0.derivedAVAX = getTokenPriceInAVAX(token0 as Token);
-  token1.derivedAVAX = getTokenPriceInAVAX(token1 as Token);
-  token0.save();
-  token1.save();
+  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX as Token);
+  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY as Token);
+  tokenX.save();
+  tokenY.save();
 
-  // Token0HourData
-  const token0HourData = loadTokenHourData(
+  // TokenXHourData
+  const tokenXHourData = loadTokenHourData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0HourData.txCount = token0HourData.txCount.plus(BIG_INT_ONE);
-  token0HourData.volume = token0HourData.volume.plus(amount0Total);
-  token0HourData.volumeAVAX = token0HourData.volumeAVAX.plus(trackedVolumeAVAX);
-  token0HourData.volumeUSD = token0HourData.volumeUSD.plus(trackedVolumeUSD);
-  token0HourData.feesUSD = token0HourData.feesUSD.plus(feesUSD);
-  token0HourData.totalValueLocked = token0.totalValueLocked;
-  token0HourData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXHourData.txCount = tokenXHourData.txCount.plus(BIG_INT_ONE);
+  tokenXHourData.volume = tokenXHourData.volume.plus(amountXTotal);
+  tokenXHourData.volumeAVAX = tokenXHourData.volumeAVAX.plus(trackedVolumeAVAX);
+  tokenXHourData.volumeUSD = tokenXHourData.volumeUSD.plus(trackedVolumeUSD);
+  tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(feesUSD);
+  tokenXHourData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXHourData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0HourData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0HourData.priceUSD = token0PriceUSD;
+  tokenXHourData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXHourData.priceUSD = tokenXPriceUSD;
 
-  if (token0HourData.high.lt(token0PriceUSD)) {
-    token0HourData.high = token0PriceUSD;
+  if (tokenXHourData.high.lt(tokenXPriceUSD)) {
+    tokenXHourData.high = tokenXPriceUSD;
   }
-  if (token0HourData.low.gt(token0PriceUSD)) {
-    token0HourData.low = token0PriceUSD;
+  if (tokenXHourData.low.gt(tokenXPriceUSD)) {
+    tokenXHourData.low = tokenXPriceUSD;
   }
-  token0HourData.close = token0PriceUSD;
-  token0HourData.save();
+  tokenXHourData.close = tokenXPriceUSD;
+  tokenXHourData.save();
 
-  // Token1HourData
-  const token1HourData = loadTokenHourData(
+  // TokenYHourData
+  const tokenYHourData = loadTokenHourData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1HourData.txCount = token1HourData.txCount.plus(BIG_INT_ONE);
-  token1HourData.volume = token1HourData.volume.plus(amount1Total);
-  token1HourData.volumeAVAX = token1HourData.volumeAVAX.plus(trackedVolumeAVAX);
-  token1HourData.volumeUSD = token1HourData.volumeUSD.plus(trackedVolumeUSD);
-  token1HourData.feesUSD = token1HourData.feesUSD.plus(feesUSD);
-  token1HourData.totalValueLocked = token1.totalValueLocked;
-  token1HourData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYHourData.txCount = tokenYHourData.txCount.plus(BIG_INT_ONE);
+  tokenYHourData.volume = tokenYHourData.volume.plus(amountYTotal);
+  tokenYHourData.volumeAVAX = tokenYHourData.volumeAVAX.plus(trackedVolumeAVAX);
+  tokenYHourData.volumeUSD = tokenYHourData.volumeUSD.plus(trackedVolumeUSD);
+  tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(feesUSD);
+  tokenYHourData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYHourData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1HourData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1HourData.priceUSD = token1PriceUSD;
+  tokenYHourData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYHourData.priceUSD = tokenYPriceUSD;
 
-  if (token1HourData.high.lt(token1PriceUSD)) {
-    token1HourData.high = token1PriceUSD;
+  if (tokenYHourData.high.lt(tokenYPriceUSD)) {
+    tokenYHourData.high = tokenYPriceUSD;
   }
-  if (token1HourData.low.gt(token1PriceUSD)) {
-    token1HourData.low = token1PriceUSD;
+  if (tokenYHourData.low.gt(tokenYPriceUSD)) {
+    tokenYHourData.low = tokenYPriceUSD;
   }
-  token1HourData.close = token1PriceUSD;
-  token1HourData.save();
+  tokenYHourData.close = tokenYPriceUSD;
+  tokenYHourData.save();
 
-  // Token0DayData
-  const token0DayData = loadTokenDayData(
+  // TokenXDayData
+  const tokenXDayData = loadTokenDayData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0DayData.txCount = token0DayData.txCount.plus(BIG_INT_ONE);
-  token0DayData.volume = token0DayData.volume.plus(amount0Total);
-  token0DayData.volumeAVAX = token0DayData.volumeAVAX.plus(trackedVolumeAVAX);
-  token0DayData.volumeUSD = token0DayData.volumeUSD.plus(trackedVolumeUSD);
-  token0DayData.feesUSD = token0DayData.feesUSD.plus(feesUSD);
-  token0DayData.totalValueLocked = token0.totalValueLocked;
-  token0DayData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXDayData.txCount = tokenXDayData.txCount.plus(BIG_INT_ONE);
+  tokenXDayData.volume = tokenXDayData.volume.plus(amountXTotal);
+  tokenXDayData.volumeAVAX = tokenXDayData.volumeAVAX.plus(trackedVolumeAVAX);
+  tokenXDayData.volumeUSD = tokenXDayData.volumeUSD.plus(trackedVolumeUSD);
+  tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(feesUSD);
+  tokenXDayData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXDayData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0DayData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0DayData.priceUSD = token0PriceUSD;
+  tokenXDayData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXDayData.priceUSD = tokenXPriceUSD;
 
-  if (token0DayData.high.lt(token0PriceUSD)) {
-    token0DayData.high = token0PriceUSD;
+  if (tokenXDayData.high.lt(tokenXPriceUSD)) {
+    tokenXDayData.high = tokenXPriceUSD;
   }
-  if (token0DayData.low.gt(token0PriceUSD)) {
-    token0DayData.low = token0PriceUSD;
+  if (tokenXDayData.low.gt(tokenXPriceUSD)) {
+    tokenXDayData.low = tokenXPriceUSD;
   }
-  token0DayData.close = token0PriceUSD;
-  token0DayData.save();
+  tokenXDayData.close = tokenXPriceUSD;
+  tokenXDayData.save();
 
-  // Token1DayData
-  const token1DayData = loadTokenDayData(
+  // TokenYDayData
+  const tokenYDayData = loadTokenDayData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1DayData.txCount = token1DayData.txCount.plus(BIG_INT_ONE);
-  token1DayData.volume = token1DayData.volume.plus(amount1Total);
-  token1DayData.volumeAVAX = token1DayData.volumeAVAX.plus(trackedVolumeAVAX);
-  token1DayData.volumeUSD = token1DayData.volumeUSD.plus(trackedVolumeUSD);
-  token1DayData.feesUSD = token1DayData.feesUSD.plus(feesUSD);
-  token1DayData.totalValueLocked = token1.totalValueLocked;
-  token1DayData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYDayData.txCount = tokenYDayData.txCount.plus(BIG_INT_ONE);
+  tokenYDayData.volume = tokenYDayData.volume.plus(amountYTotal);
+  tokenYDayData.volumeAVAX = tokenYDayData.volumeAVAX.plus(trackedVolumeAVAX);
+  tokenYDayData.volumeUSD = tokenYDayData.volumeUSD.plus(trackedVolumeUSD);
+  tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUSD);
+  tokenYDayData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYDayData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1DayData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1DayData.priceUSD = token1PriceUSD;
+  tokenYDayData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYDayData.priceUSD = tokenYPriceUSD;
 
-  if (token1DayData.high.lt(token1PriceUSD)) {
-    token1DayData.high = token1PriceUSD;
+  if (tokenYDayData.high.lt(tokenYPriceUSD)) {
+    tokenYDayData.high = tokenYPriceUSD;
   }
-  if (token1DayData.low.gt(token1PriceUSD)) {
-    token1DayData.low = token1PriceUSD;
+  if (tokenYDayData.low.gt(tokenYPriceUSD)) {
+    tokenYDayData.low = tokenYPriceUSD;
   }
-  token1DayData.close = token1PriceUSD;
-  token1DayData.save();
+  tokenYDayData.close = tokenYPriceUSD;
+  tokenYDayData.save();
 
   // User
   const user = loadUser(event.params.recipient);
@@ -385,13 +383,13 @@ export function handleSwap(event: Swap): void {
   swap.sender = event.params.sender;
   swap.recipient = event.params.recipient;
   swap.origin = event.transaction.from;
-  swap.amount0In = amount0In;
-  swap.amount0Out = amount0Out;
-  swap.amount1In = amount1In;
-  swap.amount1Out = amount1Out;
+  swap.amountXIn = amountXIn;
+  swap.amountXOut = amountXOut;
+  swap.amountYIn = amountYIn;
+  swap.amountYOut = amountYOut;
   swap.amountUSD = trackedVolumeUSD;
-  swap.feesToken0 = fees0;
-  swap.feesToken1 = fees1;
+  swap.feesTokenX = feesX;
+  swap.feesTokenY = feesY;
   swap.feesUSD = feesUSD;
   swap.logIndex = event.logIndex;
   swap.save();
@@ -407,34 +405,34 @@ export function handleFlashLoan(event: FlashLoan): void {
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   // entities affected by adding liquidity
   // LBPair
-  const lbPair = getLbPair(event.address);
-  const lbFactory = getLBFactory();
-  const bundle = getBundle();
+  const lbPair = loadLbPair(event.address);
+  const lbFactory = loadLBFactory();
+  const bundle = loadBundle();
   const lbPairContract = LBPairContract.bind(event.address);
 
   if (!lbPair) {
     return;
   }
 
-  const token0 = getToken(Address.fromString(lbPair.token0));
-  const token1 = getToken(Address.fromString(lbPair.token1));
-  const token0PriceUSD = token0.derivedAVAX.times(bundle.avaxPriceUSD);
-  const token1PriceUSD = token1.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
-  const amount0 = formatTokenAmountByDecimals(
+  const amountX = formatTokenAmountByDecimals(
     event.params.amountX,
-    token0.decimals
+    tokenX.decimals
   );
-  const amount1 = formatTokenAmountByDecimals(
+  const amountY = formatTokenAmountByDecimals(
     event.params.amountY,
-    token1.decimals
+    tokenY.decimals
   );
-  const amountUSD = amount0
-    .times(token0.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(amount1.times(token1.derivedAVAX.times(bundle.avaxPriceUSD)));
+  const amountUSD = amountX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensMinted = formatTokenAmountByDecimals(
     event.params.minted,
-    BigInt.fromString("1e18")
+    BigInt.fromString("YeY8")
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -444,13 +442,13 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
 
   // LBPair
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  lbPair.reserve0 = lbPair.reserve0.plus(amount0);
-  lbPair.reserve1 = lbPair.reserve1.plus(amount1);
+  lbPair.reserveX = lbPair.reserveX.plus(amountX);
+  lbPair.reserveY = lbPair.reserveY.plus(amountY);
   lbPair.totalSupply = lbPair.totalSupply.plus(lbTokensMinted);
 
-  lbPair.totalValueLockedAVAX = lbPair.reserve0
-    .times(token0.derivedAVAX)
-    .plus(lbPair.reserve1.times(token1.derivedAVAX));
+  lbPair.totalValueLockedAVAX = lbPair.reserveX
+    .times(tokenX.derivedAVAX)
+    .plus(lbPair.reserveY.times(tokenY.derivedAVAX));
   lbPair.totalValueLockedUSD = lbPair.totalValueLockedAVAX.times(
     bundle.avaxPriceUSD
   );
@@ -459,10 +457,10 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   let trackedLiquidityAVAX: BigDecimal;
   if (bundle.avaxPriceUSD.notEqual(BIG_DECIMAL_ZERO)) {
     trackedLiquidityAVAX = getTrackedLiquidityUSD(
-      lbPair.reserve0,
-      token0 as Token,
-      lbPair.reserve1,
-      token1 as Token
+      lbPair.reserveX,
+      tokenX as Token,
+      lbPair.reserveY,
+      tokenY as Token
     ).div(bundle.avaxPriceUSD);
   } else {
     trackedLiquidityAVAX = BIG_DECIMAL_ZERO;
@@ -475,8 +473,8 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     event.block.timestamp,
     lbPair as LBPair
   );
-  lbPairHourData.reserve0 = lbPair.reserve0;
-  lbPairHourData.reserve1 = lbPair.reserve1;
+  lbPairHourData.reserveX = lbPair.reserveX;
+  lbPairHourData.reserveY = lbPair.reserveY;
   lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
   lbPairHourData.totalSupply = lbPair.totalSupply;
   lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
@@ -487,8 +485,8 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     event.block.timestamp,
     lbPair as LBPair
   );
-  lbPairDayData.reserve0 = lbPair.reserve0;
-  lbPairDayData.reserve1 = lbPair.reserve1;
+  lbPairDayData.reserveX = lbPair.reserveX;
+  lbPairDayData.reserveY = lbPair.reserveY;
   lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
   lbPairDayData.totalSupply = lbPair.totalSupply;
   lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
@@ -518,109 +516,109 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   traderJoeDayData.txCount = lbFactory.txCount;
   traderJoeDayData.save();
 
-  // Token0
-  token0.txCount = token0.txCount.plus(BIG_INT_ONE);
-  token0.totalValueLocked = token0.totalValueLocked.plus(amount0);
-  token0.totalValueLockedUSD = token0.totalValueLocked.times(
-    token0.derivedAVAX.times(bundle.avaxPriceUSD)
+  // TokenX
+  tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
+  tokenX.totalValueLocked = tokenX.totalValueLocked.plus(amountX);
+  tokenX.totalValueLockedUSD = tokenX.totalValueLocked.times(
+    tokenX.derivedAVAX.times(bundle.avaxPriceUSD)
   );
-  token0.save();
+  tokenX.save();
 
-  // Token1
-  token1.txCount = token1.txCount.plus(BIG_INT_ONE);
-  token1.totalValueLocked = token1.totalValueLocked.plus(amount1);
-  token1.totalValueLockedUSD = token1.totalValueLocked.times(
-    token1.derivedAVAX.times(bundle.avaxPriceUSD)
+  // TokenY
+  tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
+  tokenY.totalValueLocked = tokenY.totalValueLocked.plus(amountY);
+  tokenY.totalValueLockedUSD = tokenY.totalValueLocked.times(
+    tokenY.derivedAVAX.times(bundle.avaxPriceUSD)
   );
-  token1.save();
+  tokenY.save();
 
-  // Token0HourData
-  const token0HourData = loadTokenHourData(
+  // TokenXHourData
+  const tokenXHourData = loadTokenHourData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0HourData.txCount = token0HourData.txCount.plus(BIG_INT_ONE);
-  token0HourData.totalValueLocked = token0.totalValueLocked;
-  token0HourData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXHourData.txCount = tokenXHourData.txCount.plus(BIG_INT_ONE);
+  tokenXHourData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXHourData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0HourData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0HourData.priceUSD = token0PriceUSD;
+  tokenXHourData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXHourData.priceUSD = tokenXPriceUSD;
 
-  if (token0HourData.high.lt(token0PriceUSD)) {
-    token0HourData.high = token0PriceUSD;
+  if (tokenXHourData.high.lt(tokenXPriceUSD)) {
+    tokenXHourData.high = tokenXPriceUSD;
   }
-  if (token0HourData.low.gt(token0PriceUSD)) {
-    token0HourData.low = token0PriceUSD;
+  if (tokenXHourData.low.gt(tokenXPriceUSD)) {
+    tokenXHourData.low = tokenXPriceUSD;
   }
-  token0HourData.close = token0PriceUSD;
-  token0HourData.save();
+  tokenXHourData.close = tokenXPriceUSD;
+  tokenXHourData.save();
 
-  // Token1HourData
-  const token1HourData = loadTokenHourData(
+  // TokenYHourData
+  const tokenYHourData = loadTokenHourData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1HourData.txCount = token1HourData.txCount.plus(BIG_INT_ONE);
-  token1HourData.totalValueLocked = token1.totalValueLocked;
-  token1HourData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYHourData.txCount = tokenYHourData.txCount.plus(BIG_INT_ONE);
+  tokenYHourData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYHourData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1HourData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1HourData.priceUSD = token1PriceUSD;
+  tokenYHourData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYHourData.priceUSD = tokenYPriceUSD;
 
-  if (token1HourData.high.lt(token1PriceUSD)) {
-    token1HourData.high = token1PriceUSD;
+  if (tokenYHourData.high.lt(tokenYPriceUSD)) {
+    tokenYHourData.high = tokenYPriceUSD;
   }
-  if (token1HourData.low.gt(token1PriceUSD)) {
-    token1HourData.low = token1PriceUSD;
+  if (tokenYHourData.low.gt(tokenYPriceUSD)) {
+    tokenYHourData.low = tokenYPriceUSD;
   }
-  token1HourData.close = token1PriceUSD;
-  token1HourData.save();
+  tokenYHourData.close = tokenYPriceUSD;
+  tokenYHourData.save();
 
-  // Token0DayData
-  const token0DayData = loadTokenDayData(
+  // TokenXDayData
+  const tokenXDayData = loadTokenDayData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0DayData.txCount = token0DayData.txCount.plus(BIG_INT_ONE);
-  token0DayData.totalValueLocked = token0.totalValueLocked;
-  token0DayData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXDayData.txCount = tokenXDayData.txCount.plus(BIG_INT_ONE);
+  tokenXDayData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXDayData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0DayData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0DayData.priceUSD = token0PriceUSD;
+  tokenXDayData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXDayData.priceUSD = tokenXPriceUSD;
 
-  if (token0DayData.high.lt(token0PriceUSD)) {
-    token0DayData.high = token0PriceUSD;
+  if (tokenXDayData.high.lt(tokenXPriceUSD)) {
+    tokenXDayData.high = tokenXPriceUSD;
   }
-  if (token0DayData.low.gt(token0PriceUSD)) {
-    token0DayData.low = token0PriceUSD;
+  if (tokenXDayData.low.gt(tokenXPriceUSD)) {
+    tokenXDayData.low = tokenXPriceUSD;
   }
-  token0DayData.close = token0PriceUSD;
-  token0DayData.save();
+  tokenXDayData.close = tokenXPriceUSD;
+  tokenXDayData.save();
 
-  // Token1DayData
-  const token1DayData = loadTokenDayData(
+  // TokenYDayData
+  const tokenYDayData = loadTokenDayData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1DayData.txCount = token1DayData.txCount.plus(BIG_INT_ONE);
-  token1DayData.totalValueLocked = token1.totalValueLocked;
-  token1DayData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYDayData.txCount = tokenYDayData.txCount.plus(BIG_INT_ONE);
+  tokenYDayData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYDayData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1DayData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1DayData.priceUSD = token1PriceUSD;
+  tokenYDayData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYDayData.priceUSD = tokenYPriceUSD;
 
-  if (token1DayData.high.lt(token1PriceUSD)) {
-    token1DayData.high = token1PriceUSD;
+  if (tokenYDayData.high.lt(tokenYPriceUSD)) {
+    tokenYDayData.high = tokenYPriceUSD;
   }
-  if (token1DayData.low.gt(token1PriceUSD)) {
-    token1DayData.low = token1PriceUSD;
+  if (tokenYDayData.low.gt(tokenYPriceUSD)) {
+    tokenYDayData.low = tokenYPriceUSD;
   }
-  token1DayData.close = token1PriceUSD;
-  token1DayData.save();
+  tokenYDayData.close = tokenYPriceUSD;
+  tokenYDayData.save();
 
   // User
   const user = loadUser(event.params.recipient);
@@ -676,8 +674,8 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   mint.sender = event.params.sender;
   mint.recipient = event.params.recipient;
   mint.origin = event.transaction.from;
-  mint.amount0 = amount0;
-  mint.amount1 = amount1;
+  mint.amountX = amountX;
+  mint.amountY = amountY;
   mint.amountUSD = amountUSD;
   mint.logIndex = event.logIndex;
   mint.save();
@@ -692,34 +690,34 @@ export function handleCompositionFee(event: CompositionFee): void {
 
 export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   // LBPair
-  const lbPair = getLbPair(event.address);
-  const lbFactory = getLBFactory();
-  const bundle = getBundle();
+  const lbPair = loadLbPair(event.address);
+  const lbFactory = loadLBFactory();
+  const bundle = loadBundle();
   const lbPairContract = LBPairContract.bind(event.address);
 
   if (!lbPair) {
     return;
   }
 
-  const token0 = getToken(Address.fromString(lbPair.token0));
-  const token1 = getToken(Address.fromString(lbPair.token1));
-  const token0PriceUSD = token0.derivedAVAX.times(bundle.avaxPriceUSD);
-  const token1PriceUSD = token1.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
-  const amount0 = formatTokenAmountByDecimals(
+  const amountX = formatTokenAmountByDecimals(
     event.params.amountX,
-    token0.decimals
+    tokenX.decimals
   );
-  const amount1 = formatTokenAmountByDecimals(
+  const amountY = formatTokenAmountByDecimals(
     event.params.amountY,
-    token1.decimals
+    tokenY.decimals
   );
-  const amountUSD = amount0
-    .times(token0.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(amount1.times(token1.derivedAVAX.times(bundle.avaxPriceUSD)));
+  const amountUSD = amountX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensBurned = formatTokenAmountByDecimals(
     event.params.burned,
-    BigInt.fromString("1e18")
+    BigInt.fromString("YeY8")
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -729,13 +727,13 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 
   // LBPair
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  lbPair.reserve0 = lbPair.reserve0.minus(amount0);
-  lbPair.reserve1 = lbPair.reserve1.minus(amount1);
+  lbPair.reserveX = lbPair.reserveX.minus(amountX);
+  lbPair.reserveY = lbPair.reserveY.minus(amountY);
   lbPair.totalSupply = lbPair.totalSupply.minus(lbTokensBurned);
 
-  lbPair.totalValueLockedAVAX = lbPair.reserve0
-    .times(token0.derivedAVAX)
-    .plus(lbPair.reserve1.times(token1.derivedAVAX));
+  lbPair.totalValueLockedAVAX = lbPair.reserveX
+    .times(tokenX.derivedAVAX)
+    .plus(lbPair.reserveY.times(tokenY.derivedAVAX));
   lbPair.totalValueLockedUSD = lbPair.totalValueLockedAVAX.times(
     bundle.avaxPriceUSD
   );
@@ -744,10 +742,10 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   let trackedLiquidityAVAX: BigDecimal;
   if (bundle.avaxPriceUSD.notEqual(BIG_DECIMAL_ZERO)) {
     trackedLiquidityAVAX = getTrackedLiquidityUSD(
-      lbPair.reserve0,
-      token0 as Token,
-      lbPair.reserve1,
-      token1 as Token
+      lbPair.reserveX,
+      tokenX as Token,
+      lbPair.reserveY,
+      tokenY as Token
     ).div(bundle.avaxPriceUSD);
   } else {
     trackedLiquidityAVAX = BIG_DECIMAL_ZERO;
@@ -760,8 +758,8 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     event.block.timestamp,
     lbPair as LBPair
   );
-  lbPairHourData.reserve0 = lbPair.reserve0;
-  lbPairHourData.reserve1 = lbPair.reserve1;
+  lbPairHourData.reserveX = lbPair.reserveX;
+  lbPairHourData.reserveY = lbPair.reserveY;
   lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
   lbPairHourData.totalSupply = lbPair.totalSupply;
   lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
@@ -772,8 +770,8 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     event.block.timestamp,
     lbPair as LBPair
   );
-  lbPairDayData.reserve0 = lbPair.reserve0;
-  lbPairDayData.reserve1 = lbPair.reserve1;
+  lbPairDayData.reserveX = lbPair.reserveX;
+  lbPairDayData.reserveY = lbPair.reserveY;
   lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
   lbPairDayData.totalSupply = lbPair.totalSupply;
   lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
@@ -803,109 +801,109 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   traderJoeDayData.txCount = lbFactory.txCount;
   traderJoeDayData.save();
 
-  // Token0
-  token0.txCount = token0.txCount.plus(BIG_INT_ONE);
-  token0.totalValueLocked = token0.totalValueLocked.minus(amount0);
-  token0.totalValueLockedUSD = token0.totalValueLocked.times(
-    token0.derivedAVAX.times(bundle.avaxPriceUSD)
+  // TokenX
+  tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
+  tokenX.totalValueLocked = tokenX.totalValueLocked.minus(amountX);
+  tokenX.totalValueLockedUSD = tokenX.totalValueLocked.times(
+    tokenX.derivedAVAX.times(bundle.avaxPriceUSD)
   );
-  token0.save();
+  tokenX.save();
 
-  // Token1
-  token1.txCount = token1.txCount.plus(BIG_INT_ONE);
-  token1.totalValueLocked = token1.totalValueLocked.minus(amount1);
-  token1.totalValueLockedUSD = token1.totalValueLocked.times(
-    token1.derivedAVAX.times(bundle.avaxPriceUSD)
+  // TokenY
+  tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
+  tokenY.totalValueLocked = tokenY.totalValueLocked.minus(amountY);
+  tokenY.totalValueLockedUSD = tokenY.totalValueLocked.times(
+    tokenY.derivedAVAX.times(bundle.avaxPriceUSD)
   );
-  token1.save();
+  tokenY.save();
 
-  // Token0HourData
-  const token0HourData = loadTokenHourData(
+  // TokenXHourData
+  const tokenXHourData = loadTokenHourData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0HourData.txCount = token0HourData.txCount.plus(BIG_INT_ONE);
-  token0HourData.totalValueLocked = token0.totalValueLocked;
-  token0HourData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXHourData.txCount = tokenXHourData.txCount.plus(BIG_INT_ONE);
+  tokenXHourData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXHourData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0HourData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0HourData.priceUSD = token0PriceUSD;
+  tokenXHourData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXHourData.priceUSD = tokenXPriceUSD;
 
-  if (token0HourData.high.lt(token0PriceUSD)) {
-    token0HourData.high = token0PriceUSD;
+  if (tokenXHourData.high.lt(tokenXPriceUSD)) {
+    tokenXHourData.high = tokenXPriceUSD;
   }
-  if (token0HourData.low.gt(token0PriceUSD)) {
-    token0HourData.low = token0PriceUSD;
+  if (tokenXHourData.low.gt(tokenXPriceUSD)) {
+    tokenXHourData.low = tokenXPriceUSD;
   }
-  token0HourData.close = token0PriceUSD;
-  token0HourData.save();
+  tokenXHourData.close = tokenXPriceUSD;
+  tokenXHourData.save();
 
-  // Token1HourData
-  const token1HourData = loadTokenHourData(
+  // TokenYHourData
+  const tokenYHourData = loadTokenHourData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1HourData.txCount = token1HourData.txCount.plus(BIG_INT_ONE);
-  token1HourData.totalValueLocked = token1.totalValueLocked;
-  token1HourData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYHourData.txCount = tokenYHourData.txCount.plus(BIG_INT_ONE);
+  tokenYHourData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYHourData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1HourData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1HourData.priceUSD = token1PriceUSD;
+  tokenYHourData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYHourData.priceUSD = tokenYPriceUSD;
 
-  if (token1HourData.high.lt(token1PriceUSD)) {
-    token1HourData.high = token1PriceUSD;
+  if (tokenYHourData.high.lt(tokenYPriceUSD)) {
+    tokenYHourData.high = tokenYPriceUSD;
   }
-  if (token1HourData.low.gt(token1PriceUSD)) {
-    token1HourData.low = token1PriceUSD;
+  if (tokenYHourData.low.gt(tokenYPriceUSD)) {
+    tokenYHourData.low = tokenYPriceUSD;
   }
-  token1HourData.close = token1PriceUSD;
-  token1HourData.save();
+  tokenYHourData.close = tokenYPriceUSD;
+  tokenYHourData.save();
 
-  // Token0DayData
-  const token0DayData = loadTokenDayData(
+  // TokenXDayData
+  const tokenXDayData = loadTokenDayData(
     event.block.timestamp,
-    token0 as Token
+    tokenX as Token
   );
-  token0DayData.txCount = token0DayData.txCount.plus(BIG_INT_ONE);
-  token0DayData.totalValueLocked = token0.totalValueLocked;
-  token0DayData.totalValueLockedAVAX = token0.totalValueLockedUSD.div(
+  tokenXDayData.txCount = tokenXDayData.txCount.plus(BIG_INT_ONE);
+  tokenXDayData.totalValueLocked = tokenX.totalValueLocked;
+  tokenXDayData.totalValueLockedAVAX = tokenX.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token0DayData.totalValueLockedUSD = token0.totalValueLockedUSD;
-  token0DayData.priceUSD = token0PriceUSD;
+  tokenXDayData.totalValueLockedUSD = tokenX.totalValueLockedUSD;
+  tokenXDayData.priceUSD = tokenXPriceUSD;
 
-  if (token0DayData.high.lt(token0PriceUSD)) {
-    token0DayData.high = token0PriceUSD;
+  if (tokenXDayData.high.lt(tokenXPriceUSD)) {
+    tokenXDayData.high = tokenXPriceUSD;
   }
-  if (token0DayData.low.gt(token0PriceUSD)) {
-    token0DayData.low = token0PriceUSD;
+  if (tokenXDayData.low.gt(tokenXPriceUSD)) {
+    tokenXDayData.low = tokenXPriceUSD;
   }
-  token0DayData.close = token0PriceUSD;
-  token0DayData.save();
+  tokenXDayData.close = tokenXPriceUSD;
+  tokenXDayData.save();
 
-  // Token1DayData
-  const token1DayData = loadTokenDayData(
+  // TokenYDayData
+  const tokenYDayData = loadTokenDayData(
     event.block.timestamp,
-    token1 as Token
+    tokenY as Token
   );
-  token1DayData.txCount = token1DayData.txCount.plus(BIG_INT_ONE);
-  token1DayData.totalValueLocked = token1.totalValueLocked;
-  token1DayData.totalValueLockedAVAX = token1.totalValueLockedUSD.div(
+  tokenYDayData.txCount = tokenYDayData.txCount.plus(BIG_INT_ONE);
+  tokenYDayData.totalValueLocked = tokenY.totalValueLocked;
+  tokenYDayData.totalValueLockedAVAX = tokenY.totalValueLockedUSD.div(
     bundle.avaxPriceUSD
   );
-  token1DayData.totalValueLockedUSD = token1.totalValueLockedUSD;
-  token1DayData.priceUSD = token1PriceUSD;
+  tokenYDayData.totalValueLockedUSD = tokenY.totalValueLockedUSD;
+  tokenYDayData.priceUSD = tokenYPriceUSD;
 
-  if (token1DayData.high.lt(token1PriceUSD)) {
-    token1DayData.high = token1PriceUSD;
+  if (tokenYDayData.high.lt(tokenYPriceUSD)) {
+    tokenYDayData.high = tokenYPriceUSD;
   }
-  if (token1DayData.low.gt(token1PriceUSD)) {
-    token1DayData.low = token1PriceUSD;
+  if (tokenYDayData.low.gt(tokenYPriceUSD)) {
+    tokenYDayData.low = tokenYPriceUSD;
   }
-  token1DayData.close = token1PriceUSD;
-  token1DayData.save();
+  tokenYDayData.close = tokenYPriceUSD;
+  tokenYDayData.save();
 
   // User
   const user = loadUser(event.params.recipient);
@@ -958,8 +956,8 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   burn.sender = event.params.sender;
   burn.recipient = event.params.recipient;
   burn.origin = event.transaction.from;
-  burn.amount0 = amount0;
-  burn.amount1 = amount1;
+  burn.amountX = amountX;
+  burn.amountY = amountY;
   burn.amountUSD = amountUSD;
   burn.logIndex = event.logIndex;
   burn.save();

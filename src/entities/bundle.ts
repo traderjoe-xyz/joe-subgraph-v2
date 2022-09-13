@@ -1,7 +1,7 @@
 import { Bundle } from "../../generated/schema";
 import { BIG_DECIMAL_ZERO } from "../constants";
 
-export function getBundle(): Bundle {
+export function loadBundle(): Bundle {
   let bundle = Bundle.load("1");
 
   if (bundle === null) {

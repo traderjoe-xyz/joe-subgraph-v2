@@ -8,15 +8,15 @@ import {
   WHITELIST_TOKENS,
 } from "../constants";
 import { Token } from "../../generated/schema";
-import { getLbPair, getBundle, getToken } from "../entities";
+import { loadLbPair, loadBundle, loadToken } from "../entities";
 
 let MINIMUM_AVAX_LOCKED = BigDecimal.fromString("1000");
 
 export function getAvaxPriceInUSD(): BigDecimal {
   // fetch avax price from avax-usdc pool
-  let avaxUsdcPool = getLbPair(AVAX_USDC_20BPS);
+  let avaxUsdcPool = loadLbPair(AVAX_USDC_20BPS);
   if (avaxUsdcPool) {
-    return avaxUsdcPool.token1Price;
+    return avaxUsdcPool.tokenYPrice;
   }
   return BIG_DECIMAL_ZERO;
 }
@@ -27,7 +27,7 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
   }
 
   // take USD from pool with greatest TVL
-  const bundle = getBundle();
+  const bundle = loadBundle();
   const whitelist = token.whitelistPools;
   let lbPairLargestLiquidityAVAX = BIG_DECIMAL_ZERO;
   let priceFromLargestLiquidity = BIG_DECIMAL_ZERO;
@@ -39,35 +39,35 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
     }
   } else {
     for (let i = 0; i < whitelist.length; ++i) {
-      let lbPair = getLbPair(Address.fromString(whitelist[i]));
+      let lbPair = loadLbPair(Address.fromString(whitelist[i]));
       // TODO: implement ignored pairs [in LBFactory] checks in this `if` block
       if (!lbPair) {
         continue;
       }
 
       if (lbPair.totalSupply.gt(BIG_DECIMAL_ZERO)) {
-        if (lbPair.token0 == token.id) {
-          const token1 = getToken(Address.fromString(lbPair.token1));
-          const avaxReserve = lbPair.reserve1.times(token1.derivedAVAX);
+        if (lbPair.tokenX == token.id) {
+          const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+          const avaxReserve = lbPair.reserveY.times(tokenY.derivedAVAX);
           if (
             avaxReserve.gt(lbPairLargestLiquidityAVAX) &&
             avaxReserve.gt(MINIMUM_AVAX_LOCKED)
           ) {
             lbPairLargestLiquidityAVAX = avaxReserve;
-            priceFromLargestLiquidity = lbPair.token1Price.times(
-              token1.derivedAVAX
+            priceFromLargestLiquidity = lbPair.tokenYPrice.times(
+              tokenY.derivedAVAX
             );
           }
-        } else if (lbPair.token1 == token.id) {
-          const token0 = getToken(Address.fromString(lbPair.token1));
-          const avaxReserve = lbPair.reserve0.times(token0.derivedAVAX);
+        } else if (lbPair.tokenY == token.id) {
+          const tokenX = loadToken(Address.fromString(lbPair.tokenY));
+          const avaxReserve = lbPair.reserveX.times(tokenX.derivedAVAX);
           if (
             avaxReserve.gt(lbPairLargestLiquidityAVAX) &&
             avaxReserve.gt(MINIMUM_AVAX_LOCKED)
           ) {
             lbPairLargestLiquidityAVAX = avaxReserve;
-            priceFromLargestLiquidity = lbPair.token0Price.times(
-              token0.derivedAVAX
+            priceFromLargestLiquidity = lbPair.tokenXPrice.times(
+              tokenX.derivedAVAX
             );
           }
         }
@@ -79,46 +79,46 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
 }
 
 export function getTokenPriceInUSD(token: Token): BigDecimal {
-  const bundle = getBundle();
+  const bundle = loadBundle();
   return getTokenPriceInAVAX(token).times(bundle.avaxPriceUSD);
 }
 
 // Accepts tokens and amounts, return tracked amount based on token whitelist
 export function getTrackedLiquidityUSD(
-  token0Amount: BigDecimal,
-  token0: Token,
-  token1Amount: BigDecimal,
-  token1: Token
+  tokenXAmount: BigDecimal,
+  tokenX: Token,
+  tokenYAmount: BigDecimal,
+  tokenY: Token
 ): BigDecimal {
-  const bundle = getBundle();
-  const price0 = token0.derivedAVAX.times(bundle.avaxPriceUSD);
-  const price1 = token1.derivedAVAX.times(bundle.avaxPriceUSD);
+  const bundle = loadBundle();
+  const priceX = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const priceY = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
   // both are whitelist tokens, take average of both amounts
   if (
-    WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
-    WHITELIST_TOKENS.includes(Address.fromString(token1.id))
+    WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
+    WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
   ) {
-    return token0Amount
-      .times(price0)
-      .plus(token1Amount.times(price1))
+    return tokenXAmount
+      .times(priceX)
+      .plus(tokenYAmount.times(priceY))
       .div(BigDecimal.fromString("2"));
   }
 
   // take double value of the whitelisted token amount
   if (
-    WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
-    !WHITELIST_TOKENS.includes(Address.fromString(token1.id))
+    WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
+    !WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
   ) {
-    return token0Amount.times(price0).times(BigDecimal.fromString("2"));
+    return tokenXAmount.times(priceX).times(BigDecimal.fromString("2"));
   }
 
   // take double value of the whitelisted token amount
   if (
-    !WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
-    WHITELIST_TOKENS.includes(Address.fromString(token1.id))
+    !WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
+    WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
   ) {
-    return token1Amount.times(price1).times(BigDecimal.fromString("2"));
+    return tokenYAmount.times(priceY).times(BigDecimal.fromString("2"));
   }
 
   // neither token is on white list, tracked volume is 0

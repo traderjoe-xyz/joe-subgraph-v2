@@ -1,6 +1,6 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { Token } from "../../generated/schema";
-import { getLBFactory } from "./lbFactory";
+import { loadLBFactory } from "./lbFactory";
 import {
   BIG_INT_ONE,
   BIG_INT_ZERO,
@@ -11,11 +11,11 @@ import { ERC20 } from "../../generated/LBFactory/ERC20";
 import { ERC20SymbolBytes } from "../../generated/LBFactory/ERC20SymbolBytes";
 import { ERC20NameBytes } from "../../generated/LBFactory/ERC20NameBytes";
 
-export function getToken(address: Address): Token {
+export function loadToken(address: Address): Token {
   let token = Token.load(address.toHexString());
 
   if (!token) {
-    const lbFactory = getLBFactory();
+    const lbFactory = loadLBFactory();
     lbFactory.tokenCount = lbFactory.tokenCount.plus(BIG_INT_ONE);
     lbFactory.save();
 
@@ -34,6 +34,7 @@ export function getToken(address: Address): Token {
     token.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     token.derivedAVAX = BIG_DECIMAL_ZERO;
     token.whitelistPools = [];
+    token.feesUSD = BIG_DECIMAL_ZERO;
 
     token.save();
   }

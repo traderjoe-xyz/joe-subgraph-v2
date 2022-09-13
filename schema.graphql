@@ -153,22 +153,22 @@ type Token @entity {
   dayData: [TokenDayData!]! @derivedFrom(field: "token")
 
   # Base pairs
-  basePairs: [LBPair!]! @derivedFrom(field: "token0")
+  basePairs: [LBPair!]! @derivedFrom(field: "tokenX")
 
   # Quote pairs
-  quotePairs: [LBPair!]! @derivedFrom(field: "token1")
+  quotePairs: [LBPair!]! @derivedFrom(field: "tokenY")
 
   # Base pairs hour data
-  basePairsHourData: [LBPairHourData!]! @derivedFrom(field: "token0")
+  basePairsHourData: [LBPairHourData!]! @derivedFrom(field: "tokenX")
 
   # Quote pairs hour data
-  quotePairsHourData: [LBPairHourData!]! @derivedFrom(field: "token1")
+  quotePairsHourData: [LBPairHourData!]! @derivedFrom(field: "tokenY")
 
   # Base pairs day data
-  basePairsDayData: [LBPairDayData!]! @derivedFrom(field: "token0")
+  basePairsDayData: [LBPairDayData!]! @derivedFrom(field: "tokenX")
 
   # Quote pairs day data
-  quotePairsDayData: [LBPairDayData!]! @derivedFrom(field: "token1")
+  quotePairsDayData: [LBPairDayData!]! @derivedFrom(field: "tokenY")
 }
 
 type TokenHourData @entity {
@@ -258,12 +258,12 @@ type LBPair @entity {
   name: String!
 
   # mirrored from the smart contract
-  token0: Token!
-  token1: Token!
+  tokenX: Token!
+  tokenY: Token!
   binStep: BigInt!
 
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
+  reserveX: BigDecimal!
+  reserveY: BigDecimal!
   totalSupply: BigDecimal!
 
   # derived tvl
@@ -274,17 +274,17 @@ type LBPair @entity {
   trackedReserveAVAX: BigDecimal!
   
   # Price in terms of the asset pair
-  token0Price: BigDecimal!
-  token1Price: BigDecimal!
+  tokenXPrice: BigDecimal!
+  tokenYPrice: BigDecimal!
 
   # lifetime volume stats
-  volumeToken0: BigDecimal!
-  volumeToken1: BigDecimal!
+  volumeTokenX: BigDecimal!
+  volumeTokenY: BigDecimal!
   volumeUSD: BigDecimal!
   untrackedVolumeUSD: BigDecimal!
   txCount: BigInt!
-  feesToken0: BigDecimal!
-  feesToken1: BigDecimal!
+  feesTokenX: BigDecimal!
+  feesTokenY: BigDecimal!
   feesUSD: BigDecimal! # swap fees
 
   # Fields used to help derived relationship
@@ -315,8 +315,8 @@ type Bin @entity {
   LBPair: LBPair!
   price: BigDecimal! 
   totalSupply: BigDecimal!
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
+  reserveX: BigDecimal!
+  reserveY: BigDecimal!
 }
 
 type User @entity {
@@ -337,12 +337,12 @@ type LBPairDayData @entity {
   # pair
   LBPair: LBPair!
 
-  token0: Token!
-  token1: Token!
+  tokenX: Token!
+  tokenY: Token!
 
   # reserves
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
+  reserveX: BigDecimal!
+  reserveY: BigDecimal!
 
   # tvl at end of day
   totalValueLockedUSD: BigDecimal!
@@ -351,8 +351,8 @@ type LBPairDayData @entity {
   totalSupply: BigDecimal!
 
   # volume
-  volumeToken0: BigDecimal!
-  volumeToken1: BigDecimal!
+  volumeTokenX: BigDecimal!
+  volumeTokenY: BigDecimal!
 
   # volume usd
   volumeUSD: BigDecimal!
@@ -375,12 +375,12 @@ type LBPairHourData @entity {
   # pair
   LBPair: LBPair!
 
-  token0: Token!
-  token1: Token!
+  tokenX: Token!
+  tokenY: Token!
 
   # reserves
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
+  reserveX: BigDecimal!
+  reserveY: BigDecimal!
 
   # tvl at end of hour
   totalValueLockedUSD: BigDecimal!
@@ -389,8 +389,8 @@ type LBPairHourData @entity {
   totalSupply: BigDecimal!
 
   # volume
-  volumeToken0: BigDecimal!
-  volumeToken1: BigDecimal!
+  volumeTokenX: BigDecimal!
+  volumeTokenY: BigDecimal!
 
   # volume usd
   volumeUSD: BigDecimal!
@@ -441,12 +441,12 @@ type LiquidityPositionSnapshot @entity {
   LBPair: LBPair!
 
   # snapshot of tokens price in usd
-  token0PriceUSD: BigDecimal!
-  token1PriceUSD: BigDecimal!
+  tokenXPriceUSD: BigDecimal!
+  tokenYPriceUSD: BigDecimal!
 
   # snapshot of pair tokens reserve
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
+  reserveX: BigDecimal!
+  reserveY: BigDecimal!
 
   # snapshot of pair tvl in usd
   totalValueLockedUSD: BigDecimal!
@@ -490,8 +490,8 @@ type Mint @entity {
   recipient: Bytes!
   origin: Bytes!
 
-  amount0: BigDecimal!
-  amount1: BigDecimal!
+  amountX: BigDecimal!
+  amountY: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
 
@@ -515,8 +515,8 @@ type Burn @entity {
   recipient: Bytes!
   origin: Bytes!
 
-  amount0: BigDecimal!
-  amount1: BigDecimal!
+  amountX: BigDecimal!
+  amountY: BigDecimal!
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
 
@@ -537,14 +537,14 @@ type Swap @entity {
   recipient: Bytes!
   origin: Bytes!
 
-  amount0In: BigDecimal!
-  amount1In: BigDecimal!
-  amount0Out: BigDecimal!
-  amount1Out: BigDecimal!
+  amountXIn: BigDecimal!
+  amountYIn: BigDecimal!
+  amountXOut: BigDecimal!
+  amountYOut: BigDecimal!
   amountUSD: BigDecimal!
 
-  feesToken0: BigDecimal!
-  feesToken1: BigDecimal!
+  feesTokenX: BigDecimal!
+  feesTokenY: BigDecimal!
   feesUSD: BigDecimal!
 
   logIndex: BigInt!
@@ -564,14 +564,14 @@ type Flash @entity {
   origin: Bytes!
   recipient: Bytes!
 
-  amount0In: BigDecimal!
-  amount1In: BigDecimal!
-  amount0Out: BigDecimal!
-  amount1Out: BigDecimal!
+  amountXIn: BigDecimal!
+  amountYIn: BigDecimal!
+  amountXOut: BigDecimal!
+  amountYOut: BigDecimal!
   amountUSD: BigDecimal!
 
-  feesToken0: BigDecimal!
-  feesToken1: BigDecimal!
+  feesTokenX: BigDecimal!
+  feesTokenY: BigDecimal!
   feesUSD: BigDecimal!
 
   logIndex: BigInt!

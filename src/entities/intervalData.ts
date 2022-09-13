@@ -9,8 +9,8 @@ import {
   LBPairHourData,
   LBPair,
 } from "../../generated/schema";
-import { getLBFactory } from "./lbFactory";
-import { getBundle } from "./bundle";
+import { loadLBFactory } from "./lbFactory";
+import { loadBundle } from "./bundle";
 import { BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
 
 export function loadTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
@@ -18,7 +18,7 @@ export function loadTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
   const hourId = timestamp.div(SECONDS_IN_HOUR);
   const hourStartTimestamp = hourId.times(SECONDS_IN_HOUR);
 
-  const lbFactory = getLBFactory();
+  const lbFactory = loadLBFactory();
   let traderJoeHourData = TraderJoeHourData.load(hourId.toString());
   if (!traderJoeHourData) {
     traderJoeHourData = new TraderJoeHourData(hourId.toString());
@@ -44,7 +44,7 @@ export function loadTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
   const dayId = timestamp.div(SECONDS_IN_DAY);
   const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
 
-  const lbFactory = getLBFactory();
+  const lbFactory = loadLBFactory();
   let traderJoeDayData = TraderJoeDayData.load(dayId.toString());
   if (!traderJoeDayData) {
     traderJoeDayData = new TraderJoeDayData(dayId.toString());
@@ -69,7 +69,7 @@ export function loadTokenHourData(
   timestamp: BigInt,
   token: Token
 ): TokenHourData {
-  const bundle = getBundle();
+  const bundle = loadBundle();
   const SECONDS_IN_HOUR = BigInt.fromI32(60 * 60);
   const hourId = timestamp.div(SECONDS_IN_HOUR);
   const hourStartTimestamp = hourId.times(SECONDS_IN_HOUR);
@@ -102,7 +102,7 @@ export function loadTokenHourData(
 }
 
 export function loadTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
-  const bundle = getBundle();
+  const bundle = loadBundle();
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
   const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
@@ -147,14 +147,14 @@ export function loadLBPairHourData(
     lbPairHourData = new LBPairHourData(hourId.toString());
     lbPairHourData.date = hourStartTimestamp.toI32();
     lbPairHourData.LBPair = lbPair.id;
-    lbPairHourData.token0 = lbPair.token0;
-    lbPairHourData.token1 = lbPair.token1;
-    lbPairHourData.reserve0 = lbPair.reserve0;
-    lbPairHourData.reserve1 = lbPair.reserve1;
+    lbPairHourData.tokenX = lbPair.tokenX;
+    lbPairHourData.tokenY = lbPair.tokenY;
+    lbPairHourData.reserveX = lbPair.reserveX;
+    lbPairHourData.reserveY = lbPair.reserveY;
     lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
     lbPairHourData.totalSupply = lbPair.totalSupply;
-    lbPairHourData.volumeToken0 = BIG_DECIMAL_ZERO;
-    lbPairHourData.volumeToken1 = BIG_DECIMAL_ZERO;
+    lbPairHourData.volumeTokenX = BIG_DECIMAL_ZERO;
+    lbPairHourData.volumeTokenY = BIG_DECIMAL_ZERO;
     lbPairHourData.volumeUSD = BIG_DECIMAL_ZERO;
     lbPairHourData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     lbPairHourData.txCount = BIG_INT_ZERO;
@@ -179,14 +179,14 @@ export function loadLBPairDayData(
     lbPairDayData = new LBPairDayData(dayId.toString());
     lbPairDayData.date = dayStartTimestamp.toI32();
     lbPairDayData.LBPair = lbPair.id;
-    lbPairDayData.token0 = lbPair.token0;
-    lbPairDayData.token1 = lbPair.token1;
-    lbPairDayData.reserve0 = lbPair.reserve0;
-    lbPairDayData.reserve1 = lbPair.reserve1;
+    lbPairDayData.tokenX = lbPair.tokenX;
+    lbPairDayData.tokenY = lbPair.tokenY;
+    lbPairDayData.reserveX = lbPair.reserveX;
+    lbPairDayData.reserveY = lbPair.reserveY;
     lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
     lbPairDayData.totalSupply = lbPair.totalSupply;
-    lbPairDayData.volumeToken0 = BIG_DECIMAL_ZERO;
-    lbPairDayData.volumeToken1 = BIG_DECIMAL_ZERO;
+    lbPairDayData.volumeTokenX = BIG_DECIMAL_ZERO;
+    lbPairDayData.volumeTokenY = BIG_DECIMAL_ZERO;
     lbPairDayData.volumeUSD = BIG_DECIMAL_ZERO;
     lbPairDayData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     lbPairDayData.txCount = BIG_INT_ZERO;
