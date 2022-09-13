@@ -46,6 +46,9 @@ type LBFactory @entity {
   # pairs not used in trade routing
   # ignoredLbPairs: [LBPair!]!
 
+  feesUSD: BigDecimal!
+  feesAVAX: BigDecimal!
+
   # Pairs
   lbPairs: [LBPair!]! @derivedFrom(field: "factory")
 
@@ -72,11 +75,13 @@ type TraderJoeHourData @entity {
   # volume
   volumeAVAX: BigDecimal!
   volumeUSD: BigDecimal!
-  untrackedVolume: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
 
   # TVL
   totalValueLockedAVAX: BigDecimal!
   totalValueLockedUSD: BigDecimal!
+
+  feesUSD: BigDecimal!
 
   # tx count
   txCount: BigInt!
@@ -95,11 +100,13 @@ type TraderJoeDayData @entity {
   # volume
   volumeAVAX: BigDecimal!
   volumeUSD: BigDecimal!
-  untrackedVolume: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
 
   # TVL
   totalValueLockedAVAX: BigDecimal!
   totalValueLockedUSD: BigDecimal!
+
+  feesUSD: BigDecimal!
 
   # tx count
   txCount: BigInt!
@@ -136,6 +143,8 @@ type Token @entity {
 
   # pools token is in that are white listed for USD pricing
   whitelistPools: [LBPair!]!
+
+  feesUSD: BigDecimal!
 
   # Token hour data
   hourData: [TokenHourData!]! @derivedFrom(field: "token")
@@ -188,6 +197,8 @@ type TokenHourData @entity {
   # price usd
   priceUSD: BigDecimal!
 
+  feesUSD: BigDecimal!
+
   # opening price USD
   open: BigDecimal!
   # high price USD
@@ -223,6 +234,8 @@ type TokenDayData @entity {
 
   # price usd
   priceUSD: BigDecimal!
+
+  feesUSD: BigDecimal!
 
   # opening price USD
   open: BigDecimal!
@@ -486,7 +499,7 @@ type Mint @entity {
 }
 
 type Burn @entity {
-  # transaction hash - index of burn in transaction burns array
+  # transaction hash + "#" + index in burns Transaction array
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
@@ -507,14 +520,11 @@ type Burn @entity {
   # derived amount based on available prices of tokens
   amountUSD: BigDecimal!
 
-  # mark uncomplete in AVAX case
-  complete: Boolean!
-
   logIndex: BigInt!
 }
 
 type Swap @entity {
-  # transaction hash - index of swap in transaction swaps array
+  # transaction hash + "#" + index in swaps Transaction array
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair

@@ -13,7 +13,7 @@ import { getLBFactory } from "./lbFactory";
 import { getBundle } from "./bundle";
 import { BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
 
-export function getTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
+export function loadTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
   const SECONDS_IN_HOUR = BigInt.fromI32(60 * 60);
   const hourId = timestamp.div(SECONDS_IN_HOUR);
   const hourStartTimestamp = hourId.times(SECONDS_IN_HOUR);
@@ -27,9 +27,10 @@ export function getTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
 
     traderJoeHourData.volumeAVAX = BIG_DECIMAL_ZERO;
     traderJoeHourData.volumeUSD = BIG_DECIMAL_ZERO;
-    traderJoeHourData.untrackedVolume = BIG_DECIMAL_ZERO;
+    traderJoeHourData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     traderJoeHourData.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
     traderJoeHourData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
+    traderJoeHourData.feesUSD = BIG_DECIMAL_ZERO;
     traderJoeHourData.txCount = BIG_INT_ZERO;
 
     traderJoeHourData.save();
@@ -38,7 +39,7 @@ export function getTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
   return traderJoeHourData as TraderJoeHourData;
 }
 
-export function getTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
+export function loadTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
   const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
@@ -52,9 +53,10 @@ export function getTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
 
     traderJoeDayData.volumeAVAX = BIG_DECIMAL_ZERO;
     traderJoeDayData.volumeUSD = BIG_DECIMAL_ZERO;
-    traderJoeDayData.untrackedVolume = BIG_DECIMAL_ZERO;
+    traderJoeDayData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     traderJoeDayData.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
     traderJoeDayData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
+    traderJoeDayData.feesUSD = BIG_DECIMAL_ZERO;
     traderJoeDayData.txCount = BIG_INT_ZERO;
 
     traderJoeDayData.save();
@@ -63,7 +65,7 @@ export function getTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
   return traderJoeDayData as TraderJoeDayData;
 }
 
-export function getTokenHourData(
+export function loadTokenHourData(
   timestamp: BigInt,
   token: Token
 ): TokenHourData {
@@ -87,6 +89,7 @@ export function getTokenHourData(
     tokenHourData.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
     tokenHourData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     tokenHourData.priceUSD = BIG_DECIMAL_ZERO;
+    tokenHourData.feesUSD = BIG_DECIMAL_ZERO;
     tokenHourData.open = tokenPrice;
     tokenHourData.high = tokenPrice;
     tokenHourData.low = tokenPrice;
@@ -98,7 +101,7 @@ export function getTokenHourData(
   return tokenHourData as TokenHourData;
 }
 
-export function getTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
+export function loadTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
   const bundle = getBundle();
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
@@ -119,6 +122,7 @@ export function getTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
     tokenDayData.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
     tokenDayData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     tokenDayData.priceUSD = BIG_DECIMAL_ZERO;
+    tokenDayData.feesUSD = BIG_DECIMAL_ZERO;
     tokenDayData.open = tokenPrice;
     tokenDayData.high = tokenPrice;
     tokenDayData.low = tokenPrice;
@@ -130,7 +134,7 @@ export function getTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
   return tokenDayData as TokenDayData;
 }
 
-export function getLBPairHourData(
+export function loadLBPairHourData(
   timestamp: BigInt,
   lbPair: LBPair
 ): LBPairHourData {
@@ -162,7 +166,7 @@ export function getLBPairHourData(
   return lbPairHourData as LBPairHourData;
 }
 
-export function getLBPairDayData(
+export function loadLBPairDayData(
   timestamp: BigInt,
   lbPair: LBPair
 ): LBPairDayData {

@@ -2,7 +2,7 @@ import { Address, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityPosition } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_DECIMAL_ZERO } from "../constants";
 
-export function getLiquidityPosition(
+export function loadLiquidityPosition(
   lbPair: Address,
   user: Address,
   block: ethereum.Block

@@ -85,9 +85,9 @@ export function getTokenPriceInUSD(token: Token): BigDecimal {
 
 // Accepts tokens and amounts, return tracked amount based on token whitelist
 export function getTrackedLiquidityUSD(
-  tokenAmount0: BigDecimal,
+  token0Amount: BigDecimal,
   token0: Token,
-  tokenAmount1: BigDecimal,
+  token1Amount: BigDecimal,
   token1: Token
 ): BigDecimal {
   const bundle = getBundle();
@@ -99,7 +99,10 @@ export function getTrackedLiquidityUSD(
     WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
     WHITELIST_TOKENS.includes(Address.fromString(token1.id))
   ) {
-    return tokenAmount0.times(price0).plus(tokenAmount1.times(price1));
+    return token0Amount
+      .times(price0)
+      .plus(token1Amount.times(price1))
+      .div(BigDecimal.fromString("2"));
   }
 
   // take double value of the whitelisted token amount
@@ -107,7 +110,7 @@ export function getTrackedLiquidityUSD(
     WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
     !WHITELIST_TOKENS.includes(Address.fromString(token1.id))
   ) {
-    return tokenAmount0.times(price0).times(BigDecimal.fromString("2"));
+    return token0Amount.times(price0).times(BigDecimal.fromString("2"));
   }
 
   // take double value of the whitelisted token amount
@@ -115,7 +118,7 @@ export function getTrackedLiquidityUSD(
     !WHITELIST_TOKENS.includes(Address.fromString(token0.id)) &&
     WHITELIST_TOKENS.includes(Address.fromString(token1.id))
   ) {
-    return tokenAmount1.times(price1).times(BigDecimal.fromString("2"));
+    return token1Amount.times(price1).times(BigDecimal.fromString("2"));
   }
 
   // neither token is on white list, tracked volume is 0
