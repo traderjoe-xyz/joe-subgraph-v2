@@ -5,6 +5,24 @@ type Bundle @entity {
   avaxPriceUSD: BigDecimal!
 }
 
+type Candle @entity {
+  id: ID! # timeId (timestamp/period) + period + tokenX + tokenY
+  timeStart: Int!
+  period: Int!
+  lastBlock: Int!
+
+  tokenX: Bytes!
+  tokenY: Bytes!
+
+  volumeAVAX: BigDecimal!
+  volumeUSD: BigDecimal!
+
+  high: BigDecimal!
+  open: BigDecimal!
+  close: BigDecimal!
+  low: BigDecimal!
+}
+
 type LBFactory @entity {
   # Contract address
   id: ID!
@@ -272,7 +290,7 @@ type LBPair @entity {
 
   # used for separating per pair reserves and global
   trackedReserveAVAX: BigDecimal!
-  
+
   # Price in terms of the asset pair
   tokenXPrice: BigDecimal!
   tokenYPrice: BigDecimal!
@@ -286,13 +304,13 @@ type LBPair @entity {
   feesTokenX: BigDecimal!
   feesTokenY: BigDecimal!
   feesUSD: BigDecimal! # swap fees
-
   # Fields used to help derived relationship
   # used to detect new exchanges
   liquidityProviderCount: BigInt!
 
   # Liquidity position snapshots
-  liquidityPositionSnapshots: [LiquidityPositionSnapshot!]! @derivedFrom(field: "LBPair")
+  liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
+    @derivedFrom(field: "LBPair")
 
   activeId: Bin! @derivedFrom(field: "LBPair")
   bins: [Bin!]! @derivedFrom(field: "LBPair")
@@ -313,7 +331,7 @@ type LBPair @entity {
 type Bin @entity {
   id: ID! # LBPair address + binId
   LBPair: LBPair!
-  price: BigDecimal! 
+  price: BigDecimal!
   totalSupply: BigDecimal!
   reserveX: BigDecimal!
   reserveY: BigDecimal!
@@ -420,7 +438,8 @@ type LiquidityPosition @entity {
   distributionY: [BigInt!]!
 
   # snapshot of liquidity positions
-  snapshots: [LiquidityPositionSnapshot!]! @derivedFrom(field: "liquidityPosition")
+  snapshots: [LiquidityPositionSnapshot!]!
+    @derivedFrom(field: "liquidityPosition")
 
   # block info
   block: Int!
@@ -478,7 +497,6 @@ type Mint @entity {
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
-
   # pair
   LBPair: LBPair!
 
@@ -503,7 +521,6 @@ type Burn @entity {
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
-
   # pair
   LBPair: LBPair!
 
@@ -528,7 +545,6 @@ type Swap @entity {
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
-
   # pair
   LBPair: LBPair!
 
@@ -555,7 +571,6 @@ type Flash @entity {
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
-
   # pair
   LBPair: LBPair!
 

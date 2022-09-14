@@ -36,6 +36,7 @@ import {
   loadLiquidityPosition,
   loadTransaction,
   saveLiquidityPositionSnapshot,
+  loadCandle,
 } from "./entities";
 import { BIG_INT_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "./constants";
 import {
@@ -394,7 +395,36 @@ export function handleSwap(event: Swap): void {
   swap.logIndex = event.logIndex;
   swap.save();
 
-  // TODO: keep track of dex-candles
+  // Candle(s)
+  const candlestickPeriods: i32[] = [
+    5 * 60, // 5m
+    15 * 60, // 15m
+    60 * 60, // 1h
+    4 * 60 * 60, // 4h
+    24 * 60 * 60, // 1d
+    7 * 24 * 60 * 60, // 1w
+  ];
+  const price = lbPair.reserveX.div(lbPair.reserveY);
+  for (let i = 0; i < candlestickPeriods.length; i++) {
+    let candle = loadCandle(
+      lbPair as LBPair,
+      candlestickPeriods[i] as i32,
+      event
+    );
+    candle.volumeAVAX = candle.volumeAVAX.plus(trackedVolumeAVAX);
+    candle.volumeUSD = candle.volumeUSD.plus(trackedVolumeUSD);
+    if (price.lt(candle.low)) {
+      candle.low = price;
+    }
+    if (price.gt(candle.high)) {
+      candle.high = price;
+    }
+    candle.close = price;
+    candle.lastBlock = event.block.timestamp.toI32();
+
+    candle.save();
+  }
+
   // TODO: keep track of the Bin entity
 }
 
