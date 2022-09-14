@@ -823,6 +823,30 @@
   {
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "_accounts",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_ids",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "balanceOfBatch",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "batchBalances",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256[]",
         "name": "_ids",
         "type": "uint256[]"
@@ -870,21 +894,14 @@
     "name": "collectFees",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "tokenX",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "tokenY",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct ILBPair.Fees",
-        "name": "fees",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "amountX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountY",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -895,21 +912,14 @@
     "name": "collectProtocolFees",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "tokenX",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "tokenY",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct ILBPair.Fees",
-        "name": "fees",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "amountX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountY",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -1352,21 +1362,14 @@
     "name": "pendingFees",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "tokenX",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "tokenY",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct ILBPair.Fees",
-        "name": "fees",
-        "type": "tuple"
+        "internalType": "uint256",
+        "name": "amountX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountY",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1396,6 +1399,34 @@
       }
     ],
     "name": "safeBatchTransferFrom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "safeTransferFrom",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

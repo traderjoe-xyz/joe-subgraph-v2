@@ -1,5 +1,5 @@
 import {
-  LBFactory,
+  LBFactory as LBFactoryABI,
   FlashLoanFeeSet,
   LBPairCreated,
 } from "../generated/LBFactory/LBFactory";
@@ -7,7 +7,7 @@ import { loadLBFactory, createLBPair } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
 
 export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
-  const contract = LBFactory.bind(event.address);
+  const contract = LBFactoryABI.bind(event.address);
   const flashloanFee = contract.try_flashLoanFee();
   const lbFactory = loadLBFactory();
 

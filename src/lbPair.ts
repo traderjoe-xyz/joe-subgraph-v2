@@ -11,7 +11,7 @@ import {
   TransferSingle,
   TransferBatch,
   ApprovalForAll,
-  LBPair as LBPairContract,
+  LBPair as LBPairABI,
 } from "../generated/LBPair/LBPair";
 import {
   Token,
@@ -438,7 +438,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   const lbPair = loadLbPair(event.address);
   const lbFactory = loadLBFactory();
   const bundle = loadBundle();
-  const lbPairContract = LBPairContract.bind(event.address);
+  const lbPairContract = LBPairABI.bind(event.address);
 
   if (!lbPair) {
     return;
@@ -723,7 +723,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   const lbPair = loadLbPair(event.address);
   const lbFactory = loadLBFactory();
   const bundle = loadBundle();
-  const lbPairContract = LBPairContract.bind(event.address);
+  const lbPairContract = LBPairABI.bind(event.address);
 
   if (!lbPair) {
     return;

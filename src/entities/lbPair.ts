@@ -1,5 +1,5 @@
 import { Address } from "@graphprotocol/graph-ts";
-import { LBPair as LBPairEntity } from "../../generated/schema";
+import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
   BIG_DECIMAL_ZERO,
@@ -8,17 +8,17 @@ import {
 } from "../constants";
 import { loadToken } from "./token";
 import { LBPairCreated } from "../../generated/LBFactory/LBFactory";
-import { LBPair } from "../../generated/LBFactory/LBPair";
+import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
-export function loadLbPair(id: Address): LBPairEntity | null {
-  let lbPair = LBPairEntity.load(id.toHexString());
-  return lbPair as LBPairEntity;
+export function loadLbPair(id: Address): LBPair | null {
+  let lbPair = LBPair.load(id.toHexString());
+  return lbPair as LBPair;
 }
 
 // should be used if loadLBPair() evaluates to null
-export function createLBPair(event: LBPairCreated): LBPairEntity | null {
-  const lbPair = new LBPairEntity(event.params.LBPair.toHexString());
-  const lbPairContract = LBPair.bind(event.params.LBPair);
+export function createLBPair(event: LBPairCreated): LBPair | null {
+  const lbPair = new LBPair(event.params.LBPair.toHexString());
+  const lbPairContract = LBPairABI.bind(event.params.LBPair);
 
   const tokenXCall = lbPairContract.try_tokenX();
   const tokenYCall = lbPairContract.try_tokenY();
@@ -76,5 +76,5 @@ export function createLBPair(event: LBPairCreated): LBPairEntity | null {
   tokenX.save();
   tokenY.save();
 
-  return lbPair as LBPairEntity;
+  return lbPair as LBPair;
 }

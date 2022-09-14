@@ -7,9 +7,9 @@ import {
   BIG_DECIMAL_ZERO,
   NULL_CALL_RESULT_VALUE,
 } from "../constants";
-import { ERC20 } from "../../generated/LBFactory/ERC20";
-import { ERC20SymbolBytes } from "../../generated/LBFactory/ERC20SymbolBytes";
-import { ERC20NameBytes } from "../../generated/LBFactory/ERC20NameBytes";
+import { ERC20 as ERC20ABI } from "../../generated/LBFactory/ERC20";
+import { ERC20SymbolBytes as ERC20SymbolBytesABI } from "../../generated/LBFactory/ERC20SymbolBytes";
+import { ERC20NameBytes as ERC20NameBytesABI } from "../../generated/LBFactory/ERC20NameBytes";
 
 export function loadToken(address: Address): Token {
   let token = Token.load(address.toHexString());
@@ -43,8 +43,8 @@ export function loadToken(address: Address): Token {
 }
 
 export function getSymbol(address: Address): string {
-  const contract = ERC20.bind(address);
-  const contractSymbolBytes = ERC20SymbolBytes.bind(address);
+  const contract = ERC20ABI.bind(address);
+  const contractSymbolBytes = ERC20SymbolBytesABI.bind(address);
 
   let tokenSymbol = "unknown";
   const symbolResultCall = contract.try_symbol();
@@ -64,8 +64,8 @@ export function getSymbol(address: Address): string {
 }
 
 export function getName(address: Address): string {
-  const contract = ERC20.bind(address);
-  const contractNameBytes = ERC20NameBytes.bind(address);
+  const contract = ERC20ABI.bind(address);
+  const contractNameBytes = ERC20NameBytesABI.bind(address);
 
   let tokenName = "unknown";
   const tokenNameCall = contract.try_name();
@@ -85,7 +85,7 @@ export function getName(address: Address): string {
 }
 
 export function getTotalSupply(address: Address): BigInt {
-  const contract = ERC20.bind(address);
+  const contract = ERC20ABI.bind(address);
 
   let totalSupplyValue = BIG_INT_ZERO;
   const totalSupplyCall = contract.try_totalSupply();
@@ -97,7 +97,7 @@ export function getTotalSupply(address: Address): BigInt {
 }
 
 export function getDecimals(address: Address): BigInt {
-  const contract = ERC20.bind(address);
+  const contract = ERC20ABI.bind(address);
 
   let decimalsValue = BigInt.fromI32(18); // use 18 decimals as default
   const decimalsValueCall = contract.try_decimals();

@@ -177,7 +177,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "LBPairImplementation",
         "type": "address"
       }
@@ -199,6 +199,28 @@
       }
     ],
     "name": "LBFactory__ProtocolShareOverflows",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "LBFactory__QuoteAssetAlreadyWhitelisted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "LBFactory__QuoteAssetNotWhitelisted",
     "type": "error"
   },
   {
@@ -242,7 +264,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "LBPairImplementation",
         "type": "address"
       }
@@ -454,13 +476,13 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "oldLBPairImplementation",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "LBPairImplementation",
         "type": "address"
       }
@@ -504,7 +526,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "binStep",
         "type": "uint256"
@@ -575,11 +597,37 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract IERC20",
+        "name": "_quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "QuoteAssetAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract IERC20",
+        "name": "_quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "QuoteAssetRemoved",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "LBPairImplementation",
     "outputs": [
       {
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -637,6 +685,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "_quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "addQuoteAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -911,6 +972,57 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getQuoteAsset",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getQuoteAssetCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "_token",
+        "type": "address"
+      }
+    ],
+    "name": "isQuoteAsset",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -945,6 +1057,19 @@
       }
     ],
     "name": "removePreset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "_quoteAsset",
+        "type": "address"
+      }
+    ],
+    "name": "removeQuoteAsset",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1091,7 +1216,7 @@
   {
     "inputs": [
       {
-        "internalType": "contract ILBPair",
+        "internalType": "address",
         "name": "_LBPairImplementation",
         "type": "address"
       }

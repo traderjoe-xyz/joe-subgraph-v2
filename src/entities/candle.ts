@@ -1,4 +1,4 @@
-import { ByteArray, ethereum, BigInt } from "@graphprotocol/graph-ts";
+import { ByteArray, ethereum } from "@graphprotocol/graph-ts";
 import { Candle, LBPair } from "../../generated/schema";
 import { BIG_DECIMAL_ZERO } from "../constants";
 
