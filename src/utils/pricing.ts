@@ -8,7 +8,7 @@ import {
   WHITELIST_TOKENS,
 } from "../constants";
 import { Token } from "../../generated/schema";
-import { loadLbPair, loadBundle, loadToken } from "../entities";
+import { loadLbPair, loadBundle, loadToken, loadLBFactory } from "../entities";
 
 let MINIMUM_AVAX_LOCKED = BigDecimal.fromString("1000");
 
@@ -28,7 +28,19 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
 
   // take USD from pool with greatest TVL
   const bundle = loadBundle();
+  const lbFactory = loadLBFactory();
+
   const whitelist = token.whitelistPools;
+  const ignoredLbPairs = lbFactory.ignoredLbPairs;
+  for (let i = 0; i < whitelist.length; i++) {
+    const index = whitelist.findIndex((lbPair) =>
+      ignoredLbPairs.includes(lbPair)
+    );
+    if (index !== -1) {
+      whitelist.splice(index, 1);
+    }
+  }
+
   let lbPairLargestLiquidityAVAX = BIG_DECIMAL_ZERO;
   let priceFromLargestLiquidity = BIG_DECIMAL_ZERO;
 

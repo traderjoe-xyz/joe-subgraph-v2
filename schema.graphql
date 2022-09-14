@@ -57,12 +57,8 @@ type LBFactory @entity {
   # flashloan fee
   flashloanFee: BigInt!
 
-  # T
-  # O
-  # D
-  # O
   # pairs not used in trade routing
-  # ignoredLbPairs: [LBPair!]!
+  ignoredLbPairs: [LBPair!]!
 
   feesUSD: BigDecimal!
   feesAVAX: BigDecimal!

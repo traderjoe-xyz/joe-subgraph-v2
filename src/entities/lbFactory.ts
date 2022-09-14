@@ -28,6 +28,7 @@ export function loadLBFactory(id: Address = LBFACTORY_ADDRESS): LBFactory {
     } else {
       lbFactory.flashloanFee = flashloanFee.value;
     }
+    lbFactory.ignoredLbPairs = [];
     lbFactory.feesUSD = BIG_DECIMAL_ZERO;
     lbFactory.feesAVAX = BIG_DECIMAL_ZERO;
 
