@@ -1,0 +1,99 @@
+specVersion: 0.0.4
+description: Joe-v2 Liquidity Book subgraph
+repository: https://github.com/traderjoe-xyz/joe-subgraph-v2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LBFactory
+    network: fuji
+    source:
+      address: "0xF4Aa1047dEebB0D01933B7124c67393aF66D2Bd2"
+      abi: LBFactory
+      startBlock: 12994571
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - LBFactory
+        - LBPair
+        - Token
+      abis:
+        - name: LBFactory
+          file: ./abis/LBFactory.json
+        - name: LBPair
+          file: ./abis/LBPair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: FlashLoanFeeSet(uint256,uint256)
+          handler: handleFlashLoanFeeSet
+        - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
+          handler: handleLBPairCreated
+        - event: LBPairIgnoredStateChanged(address,bool)
+          handler: handleLBPairIgnoredStateChanged
+      file: ./src/lbFactory.ts
+
+  - kind: ethereum/contract
+    name: LBPair
+    network: fuji
+    source:
+      abi: LBPair
+      startBlock: 12994571
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Bundle
+        - Bin
+        - LBFactory
+        - HourData
+        - DayData
+        - LBPair
+        - LBPairHourData
+        - LBPairDayData
+        - Token
+        - TokenHourData
+        - TokenDayData
+        - User
+        - LiquidityPosition
+        - LiquidityPositionSnapshot
+        - Transaction
+        - Mint
+        - Burn
+        - Swap
+      abis:
+        - name: LBFactory
+          file: ./abis/LBFactory.json
+        - name: LBPair
+          file: ./abis/LBPair.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,indexed uint24,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSwap
+        - event: FlashLoan(indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleFlashLoan
+        - event: LiquidityAdded(indexed address,indexed address,indexed uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: CompositionFee(indexed address,indexed address,indexed uint256,uint256,uint256)
+          handler: handleCompositionFee
+        - event: LiquidityRemoved(indexed address,indexed address,indexed uint256,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: FeesCollected(indexed address,indexed address,uint256,uint256)
+          handler: handleFeesCollected
+        - event: ProtocolFeesCollected(indexed address,indexed address,uint256,uint256)
+          handler: handleProtocolFeesCollected
+        - event: OracleSizeIncreased(uint256,uint256)
+          handler: handleOracleSizeIncreased
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+      file: ./src/lbPair.ts
