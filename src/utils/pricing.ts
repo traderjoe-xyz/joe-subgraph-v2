@@ -9,6 +9,7 @@ import {
 } from "../constants";
 import { Token } from "../../generated/schema";
 import { loadLbPair, loadBundle, loadToken, loadLBFactory } from "../entities";
+import { safeDiv } from "../utils";
 
 let MINIMUM_AVAX_LOCKED = BigDecimal.fromString("1000");
 
@@ -49,7 +50,7 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
   // if whitelist includes token - get the safe price
   if (STABLECOINS.includes(Address.fromString(token.id))) {
     if (bundle.avaxPriceUSD != BIG_DECIMAL_ZERO) {
-      priceFromLargestLiquidity = BIG_DECIMAL_ONE.div(bundle.avaxPriceUSD);
+      priceFromLargestLiquidity = safeDiv(BIG_DECIMAL_ONE, bundle.avaxPriceUSD);
     }
   } else {
     for (let i = 0; i < whitelist.length; ++i) {

@@ -1,6 +1,7 @@
 import { ethereum, Bytes } from "@graphprotocol/graph-ts";
 import { Candle, LBPair } from "../../generated/schema";
 import { BIG_DECIMAL_ZERO } from "../constants";
+import { safeDiv } from "../utils";
 
 export function loadCandle(
   lbPair: LBPair,
@@ -18,7 +19,7 @@ export function loadCandle(
     .concat(lbPair.tokenX)
     .concat(lbPair.tokenY);
   let candle = Candle.load(id);
-  const price = lbPair.reserveX.div(lbPair.reserveY);
+  const price = safeDiv(lbPair.reserveX, lbPair.reserveY);
 
   if (!candle) {
     candle = new Candle(id);

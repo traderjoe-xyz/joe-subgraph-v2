@@ -8,15 +8,15 @@ export function loadLiquidityPosition(
   block: ethereum.Block
 ): LiquidityPosition {
   const id = lbPair
-    .toString()
+    .toHexString()
     .concat("-")
-    .concat(user.toString());
+    .concat(user.toHexString());
   let liquidityPosition = LiquidityPosition.load(id);
 
   if (!liquidityPosition) {
     liquidityPosition = new LiquidityPosition(id);
-    liquidityPosition.user = user.toString();
-    liquidityPosition.LBPair = lbPair.toString();
+    liquidityPosition.user = user.toHexString();
+    liquidityPosition.LBPair = lbPair.toHexString();
 
     liquidityPosition.binCount = BIG_INT_ZERO;
     liquidityPosition.lbTokenBalance = BIG_DECIMAL_ZERO;
