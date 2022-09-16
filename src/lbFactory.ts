@@ -37,7 +37,13 @@ export function handleLBPairIgnoredStateChanged(
   const lbFactory = loadLBFactory();
   const ignoredLbPairs = lbFactory.ignoredLbPairs;
   const ignoredPair = event.params.LBPair.toHexString();
-  const index = ignoredLbPairs.findIndex((lbPair) => lbPair === ignoredPair);
+  let index = -1;
+  for (let i = 0; i < ignoredLbPairs.length; i++) {
+    if (ignoredLbPairs[i] === ignoredPair) {
+      index = i;
+      break;
+    }
+  }
 
   if (event.params.ignored) {
     if (index === -1) {

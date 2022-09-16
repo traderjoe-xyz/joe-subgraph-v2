@@ -1,4 +1,4 @@
-import { ByteArray, ethereum } from "@graphprotocol/graph-ts";
+import { ethereum, Bytes } from "@graphprotocol/graph-ts";
 import { Candle, LBPair } from "../../generated/schema";
 import { BIG_DECIMAL_ZERO } from "../constants";
 
@@ -25,8 +25,8 @@ export function loadCandle(
     candle.timeStart = timeStart;
     candle.period = period;
     candle.lastBlock = event.block.timestamp.toI32();
-    candle.tokenX = ByteArray.fromHexString(lbPair.tokenX);
-    candle.tokenY = ByteArray.fromHexString(lbPair.tokenY);
+    candle.tokenX = Bytes.fromHexString(lbPair.tokenX);
+    candle.tokenY = Bytes.fromHexString(lbPair.tokenY);
 
     candle.volumeAVAX = BIG_DECIMAL_ZERO;
     candle.volumeUSD = BIG_DECIMAL_ZERO;

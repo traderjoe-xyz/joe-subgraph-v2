@@ -12,6 +12,15 @@ import { loadLbPair, loadBundle, loadToken, loadLBFactory } from "../entities";
 
 let MINIMUM_AVAX_LOCKED = BigDecimal.fromString("1000");
 
+function isPairIgnored(ignoredLbPairs: string[], pair: string): bool {
+  for (let i = 0; i < ignoredLbPairs.length; i++) {
+    if (ignoredLbPairs[i] === pair) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function getAvaxPriceInUSD(): BigDecimal {
   // fetch avax price from avax-usdc pool
   let avaxUsdcPool = loadLbPair(AVAX_USDC_20BPS);
@@ -30,16 +39,9 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
   const bundle = loadBundle();
   const lbFactory = loadLBFactory();
 
+  // remove ignored pairs from whitelist
   const whitelist = token.whitelistPools;
   const ignoredLbPairs = lbFactory.ignoredLbPairs;
-  for (let i = 0; i < whitelist.length; i++) {
-    const index = whitelist.findIndex((lbPair) =>
-      ignoredLbPairs.includes(lbPair)
-    );
-    if (index !== -1) {
-      whitelist.splice(index, 1);
-    }
-  }
 
   let lbPairLargestLiquidityAVAX = BIG_DECIMAL_ZERO;
   let priceFromLargestLiquidity = BIG_DECIMAL_ZERO;
@@ -51,9 +53,10 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
     }
   } else {
     for (let i = 0; i < whitelist.length; ++i) {
+      // check ignored pairs here
       let lbPair = loadLbPair(Address.fromString(whitelist[i]));
       // TODO: implement ignored pairs [in LBFactory] checks in this `if` block
-      if (!lbPair) {
+      if (!lbPair || isPairIgnored(ignoredLbPairs, lbPair.id)) {
         continue;
       }
 

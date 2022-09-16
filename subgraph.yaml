@@ -8,9 +8,9 @@ dataSources:
     name: LBFactory
     network: fuji
     source:
-      address: "0xF4Aa1047dEebB0D01933B7124c67393aF66D2Bd2"
+      address: "0x0000000000000000000000000000000000000000"
       abi: LBFactory
-      startBlock: 12994571
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -44,7 +44,7 @@ dataSources:
     network: fuji
     source:
       abi: LBPair
-      startBlock: 12994571
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -68,6 +68,7 @@ dataSources:
         - Mint
         - Burn
         - Swap
+        - Candle
       abis:
         - name: LBFactory
           file: ./abis/LBFactory.json

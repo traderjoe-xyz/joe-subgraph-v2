@@ -68,6 +68,7 @@ dataSources:
         - Mint
         - Burn
         - Swap
+        - Candle
       abis:
         - name: LBFactory
           file: ./abis/LBFactory.json
