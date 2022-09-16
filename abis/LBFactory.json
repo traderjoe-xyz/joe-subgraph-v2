@@ -150,7 +150,7 @@
   },
   {
     "inputs": [],
-    "name": "LBFactory__LBPairBlacklistIsAlreadyInTheSameState",
+    "name": "LBFactory__LBPairIgnoredIsAlreadyInTheSameState",
     "type": "error"
   },
   {
@@ -307,7 +307,7 @@
         "type": "bool"
       }
     ],
-    "name": "FactoryLocked",
+    "name": "FactoryLockedStatusUpdated",
     "type": "event"
   },
   {
@@ -419,25 +419,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "contract ILBPair",
-        "name": "LBPair",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "blacklist",
-        "type": "bool"
-      }
-    ],
-    "name": "LBPairBlacklistedStateChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "contract IERC20",
         "name": "tokenX",
@@ -469,6 +450,25 @@
       }
     ],
     "name": "LBPairCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "contract ILBPair",
+        "name": "LBPair",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "ignored",
+        "type": "bool"
+      }
+    ],
+    "name": "LBPairIgnoredStateChanged",
     "type": "event"
   },
   {
@@ -602,7 +602,7 @@
       {
         "indexed": true,
         "internalType": "contract IERC20",
-        "name": "_quoteAsset",
+        "name": "quoteAsset",
         "type": "address"
       }
     ],
@@ -615,7 +615,7 @@
       {
         "indexed": true,
         "internalType": "contract IERC20",
-        "name": "_quoteAsset",
+        "name": "quoteAsset",
         "type": "address"
       }
     ],
@@ -846,7 +846,7 @@
           },
           {
             "internalType": "bool",
-            "name": "isBlacklisted",
+            "name": "ignoredForRouting",
             "type": "bool"
           }
         ],
@@ -905,7 +905,7 @@
           },
           {
             "internalType": "bool",
-            "name": "isBlacklisted",
+            "name": "ignoredForRouting",
             "type": "bool"
           }
         ],
@@ -1204,11 +1204,11 @@
       },
       {
         "internalType": "bool",
-        "name": "_blacklisted",
+        "name": "_ignored",
         "type": "bool"
       }
     ],
-    "name": "setLBPairBlacklist",
+    "name": "setLBPairIgnored",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

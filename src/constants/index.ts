@@ -3,40 +3,57 @@ import { Address, BigInt, BigDecimal } from "@graphprotocol/graph-ts";
 export const ADDRESS_ZERO = Address.fromString(
   "0x0000000000000000000000000000000000000000"
 );
+export const BIG_DECIMAL_ZERO = BigDecimal.fromString("0");
+export const BIG_DECIMAL_ONE = BigDecimal.fromString("1");
+export const BIG_INT_ONE = BigInt.fromI32(1);
+export const BIG_INT_ZERO = BigInt.fromI32(0);
+export const NULL_CALL_RESULT_VALUE =
+  "0x0000000000000000000000000000000000000000000000000000000000000001";
 
-export const AVAX_USDC_20BPS = Address.fromString( // fuji
-  "0xe59fe5a8856D53cBe3963fDBc6B8ce815c9870C0"
+// -> FUJI
+export const AVAX_USDC_20BPS = Address.fromString(
+  "0x05040a918bc971f6e7f660E99A588951015A71C1"
 );
-// export const AVAX_USDC_20BPS = Address.fromString( // mainnet
-//   "0xe59fe5a8856D53cBe3963fDBc6B8ce815c9870C0"
-// );
 
-export const LBFACTORY_ADDRESS = Address.fromString( // fuji
-  "0xF4Aa1047dEebB0D01933B7124c67393aF66D2Bd2"
+export const LBFACTORY_ADDRESS = Address.fromString(
+  "0x2c2A4F4F0d5BABB0E501784F4D66a7131eff86F1"
 );
-// export const LBFACTORY_ADDRESS: Address = Address.fromString( // mainnet
-//   "0x0000000000000000000000000000000000000000"
-// );
 
-export const WAVAX_ADDRESS = Address.fromString( // fuji
+export const WAVAX_ADDRESS = Address.fromString(
   "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
 );
-// export const WAVAX_ADDRESS = Address.fromString( // mainnet
-//   "0x0000000000000000000000000000000000000000"
-// );
 
-export const WHITELIST_TOKENS: Address[] = [ // fuji
+export const WHITELIST_TOKENS: Address[] = [
   WAVAX_ADDRESS, // WAVAX
-  // USDC
+  Address.fromString("0x8c0f5Ade9cBdb19a49B06aDFB67b6702B459162B"), // USDC
+  Address.fromString("0x791B0c848AD79549F950f69E6E4CF9e3C112a230"), // USDT
   // USDC_E
   // MIM
-  // USDT
   // USDT_E
   // DAI
   // WETH
   // WBTC
 ];
-// export const WHITELIST_TOKENS: Address[] = [ // mainnet
+
+export const STABLECOINS: Address[] = [
+  Address.fromString("0x8c0f5Ade9cBdb19a49B06aDFB67b6702B459162B"), // USDC
+  Address.fromString("0x791B0c848AD79549F950f69E6E4CF9e3C112a230"), // USDT
+];
+
+// -> AVALANCHE
+// export const AVAX_USDC_20BPS = Address.fromString(
+//   "0x0000000000000000000000000000000000000000"
+// );
+
+// export const LBFACTORY_ADDRESS: Address = Address.fromString(
+//   "0x0000000000000000000000000000000000000000"
+// );
+
+// export const WAVAX_ADDRESS = Address.fromString(
+//   "0x0000000000000000000000000000000000000000"
+// );
+
+// export const WHITELIST_TOKENS: Address[] = [
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // WAVAX
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // USDC
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // USDC_E
@@ -48,19 +65,7 @@ export const WHITELIST_TOKENS: Address[] = [ // fuji
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // WBTC
 // ];
 
-export const STABLECOINS: Address[] = [ // fuji
-  Address.fromString("0xe03bF9AD3e347bb311A9620Ee424c50E0b947385"), // USDC
-  Address.fromString("0x8FFf749D5356E5F564fe3e37884df413A4a8cDE1"), // USDT
-];
-// export const STABLECOINS: Address[] = [ // mainnet
+// export const STABLECOINS: Address[] = [
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // USDC
 //   Address.fromString("0x0000000000000000000000000000000000000000"), // USDT
 // ];
-
-export const BIG_DECIMAL_ZERO = BigDecimal.fromString("0");
-export const BIG_DECIMAL_ONE = BigDecimal.fromString("1");
-export const BIG_INT_ONE = BigInt.fromI32(1);
-export const BIG_INT_ZERO = BigInt.fromI32(0);
-
-export const NULL_CALL_RESULT_VALUE =
-  "0x0000000000000000000000000000000000000000000000000000000000000001";

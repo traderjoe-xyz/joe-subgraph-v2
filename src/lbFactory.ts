@@ -2,7 +2,7 @@ import {
   LBFactory as LBFactoryABI,
   FlashLoanFeeSet,
   LBPairCreated,
-  LBPairBlacklistedStateChanged,
+  LBPairIgnoredStateChanged,
 } from "../generated/LBFactory/LBFactory";
 import { loadLBFactory, createLBPair } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
@@ -31,17 +31,17 @@ export function handleLBPairCreated(event: LBPairCreated): void {
   }
 }
 
-export function handleLBPairBlacklistedStateChanged(
-  event: LBPairBlacklistedStateChanged
+export function handleLBPairIgnoredStateChanged(
+  event: LBPairIgnoredStateChanged
 ): void {
   const lbFactory = loadLBFactory();
   const ignoredLbPairs = lbFactory.ignoredLbPairs;
-  const blacklistedPair = event.params.LBPair.toHexString();
-  const index = ignoredLbPairs.findIndex((lbPair) => lbPair === blacklistedPair);
+  const ignoredPair = event.params.LBPair.toHexString();
+  const index = ignoredLbPairs.findIndex((lbPair) => lbPair === ignoredPair);
 
-  if (event.params.blacklist) {
+  if (event.params.ignored) {
     if (index === -1) {
-      ignoredLbPairs.push(blacklistedPair);
+      ignoredLbPairs.push(ignoredPair);
     }
   } else {
     if (index !== -1) {

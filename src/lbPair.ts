@@ -659,7 +659,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     event.params.recipient,
     event.block
   );
-  const userLiquidityBinCountCall = lbPairContract.try_userPositionNb(
+  const userLiquidityBinCountCall = lbPairContract.try_userPositionNumber(
     event.params.recipient
   );
   if (!userLiquidityBinCountCall.reverted) {
@@ -944,7 +944,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     event.params.recipient,
     event.block
   );
-  const userLiquidityBinCountCall = lbPairContract.try_userPositionNb(
+  const userLiquidityBinCountCall = lbPairContract.try_userPositionNumber(
     event.params.recipient
   );
   if (!userLiquidityBinCountCall.reverted) {

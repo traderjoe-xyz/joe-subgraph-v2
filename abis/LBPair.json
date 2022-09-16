@@ -1171,7 +1171,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_ago",
+        "name": "_timeDelta",
         "type": "uint256"
       }
     ],
@@ -1562,7 +1562,7 @@
         "type": "uint256"
       }
     ],
-    "name": "userPositionAt",
+    "name": "userPositionAtIndex",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1581,7 +1581,7 @@
         "type": "address"
       }
     ],
-    "name": "userPositionNb",
+    "name": "userPositionNumber",
     "outputs": [
       {
         "internalType": "uint256",

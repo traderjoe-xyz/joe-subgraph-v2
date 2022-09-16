@@ -35,8 +35,8 @@ dataSources:
           handler: handleFlashLoanFeeSet
         - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
           handler: handleLBPairCreated
-        - event: LBPairBlacklistedStateChanged(address,bool)
-          handler: handleLBPairBlacklistedStateChanged
+        - event: LBPairIgnoredStateChanged(address,bool)
+          handler: handleLBPairIgnoredStateChanged
       file: ./src/lbFactory.ts
 
   - kind: ethereum/contract
