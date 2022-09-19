@@ -9,11 +9,12 @@ export function loadUser(address: Address): User {
 
   if (!user) {
     user = new User(address.toHexString());
+    user.lbTokenApprovals = [];
     lbFactory.userCount = lbFactory.userCount.plus(BIG_INT_ONE);
-  
+
     user.save();
-    lbFactory.save()
+    lbFactory.save();
   }
 
-  return user as User
+  return user as User;
 }

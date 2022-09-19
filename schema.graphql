@@ -261,6 +261,20 @@ type TokenDayData @entity {
   close: BigDecimal!
 }
 
+type SJoeDayData @entity {
+  # Timestmap / 86400
+  id: ID!
+
+  # date - day start timestamp
+  date: Int!
+
+  amountX: BigDecimal!
+  amountY: BigDecimal!
+
+  collectedAVAX: BigDecimal!
+  collectedUSD: BigDecimal!
+}
+
 type LBPair @entity {
   # Contract address
   id: ID!
@@ -306,18 +320,21 @@ type LBPair @entity {
 
   # Liquidity position snapshots
   liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
-    @derivedFrom(field: "LBPair")
+    @derivedFrom(field: "lbPair")
 
-  activeId: Bin! @derivedFrom(field: "LBPair")
-  bins: [Bin!]! @derivedFrom(field: "LBPair")
-  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "LBPair")
-  dayData: [LBPairDayData!]! @derivedFrom(field: "LBPair")
-  hourData: [LBPairHourData!]! @derivedFrom(field: "LBPair")
+  activeId: Bin! @derivedFrom(field: "lbPair")
+  bins: [Bin!]! @derivedFrom(field: "lbPair")
+  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
+  dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
+  hourData: [LBPairHourData!]! @derivedFrom(field: "lbPair")
 
   # Transactions
-  mints: [Mint!]! @derivedFrom(field: "LBPair")
-  burns: [Burn!]! @derivedFrom(field: "LBPair")
-  swaps: [Swap!]! @derivedFrom(field: "LBPair")
+  mints: [Mint!]! @derivedFrom(field: "lbPair")
+  burns: [Burn!]! @derivedFrom(field: "lbPair")
+  swaps: [Swap!]! @derivedFrom(field: "lbPair")
+  flashed: [Flash!]! @derivedFrom(field: "lbPair")
+  collects: [Collect!]! @derivedFrom(field: "lbPair")
+  transfers: [Transfer!]! @derivedFrom(field: "lbPair")
 
   # Created at
   timestamp: BigInt!
@@ -325,8 +342,8 @@ type LBPair @entity {
 }
 
 type Bin @entity {
-  id: ID! # LBPair address + binId
-  LBPair: LBPair!
+  id: ID! # lbPair address + binId
+  lbPair: LBPair!
   price: BigDecimal!
   totalSupply: BigDecimal!
   reserveX: BigDecimal!
@@ -337,8 +354,14 @@ type User @entity {
   # Address
   id: ID!
 
+  # Approval for All
+  lbTokenApprovals: [Bytes!]!
+
   # Liquidity Positions
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
+
+  # fees collected by user for providing liquidity
+  collects: [Collect!]! @derivedFrom(field: "sender")
 }
 
 type LBPairDayData @entity {
@@ -349,7 +372,7 @@ type LBPairDayData @entity {
   date: Int!
 
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   tokenX: Token!
   tokenY: Token!
@@ -387,7 +410,7 @@ type LBPairHourData @entity {
   date: Int!
 
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   tokenX: Token!
   tokenY: Token!
@@ -421,7 +444,7 @@ type LiquidityPosition @entity {
   # lbPair address + user address
   id: ID!
   user: User!
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # number of bins user has liquidity in
   binCount: BigInt!
@@ -453,7 +476,7 @@ type LiquidityPositionSnapshot @entity {
   block: Int!
 
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # snapshot of tokens price in usd
   tokenXPriceUSD: BigDecimal!
@@ -486,6 +509,8 @@ type Transaction @entity {
   burns: [Burn!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")
   flashed: [Flash!]! @derivedFrom(field: "transaction")
+  collects: [Collect!]! @derivedFrom(field: "transaction")
+  transfers: [Transfer!]! @derivedFrom(field: "transaction")
 }
 
 type Mint @entity {
@@ -494,7 +519,7 @@ type Mint @entity {
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # populated from the primary Transfer event
   lbTokenAmount: BigDecimal!
@@ -518,7 +543,7 @@ type Burn @entity {
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # populated from the primary Transfer event
   lbTokenAmount: BigDecimal!
@@ -542,7 +567,7 @@ type Swap @entity {
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # populated from the Swap event
   sender: Bytes!
@@ -563,27 +588,63 @@ type Swap @entity {
 }
 
 type Flash @entity {
-  # transaction hash - index of swap in transaction swaps array
+  # transaction hash + "#" + index in Flash Transaction array
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
   # pair
-  LBPair: LBPair!
+  lbPair: LBPair!
 
   # populated from the FlashLoan event
   sender: Bytes!
   origin: Bytes!
   recipient: Bytes!
 
-  amountXIn: BigDecimal!
-  amountYIn: BigDecimal!
-  amountXOut: BigDecimal!
-  amountYOut: BigDecimal!
+  amountX: BigDecimal!
+  amountY: BigDecimal!
   amountUSD: BigDecimal!
 
   feesTokenX: BigDecimal!
   feesTokenY: BigDecimal!
   feesUSD: BigDecimal!
+
+  logIndex: BigInt!
+}
+
+type Collect @entity {
+  # transaction hash + "#" + index in collect Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: Int!
+
+  lbPair: LBPair!
+
+  amountX: BigDecimal!
+  amountY: BigDecimal!
+
+  sender: User!
+  recipient: Bytes!
+  origin: Bytes!
+
+  collectedAVAX: BigDecimal!
+  collectedUSD: BigDecimal!
+
+  logIndex: BigInt!
+}
+
+type Transfer @entity {
+  # transaction hash + "#" + index in transfer Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: Int!
+
+  lbPair: LBPair!
+
+  lbTokenAmount: BigDecimal!
+
+  sender: User!
+  recipient: User!
+  origin: Bytes!
 
   logIndex: BigInt!
 }

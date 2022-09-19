@@ -16,7 +16,7 @@ export function loadLiquidityPosition(
   if (!liquidityPosition) {
     liquidityPosition = new LiquidityPosition(id);
     liquidityPosition.user = user.toHexString();
-    liquidityPosition.LBPair = lbPair.toHexString();
+    liquidityPosition.lbPair = lbPair.toHexString();
 
     liquidityPosition.binCount = BIG_INT_ZERO;
     liquidityPosition.lbTokenBalance = BIG_DECIMAL_ZERO;

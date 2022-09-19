@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal } from "@graphprotocol/graph-ts";
+import { BigInt, BigDecimal, Bytes, Address } from "@graphprotocol/graph-ts";
 import { BIG_INT_ZERO, BIG_INT_ONE, BIG_DECIMAL_ZERO } from "../constants";
 
 export function formatDecimalsToExponent(decimals: BigInt): BigDecimal {
@@ -21,10 +21,22 @@ export function formatTokenAmountByDecimals(
 
 export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
   if (amount1.equals(BIG_DECIMAL_ZERO)) {
-    return BIG_DECIMAL_ZERO
+    return BIG_DECIMAL_ZERO;
   } else {
-    return amount0.div(amount1)
+    return amount0.div(amount1);
   }
 }
 
-export * from "./pricing"
+export function isAccountApproved(
+  lbTokenApprovals: Bytes[],
+  account: Bytes
+): bool {
+  for (let i = 0; i < lbTokenApprovals.length; i++) {
+    if (lbTokenApprovals[i].equals(account)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export * from "./pricing";
