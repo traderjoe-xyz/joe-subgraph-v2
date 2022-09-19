@@ -11,7 +11,10 @@ import { LBPairCreated } from "../../generated/LBFactory/LBFactory";
 import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
 export function loadLbPair(id: Address): LBPair | null {
-  let lbPair = LBPair.load(id.toHexString());
+  const lbPair = LBPair.load(id.toHexString());
+  if (!lbPair) {
+    return null;
+  }
   return lbPair as LBPair;
 }
 
