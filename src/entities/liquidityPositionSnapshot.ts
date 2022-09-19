@@ -11,7 +11,7 @@ export function saveLiquidityPositionSnapshot(
   liquidityPosition: LiquidityPosition,
   event: ethereum.Event
 ): LiquidityPositionSnapshot | null {
-  const lbPair = loadLbPair(Address.fromString(liquidityPosition.LBPair));
+  const lbPair = loadLbPair(Address.fromString(liquidityPosition.lbPair));
   if (!lbPair) {
     return null;
   }
@@ -28,7 +28,7 @@ export function saveLiquidityPositionSnapshot(
   liquidityPositionSnapshot.liquidityPosition = liquidityPosition.id;
   liquidityPositionSnapshot.timestamp = event.block.timestamp.toI32();
   liquidityPositionSnapshot.block = event.block.number.toI32();
-  liquidityPositionSnapshot.LBPair = liquidityPosition.LBPair;
+  liquidityPositionSnapshot.lbPair = liquidityPosition.lbPair;
   liquidityPositionSnapshot.tokenXPriceUSD = tokenX.derivedAVAX.times(
     bundle.avaxPriceUSD
   );

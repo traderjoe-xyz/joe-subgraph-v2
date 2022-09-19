@@ -391,7 +391,7 @@ export function handleSwap(event: SwapEvent): void {
   );
   swap.transaction = transaction.id;
   swap.timestamp = event.block.timestamp.toI32();
-  swap.LBPair = lbPair.id;
+  swap.lbPair = lbPair.id;
   swap.sender = event.params.sender;
   swap.recipient = event.params.recipient;
   swap.origin = event.transaction.from;
@@ -556,7 +556,7 @@ export function handleFlashLoan(event: FlashLoan): void {
   );
   flashloan.transaction = transaction.id;
   flashloan.timestamp = event.block.timestamp.toI32();
-  flashloan.LBPair = lbPair.id;
+  flashloan.lbPair = lbPair.id;
   flashloan.sender = event.params.sender;
   flashloan.recipient = event.params.recipient;
   flashloan.origin = event.transaction.from;
@@ -843,7 +843,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   );
   mint.transaction = transaction.id;
   mint.timestamp = event.block.timestamp.toI32();
-  mint.LBPair = lbPair.id;
+  mint.lbPair = lbPair.id;
   mint.lbTokenAmount = lbTokensMinted;
   mint.sender = event.params.sender;
   mint.recipient = event.params.recipient;
@@ -1225,7 +1225,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   );
   burn.transaction = transaction.id;
   burn.timestamp = event.block.timestamp.toI32();
-  burn.LBPair = lbPair.id;
+  burn.lbPair = lbPair.id;
   burn.lbTokenAmount = lbTokensBurned;
   burn.sender = event.params.sender;
   burn.recipient = event.params.recipient;
@@ -1273,7 +1273,7 @@ export function handleFeesCollected(event: FeesCollected): void {
   feeCollected.transaction = transaction.id;
   feeCollected.timestamp = event.block.timestamp.toI32();
 
-  feeCollected.LBPair = lbPair.id;
+  feeCollected.lbPair = lbPair.id;
   feeCollected.amountX = amountX;
   feeCollected.amountY = amountY;
 
@@ -1442,7 +1442,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   );
   transfer.transaction = transaction.id;
   transfer.timestamp = event.block.timestamp.toI32();
-  transfer.LBPair = lbPair.id;
+  transfer.lbPair = lbPair.id;
   transfer.lbTokenAmount = lbTokenAmountTransferred;
   transfer.sender = sender.id;
   transfer.recipient = recipient.id;
@@ -1570,7 +1570,7 @@ export function handleTransferBatch(event: TransferBatch): void {
   );
   transfer.transaction = transaction.id;
   transfer.timestamp = event.block.timestamp.toI32();
-  transfer.LBPair = lbPair.id;
+  transfer.lbPair = lbPair.id;
   transfer.lbTokenAmount = lbTokenAmountTransferred;
   transfer.sender = sender.id;
   transfer.recipient = recipient.id;

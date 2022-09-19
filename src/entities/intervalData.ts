@@ -150,7 +150,7 @@ export function loadLBPairHourData(
   if (!lbPairHourData) {
     lbPairHourData = new LBPairHourData(hourId.toString());
     lbPairHourData.date = hourStartTimestamp.toI32();
-    lbPairHourData.LBPair = lbPair.id;
+    lbPairHourData.lbPair = lbPair.id;
     lbPairHourData.tokenX = lbPair.tokenX;
     lbPairHourData.tokenY = lbPair.tokenY;
     lbPairHourData.reserveX = lbPair.reserveX;
@@ -182,7 +182,7 @@ export function loadLBPairDayData(
   if (!lbPairDayData) {
     lbPairDayData = new LBPairDayData(dayId.toString());
     lbPairDayData.date = dayStartTimestamp.toI32();
-    lbPairDayData.LBPair = lbPair.id;
+    lbPairDayData.lbPair = lbPair.id;
     lbPairDayData.tokenX = lbPair.tokenX;
     lbPairDayData.tokenY = lbPair.tokenY;
     lbPairDayData.reserveX = lbPair.reserveX;
