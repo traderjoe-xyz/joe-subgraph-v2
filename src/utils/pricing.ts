@@ -26,7 +26,7 @@ export function getAvaxPriceInUSD(): BigDecimal {
   // fetch avax price from avax-usdc pool
   let avaxUsdcPool = loadLbPair(AVAX_USDC_20BPS);
   if (avaxUsdcPool) {
-    return avaxUsdcPool.tokenYPrice;
+    return safeDiv(avaxUsdcPool.reserveY, avaxUsdcPool.reserveX);
   }
   return BIG_DECIMAL_ZERO;
 }

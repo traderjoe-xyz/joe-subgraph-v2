@@ -1,13 +1,14 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+// Bin entity and Tick field are yet to be added
+
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
-  Swap,
+  Swap as SwapEvent,
   FlashLoan,
   LiquidityAdded,
   CompositionFee,
   LiquidityRemoved,
   FeesCollected,
   ProtocolFeesCollected,
-  OracleSizeIncreased,
   TransferSingle,
   TransferBatch,
   ApprovalForAll,
@@ -16,10 +17,13 @@ import {
 import {
   Token,
   LBPair,
-  Mint,
   LiquidityPosition,
+  Mint,
   Burn,
-  Swap as SwapEntity,
+  Swap,
+  Flash,
+  Collect,
+  Transfer,
 } from "../generated/schema";
 import {
   loadLbPair,
@@ -30,6 +34,7 @@ import {
   loadTraderJoeDayData,
   loadTokenHourData,
   loadTokenDayData,
+  loadSJoeDayData,
   loadUser,
   loadLBPairDayData,
   loadLBPairHourData,
@@ -45,9 +50,10 @@ import {
   getTrackedLiquidityUSD,
   getTokenPriceInAVAX,
   safeDiv,
+  isAccountApproved,
 } from "./utils";
 
-export function handleSwap(event: Swap): void {
+export function handleSwap(event: SwapEvent): void {
   const bundle = loadBundle();
   const lbPair = loadLbPair(event.address);
 
@@ -380,7 +386,7 @@ export function handleSwap(event: Swap): void {
   const transaction = loadTransaction(event);
 
   // Swap
-  const swap = new SwapEntity(
+  const swap = new Swap(
     transaction.id.concat("#").concat(lbPair.txCount.toString())
   );
   swap.transaction = transaction.id;
@@ -434,7 +440,136 @@ export function handleSwap(event: Swap): void {
 }
 
 export function handleFlashLoan(event: FlashLoan): void {
-  //
+  const bundle = loadBundle();
+  const lbPair = loadLbPair(event.address);
+
+  if (!lbPair) {
+    return;
+  }
+
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  const amountX = formatTokenAmountByDecimals(
+    event.params.amountX,
+    tokenX.decimals
+  );
+  const amountY = formatTokenAmountByDecimals(
+    event.params.amountY,
+    tokenY.decimals
+  );
+
+  const feesX = formatTokenAmountByDecimals(
+    event.params.feesX,
+    tokenX.decimals
+  );
+  const feesY = formatTokenAmountByDecimals(
+    event.params.feesY,
+    tokenY.decimals
+  );
+  const feesUSD = feesX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(feesY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  const lbFactory = loadLBFactory();
+  lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
+  lbFactory.feesUSD = lbFactory.feesUSD.plus(feesUSD);
+  lbFactory.feesAVAX = safeDiv(lbFactory.feesUSD, bundle.avaxPriceUSD);
+  lbFactory.save();
+
+  const traderJoeHourData = loadTraderJoeHourData(event.block.timestamp);
+  traderJoeHourData.feesUSD = traderJoeHourData.feesUSD.plus(feesUSD);
+  traderJoeHourData.txCount = traderJoeHourData.txCount.plus(BIG_INT_ONE);
+  traderJoeHourData.save();
+
+  const traderJoeDayData = loadTraderJoeDayData(event.block.timestamp);
+  traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
+  traderJoeDayData.txCount = traderJoeDayData.txCount.plus(BIG_INT_ONE);
+  traderJoeDayData.save();
+
+  const tokenXHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenX as Token
+  );
+  const tokenXDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenX as Token
+  );
+  if (event.params.amountX.gt(BIG_INT_ZERO)) {
+    tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
+    tokenXHourData.txCount = tokenXHourData.txCount.plus(BIG_INT_ONE);
+    tokenXDayData.txCount = tokenXDayData.txCount.plus(BIG_INT_ONE);
+  }
+  tokenX.feesUSD = tokenX.feesUSD.plus(feesUSD);
+  tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(feesUSD);
+  tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(feesUSD);
+  tokenX.save();
+  tokenXHourData.save();
+  tokenXDayData.save();
+
+  const tokenYHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenY as Token
+  );
+  const tokenYDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenY as Token
+  );
+  if (event.params.amountY.gt(BIG_INT_ZERO)) {
+    tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
+    tokenYHourData.txCount = tokenYHourData.txCount.plus(BIG_INT_ONE);
+    tokenYDayData.txCount = tokenYDayData.txCount.plus(BIG_INT_ONE);
+  }
+  tokenY.feesUSD = tokenY.feesUSD.plus(feesUSD);
+  tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(feesUSD);
+  tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUSD);
+  tokenY.save();
+  tokenYHourData.save();
+  tokenYDayData.save();
+
+  lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
+  lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
+  lbPair.feesTokenY = lbPair.feesTokenY.plus(feesY);
+  lbPair.feesUSD = lbPair.feesUSD.plus(feesUSD);
+  lbPair.save();
+
+  const lbPairHourData = loadLBPairHourData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
+  lbPairHourData.feesUSD = lbPairHourData.feesUSD.plus(feesUSD);
+  lbPairHourData.save();
+
+  const lbPairDayData = loadLBPairDayData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
+  lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
+  lbPairDayData.save();
+
+  const transaction = loadTransaction(event);
+
+  const flashloan = new Flash(
+    transaction.id.concat("#").concat(lbPair.txCount.toString())
+  );
+  flashloan.transaction = transaction.id;
+  flashloan.timestamp = event.block.timestamp.toI32();
+  flashloan.LBPair = lbPair.id;
+  flashloan.sender = event.params.sender;
+  flashloan.recipient = event.params.recipient;
+  flashloan.origin = event.transaction.from;
+  flashloan.amountX = amountX;
+  flashloan.amountY = amountY;
+  flashloan.amountUSD = amountX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+  flashloan.feesTokenX = feesX;
+  flashloan.feesTokenY = feesY;
+  flashloan.feesUSD = feesUSD;
+  flashloan.logIndex = event.logIndex;
+  flashloan.save();
 }
 
 export function handleLiquidityAdded(event: LiquidityAdded): void {
@@ -724,7 +859,103 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
 }
 
 export function handleCompositionFee(event: CompositionFee): void {
-  //
+  const bundle = loadBundle();
+  const lbPair = loadLbPair(event.address);
+
+  if (!lbPair) {
+    return;
+  }
+
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
+
+  const feesX = formatTokenAmountByDecimals(
+    event.params.feesX,
+    tokenX.decimals
+  );
+  const feesY = formatTokenAmountByDecimals(
+    event.params.feesY,
+    tokenY.decimals
+  );
+  const feesUSD = feesX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(feesY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  const lbFactory = loadLBFactory();
+  lbFactory.feesUSD = lbFactory.feesUSD.plus(feesUSD);
+  lbFactory.feesAVAX = safeDiv(lbFactory.feesUSD, bundle.avaxPriceUSD);
+  lbFactory.save();
+
+  const traderJoeHourData = loadTraderJoeHourData(event.block.timestamp);
+  traderJoeHourData.feesUSD = traderJoeHourData.feesUSD.plus(feesUSD);
+  traderJoeHourData.save();
+
+  const traderJoeDayData = loadTraderJoeDayData(event.block.timestamp);
+  traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
+  traderJoeDayData.save();
+
+  tokenX.feesUSD = tokenX.feesUSD.plus(feesX.times(tokenXPriceUSD));
+  tokenX.save();
+
+  tokenY.feesUSD = tokenY.feesUSD.plus(feesY.times(tokenYPriceUSD));
+  tokenY.save();
+
+  const tokenXHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenX as Token
+  );
+  tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(
+    feesX.times(tokenXPriceUSD)
+  );
+  tokenXHourData.save();
+
+  const tokenYHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenY as Token
+  );
+  tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenYHourData.save();
+
+  const tokenXDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenX as Token
+  );
+  tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenXDayData.save();
+
+  const tokenYDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenX as Token
+  );
+  tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenYDayData.save();
+
+  lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
+  lbPair.feesTokenY = lbPair.feesTokenY.plus(feesY);
+  lbPair.feesUSD = lbPair.feesUSD.plus(feesUSD);
+  lbPair.save();
+
+  const lbPairHourData = loadLBPairHourData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairHourData.feesUSD = lbPairHourData.feesUSD.plus(feesUSD);
+  lbPairHourData.save();
+
+  const lbPairDayData = loadLBPairDayData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
+  lbPairDayData.save();
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemoved): void {
@@ -1009,27 +1240,375 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 }
 
 export function handleFeesCollected(event: FeesCollected): void {
-  //
+  const lbPair = loadLbPair(event.address);
+  if (!lbPair) {
+    return;
+  }
+
+  const user = loadUser(event.params.sender);
+  const bundle = loadBundle();
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  const amountX = formatTokenAmountByDecimals(
+    event.params.amountX,
+    tokenX.decimals
+  );
+  const amountY = formatTokenAmountByDecimals(
+    event.params.amountY,
+    tokenY.decimals
+  );
+  const amountUSD = amountX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  const id = event.params.sender
+    .toHexString()
+    .concat(event.address.toHexString())
+    .concat("#")
+    .concat(user.collects.length.toString());
+
+  const transaction = loadTransaction(event);
+  const feeCollected = new Collect(id);
+  feeCollected.transaction = transaction.id;
+  feeCollected.timestamp = event.block.timestamp.toI32();
+
+  feeCollected.LBPair = lbPair.id;
+  feeCollected.amountX = amountX;
+  feeCollected.amountY = amountY;
+
+  feeCollected.sender = user.id;
+  feeCollected.recipient = Bytes.fromHexString(
+    event.params.recipient.toHexString()
+  );
+  feeCollected.origin = Bytes.fromHexString(
+    event.transaction.from.toHexString()
+  );
+  feeCollected.collectedUSD = amountUSD;
+  feeCollected.collectedAVAX = safeDiv(amountUSD, bundle.avaxPriceUSD);
+  feeCollected.logIndex = event.logIndex;
+
+  feeCollected.save();
 }
 
 export function handleProtocolFeesCollected(
   event: ProtocolFeesCollected
 ): void {
-  //
-}
+  // handle sJOE payout calculations here
+  // NOTE: this event will split amount recieved to multiple addresses
+  // - sJOE is just one of them so this mapping should be modified in future
 
-export function handleOracleSizeIncreased(event: OracleSizeIncreased): void {
-  //
+  const bundle = loadBundle();
+  const lbPair = loadLbPair(event.address);
+
+  if (!lbPair) {
+    return;
+  }
+
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  const amountX = formatTokenAmountByDecimals(
+    event.params.amountX,
+    tokenX.decimals
+  );
+  const amountY = formatTokenAmountByDecimals(
+    event.params.amountY,
+    tokenY.decimals
+  );
+  const derivedAmountAVAX = amountX
+    .times(tokenX.derivedAVAX)
+    .plus(amountY.times(tokenY.derivedAVAX));
+
+  const sJoeDayData = loadSJoeDayData(event.block.timestamp);
+  sJoeDayData.amountX = sJoeDayData.amountX.plus(amountX);
+  sJoeDayData.amountY = sJoeDayData.amountY.plus(amountY);
+  sJoeDayData.collectedAVAX = sJoeDayData.collectedAVAX.plus(derivedAmountAVAX);
+  sJoeDayData.collectedUSD = sJoeDayData.collectedUSD.plus(
+    derivedAmountAVAX.times(bundle.avaxPriceUSD)
+  );
+  sJoeDayData.save();
 }
 
 export function handleTransferSingle(event: TransferSingle): void {
-  //
+  const lbPair = loadLbPair(event.address);
+  if (!lbPair) {
+    return;
+  }
+
+  const lbTokenAmountTransferred = formatTokenAmountByDecimals(
+    event.params.amount,
+    BigInt.fromString("18")
+  );
+
+  const lbFactory = loadLBFactory();
+  lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
+  lbFactory.save();
+
+  const sender = loadUser(event.params.from);
+  const recipient = loadUser(event.params.to);
+
+  const traderJoeHourData = loadTraderJoeHourData(event.block.timestamp);
+  traderJoeHourData.txCount = traderJoeHourData.txCount.plus(BIG_INT_ONE);
+  traderJoeHourData.save();
+
+  const traderJoeDayData = loadTraderJoeDayData(event.block.timestamp);
+  traderJoeDayData.txCount = traderJoeDayData.txCount.plus(BIG_INT_ONE);
+  traderJoeDayData.save();
+
+  const lbPairContract = LBPairABI.bind(event.address);
+  const senderLiquidityPosition = loadLiquidityPosition(
+    event.address,
+    event.params.from,
+    event.block
+  );
+  const recipientLiquidityPosition = loadLiquidityPosition(
+    event.address,
+    event.params.to,
+    event.block
+  );
+
+  const lbPairDayData = loadLBPairDayData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
+  lbPairDayData.save();
+
+  const lbPairHourData = loadLBPairHourData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
+  lbPairHourData.save();
+
+  lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
+  if (recipientLiquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
+    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
+      BIG_INT_ONE
+    );
+  }
+  if (
+    senderLiquidityPosition.lbTokenBalance
+      .minus(lbTokenAmountTransferred)
+      .equals(BIG_DECIMAL_ZERO)
+  ) {
+    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
+      BIG_INT_ONE
+    );
+  }
+  lbPair.save();
+
+  recipientLiquidityPosition.lbTokenBalance = recipientLiquidityPosition.lbTokenBalance.plus(
+    lbTokenAmountTransferred
+  );
+  const recipientBinCountCall = lbPairContract.try_userPositionNumber(
+    event.params.to
+  );
+  if (!recipientBinCountCall.reverted) {
+    recipientLiquidityPosition.binCount = recipientBinCountCall.value;
+  }
+  // - LiquidityPosition.distributionX (recipient)
+  // - LiquidityPosition.distributionY (recipient)
+  recipientLiquidityPosition.save();
+
+  senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
+    lbTokenAmountTransferred
+  );
+  const senderBinCountCall = lbPairContract.try_userPositionNumber(
+    event.params.from
+  );
+  if (!senderBinCountCall.reverted) {
+    senderLiquidityPosition.binCount = senderBinCountCall.value;
+  }
+  // - LiquidityPosition.distributionX (sender)
+  // - LiquidityPosition.distributionY (sender)
+  senderLiquidityPosition.save();
+
+  saveLiquidityPositionSnapshot(
+    recipientLiquidityPosition as LiquidityPosition,
+    event
+  );
+
+  saveLiquidityPositionSnapshot(
+    senderLiquidityPosition as LiquidityPosition,
+    event
+  );
+
+  const transaction = loadTransaction(event);
+
+  const transfer = new Transfer(
+    transaction.id.concat("#").concat(lbPair.txCount.toString())
+  );
+  transfer.transaction = transaction.id;
+  transfer.timestamp = event.block.timestamp.toI32();
+  transfer.LBPair = lbPair.id;
+  transfer.lbTokenAmount = lbTokenAmountTransferred;
+  transfer.sender = sender.id;
+  transfer.recipient = recipient.id;
+  transfer.origin = Bytes.fromHexString(event.transaction.from.toHexString());
+  transfer.logIndex = event.logIndex;
+
+  transfer.save();
 }
 
 export function handleTransferBatch(event: TransferBatch): void {
-  //
+  const lbPair = loadLbPair(event.address);
+  if (!lbPair) {
+    return;
+  }
+
+  let lbTokenAmountTransferred = BIG_DECIMAL_ZERO;
+  for (let i = 0; i < event.params.amounts.length; i++) {
+    lbTokenAmountTransferred = lbTokenAmountTransferred.plus(
+      formatTokenAmountByDecimals(
+        event.params.amounts[i],
+        BigInt.fromString("18")
+      )
+    );
+  }
+
+  const lbFactory = loadLBFactory();
+  lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
+  lbFactory.save();
+
+  const sender = loadUser(event.params.from);
+  const recipient = loadUser(event.params.to);
+
+  const traderJoeHourData = loadTraderJoeHourData(event.block.timestamp);
+  traderJoeHourData.txCount = traderJoeHourData.txCount.plus(BIG_INT_ONE);
+  traderJoeHourData.save();
+
+  const traderJoeDayData = loadTraderJoeDayData(event.block.timestamp);
+  traderJoeDayData.txCount = traderJoeDayData.txCount.plus(BIG_INT_ONE);
+  traderJoeDayData.save();
+
+  const lbPairContract = LBPairABI.bind(event.address);
+  const senderLiquidityPosition = loadLiquidityPosition(
+    event.address,
+    event.params.from,
+    event.block
+  );
+  const recipientLiquidityPosition = loadLiquidityPosition(
+    event.address,
+    event.params.to,
+    event.block
+  );
+
+  const lbPairDayData = loadLBPairDayData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
+  lbPairDayData.save();
+
+  const lbPairHourData = loadLBPairHourData(
+    event.block.timestamp,
+    lbPair as LBPair
+  );
+  lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
+  lbPairHourData.save();
+
+  lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
+  if (recipientLiquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
+    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
+      BIG_INT_ONE
+    );
+  }
+  if (
+    senderLiquidityPosition.lbTokenBalance
+      .minus(lbTokenAmountTransferred)
+      .equals(BIG_DECIMAL_ZERO)
+  ) {
+    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
+      BIG_INT_ONE
+    );
+  }
+  lbPair.save();
+
+  recipientLiquidityPosition.lbTokenBalance = recipientLiquidityPosition.lbTokenBalance.plus(
+    lbTokenAmountTransferred
+  );
+  const recipientBinCountCall = lbPairContract.try_userPositionNumber(
+    event.params.to
+  );
+  if (!recipientBinCountCall.reverted) {
+    recipientLiquidityPosition.binCount = recipientBinCountCall.value;
+  }
+  // - LiquidityPosition.distributionX (recipient)
+  // - LiquidityPosition.distributionY (recipient)
+  recipientLiquidityPosition.save();
+
+  // - LiquidityPosition.lbTokenBalance (sender)
+  senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
+    lbTokenAmountTransferred
+  );
+  const senderBinCountCall = lbPairContract.try_userPositionNumber(
+    event.params.from
+  );
+  if (!senderBinCountCall.reverted) {
+    senderLiquidityPosition.binCount = senderBinCountCall.value;
+  }
+  // - LiquidityPosition.distributionX (sender)
+  // - LiquidityPosition.distributionY (sender)
+  senderLiquidityPosition.save();
+
+  saveLiquidityPositionSnapshot(
+    recipientLiquidityPosition as LiquidityPosition,
+    event
+  );
+
+  saveLiquidityPositionSnapshot(
+    senderLiquidityPosition as LiquidityPosition,
+    event
+  );
+
+  const transaction = loadTransaction(event);
+
+  const transfer = new Transfer(
+    transaction.id.concat("#").concat(lbPair.txCount.toString())
+  );
+  transfer.transaction = transaction.id;
+  transfer.timestamp = event.block.timestamp.toI32();
+  transfer.LBPair = lbPair.id;
+  transfer.lbTokenAmount = lbTokenAmountTransferred;
+  transfer.sender = sender.id;
+  transfer.recipient = recipient.id;
+  transfer.origin = Bytes.fromHexString(event.transaction.from.toHexString());
+  transfer.logIndex = event.logIndex;
+
+  transfer.save();
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
-  //
+  const user = loadUser(event.params.account);
+  const lbTokenApprovals = user.lbTokenApprovals;
+
+  if (event.params.approved) {
+    if (
+      !isAccountApproved(
+        lbTokenApprovals,
+        Bytes.fromHexString(event.params.account.toHexString())
+      )
+    ) {
+      lbTokenApprovals.push(
+        Bytes.fromHexString(event.params.sender.toHexString())
+      );
+      user.lbTokenApprovals = lbTokenApprovals;
+    }
+  } else {
+    const newLbTokenApprovals: Bytes[] = [];
+    for (let i = 0; i < lbTokenApprovals.length; i++) {
+      if (
+        lbTokenApprovals[i].notEqual(
+          Bytes.fromHexString(event.params.sender.toHexString())
+        )
+      ) {
+        newLbTokenApprovals.push(lbTokenApprovals[i]);
+      }
+    }
+    user.lbTokenApprovals = newLbTokenApprovals;
+  }
+
+  user.save();
 }

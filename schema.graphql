@@ -261,6 +261,20 @@ type TokenDayData @entity {
   close: BigDecimal!
 }
 
+type SJoeDayData @entity {
+  # Timestmap / 86400
+  id: ID!
+
+  # date - day start timestamp
+  date: Int!
+
+  amountX: BigDecimal!
+  amountY: BigDecimal!
+
+  collectedAVAX: BigDecimal!
+  collectedUSD: BigDecimal!
+}
+
 type LBPair @entity {
   # Contract address
   id: ID!
@@ -318,6 +332,9 @@ type LBPair @entity {
   mints: [Mint!]! @derivedFrom(field: "LBPair")
   burns: [Burn!]! @derivedFrom(field: "LBPair")
   swaps: [Swap!]! @derivedFrom(field: "LBPair")
+  flashed: [Flash!]! @derivedFrom(field: "LBPair")
+  collects: [Collect!]! @derivedFrom(field: "LBPair")
+  transfers: [Transfer!]! @derivedFrom(field: "LBPair")
 
   # Created at
   timestamp: BigInt!
@@ -337,8 +354,14 @@ type User @entity {
   # Address
   id: ID!
 
+  # Approval for All
+  lbTokenApprovals: [Bytes!]!
+
   # Liquidity Positions
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
+
+  # fees collected by user for providing liquidity
+  collects: [Collect!]! @derivedFrom(field: "sender")
 }
 
 type LBPairDayData @entity {
@@ -486,6 +509,8 @@ type Transaction @entity {
   burns: [Burn!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")
   flashed: [Flash!]! @derivedFrom(field: "transaction")
+  collects: [Collect!]! @derivedFrom(field: "transaction")
+  transfers: [Transfer!]! @derivedFrom(field: "transaction")
 }
 
 type Mint @entity {
@@ -563,7 +588,7 @@ type Swap @entity {
 }
 
 type Flash @entity {
-  # transaction hash - index of swap in transaction swaps array
+  # transaction hash + "#" + index in Flash Transaction array
   id: ID!
   transaction: Transaction!
   timestamp: Int! # need this to pull recent txns for specific token or pair
@@ -575,15 +600,51 @@ type Flash @entity {
   origin: Bytes!
   recipient: Bytes!
 
-  amountXIn: BigDecimal!
-  amountYIn: BigDecimal!
-  amountXOut: BigDecimal!
-  amountYOut: BigDecimal!
+  amountX: BigDecimal!
+  amountY: BigDecimal!
   amountUSD: BigDecimal!
 
   feesTokenX: BigDecimal!
   feesTokenY: BigDecimal!
   feesUSD: BigDecimal!
+
+  logIndex: BigInt!
+}
+
+type Collect @entity {
+  # transaction hash + "#" + index in collect Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: Int!
+
+  LBPair: LBPair!
+
+  amountX: BigDecimal!
+  amountY: BigDecimal!
+
+  sender: User!
+  recipient: Bytes!
+  origin: Bytes!
+
+  collectedAVAX: BigDecimal!
+  collectedUSD: BigDecimal!
+
+  logIndex: BigInt!
+}
+
+type Transfer @entity {
+  # transaction hash + "#" + index in transfer Transaction array
+  id: ID!
+  transaction: Transaction!
+  timestamp: Int!
+
+  LBPair: LBPair!
+
+  lbTokenAmount: BigDecimal!
+
+  sender: User!
+  recipient: User!
+  origin: Bytes!
 
   logIndex: BigInt!
 }

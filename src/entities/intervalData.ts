@@ -8,6 +8,7 @@ import {
   LBPairDayData,
   LBPairHourData,
   LBPair,
+  SJoeDayData,
 } from "../../generated/schema";
 import { loadLBFactory } from "./lbFactory";
 import { loadBundle } from "./bundle";
@@ -101,7 +102,10 @@ export function loadTokenHourData(
   return tokenHourData as TokenHourData;
 }
 
-export function loadTokenDayData(timestamp: BigInt, token: Token): TokenDayData {
+export function loadTokenDayData(
+  timestamp: BigInt,
+  token: Token
+): TokenDayData {
   const bundle = loadBundle();
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
@@ -196,4 +200,22 @@ export function loadLBPairDayData(
   }
 
   return lbPairDayData as LBPairDayData;
+}
+
+export function loadSJoeDayData(timestamp: BigInt): SJoeDayData {
+  const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
+  const dayId = timestamp.div(SECONDS_IN_DAY);
+  const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
+
+  let sJoeDayData = SJoeDayData.load(dayId.toString());
+  if (!sJoeDayData) {
+    sJoeDayData = new SJoeDayData(dayId.toString());
+    sJoeDayData.date = dayStartTimestamp.toI32();
+    sJoeDayData.amountX = BIG_DECIMAL_ZERO;
+    sJoeDayData.amountY = BIG_DECIMAL_ZERO;
+    sJoeDayData.collectedAVAX = BIG_DECIMAL_ZERO;
+    sJoeDayData.collectedUSD = BIG_DECIMAL_ZERO;
+  }
+
+  return sJoeDayData as SJoeDayData;
 }
