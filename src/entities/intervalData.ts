@@ -12,9 +12,13 @@ import {
 } from "../../generated/schema";
 import { loadLBFactory } from "./lbFactory";
 import { loadBundle } from "./bundle";
-import { BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
+import { BIG_DECIMAL_ZERO, BIG_INT_ZERO, BIG_INT_ONE } from "../constants";
+import { safeDiv } from "../utils";
 
-export function loadTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
+export function loadTraderJoeHourData(
+  timestamp: BigInt,
+  update: bool
+): TraderJoeHourData {
   const SECONDS_IN_HOUR = BigInt.fromI32(60 * 60);
   const hourId = timestamp.div(SECONDS_IN_HOUR);
   const hourStartTimestamp = hourId.times(SECONDS_IN_HOUR);
@@ -33,14 +37,23 @@ export function loadTraderJoeHourData(timestamp: BigInt): TraderJoeHourData {
     traderJoeHourData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     traderJoeHourData.feesUSD = BIG_DECIMAL_ZERO;
     traderJoeHourData.txCount = BIG_INT_ZERO;
+    traderJoeHourData.save();
+  }
 
+  if (update) {
+    traderJoeHourData.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX;
+    traderJoeHourData.totalValueLockedUSD = lbFactory.totalValueLockedUSD;
+    traderJoeHourData.txCount = traderJoeHourData.txCount.plus(BIG_INT_ONE);
     traderJoeHourData.save();
   }
 
   return traderJoeHourData as TraderJoeHourData;
 }
 
-export function loadTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
+export function loadTraderJoeDayData(
+  timestamp: BigInt,
+  update: bool
+): TraderJoeDayData {
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
   const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
@@ -59,7 +72,13 @@ export function loadTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
     traderJoeDayData.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     traderJoeDayData.feesUSD = BIG_DECIMAL_ZERO;
     traderJoeDayData.txCount = BIG_INT_ZERO;
+    traderJoeDayData.save();
+  }
 
+  if (update) {
+    traderJoeDayData.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX;
+    traderJoeDayData.totalValueLockedUSD = lbFactory.totalValueLockedUSD;
+    traderJoeDayData.txCount = traderJoeDayData.txCount.plus(BIG_INT_ONE);
     traderJoeDayData.save();
   }
 
@@ -68,7 +87,8 @@ export function loadTraderJoeDayData(timestamp: BigInt): TraderJoeDayData {
 
 export function loadTokenHourData(
   timestamp: BigInt,
-  token: Token
+  token: Token,
+  update: bool
 ): TokenHourData {
   const bundle = loadBundle();
   const SECONDS_IN_HOUR = BigInt.fromI32(60 * 60);
@@ -95,7 +115,26 @@ export function loadTokenHourData(
     tokenHourData.high = tokenPrice;
     tokenHourData.low = tokenPrice;
     tokenHourData.close = tokenPrice;
+    tokenHourData.save();
+  }
 
+  if (update) {
+    tokenHourData.txCount = tokenHourData.txCount.plus(BIG_INT_ONE);
+    tokenHourData.totalValueLocked = token.totalValueLocked;
+    tokenHourData.totalValueLockedAVAX = safeDiv(
+      token.totalValueLockedUSD,
+      bundle.avaxPriceUSD
+    );
+    tokenHourData.totalValueLockedUSD = token.totalValueLockedUSD;
+    tokenHourData.priceUSD = tokenPrice;
+
+    if (tokenHourData.high.lt(tokenPrice)) {
+      tokenHourData.high = tokenPrice;
+    }
+    if (tokenHourData.low.gt(tokenPrice)) {
+      tokenHourData.low = tokenPrice;
+    }
+    tokenHourData.close = tokenPrice;
     tokenHourData.save();
   }
 
@@ -104,7 +143,8 @@ export function loadTokenHourData(
 
 export function loadTokenDayData(
   timestamp: BigInt,
-  token: Token
+  token: Token,
+  update: bool
 ): TokenDayData {
   const bundle = loadBundle();
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
@@ -131,7 +171,26 @@ export function loadTokenDayData(
     tokenDayData.high = tokenPrice;
     tokenDayData.low = tokenPrice;
     tokenDayData.close = tokenPrice;
+    tokenDayData.save();
+  }
 
+  if (update) {
+    tokenDayData.txCount = tokenDayData.txCount.plus(BIG_INT_ONE);
+    tokenDayData.totalValueLocked = token.totalValueLocked;
+    tokenDayData.totalValueLockedAVAX = safeDiv(
+      token.totalValueLockedUSD,
+      bundle.avaxPriceUSD
+    );
+    tokenDayData.totalValueLockedUSD = token.totalValueLockedUSD;
+    tokenDayData.priceUSD = tokenPrice;
+
+    if (tokenDayData.high.lt(tokenPrice)) {
+      tokenDayData.high = tokenPrice;
+    }
+    if (tokenDayData.low.gt(tokenPrice)) {
+      tokenDayData.low = tokenPrice;
+    }
+    tokenDayData.close = tokenPrice;
     tokenDayData.save();
   }
 
@@ -140,7 +199,8 @@ export function loadTokenDayData(
 
 export function loadLBPairHourData(
   timestamp: BigInt,
-  lbPair: LBPair
+  lbPair: LBPair,
+  update: bool
 ): LBPairHourData {
   const SECONDS_IN_HOUR = BigInt.fromI32(60 * 60);
   const hourId = timestamp.div(SECONDS_IN_HOUR);
@@ -163,7 +223,15 @@ export function loadLBPairHourData(
     lbPairHourData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     lbPairHourData.txCount = BIG_INT_ZERO;
     lbPairHourData.feesUSD = BIG_DECIMAL_ZERO;
+    lbPairHourData.save();
+  }
 
+  if (update) {
+    lbPairHourData.reserveX = lbPair.reserveX;
+    lbPairHourData.reserveY = lbPair.reserveY;
+    lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
+    lbPairHourData.totalSupply = lbPair.totalSupply;
+    lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
     lbPairHourData.save();
   }
 
@@ -172,7 +240,8 @@ export function loadLBPairHourData(
 
 export function loadLBPairDayData(
   timestamp: BigInt,
-  lbPair: LBPair
+  lbPair: LBPair,
+  update: bool
 ): LBPairDayData {
   const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
   const dayId = timestamp.div(SECONDS_IN_DAY);
@@ -195,7 +264,15 @@ export function loadLBPairDayData(
     lbPairDayData.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     lbPairDayData.txCount = BIG_INT_ZERO;
     lbPairDayData.feesUSD = BIG_DECIMAL_ZERO;
+    lbPairDayData.save();
+  }
 
+  if (update) {
+    lbPairDayData.reserveX = lbPair.reserveX;
+    lbPairDayData.reserveY = lbPair.reserveY;
+    lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
+    lbPairDayData.totalSupply = lbPair.totalSupply;
+    lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
     lbPairDayData.save();
   }
 
@@ -215,6 +292,8 @@ export function loadSJoeDayData(timestamp: BigInt): SJoeDayData {
     sJoeDayData.amountY = BIG_DECIMAL_ZERO;
     sJoeDayData.collectedAVAX = BIG_DECIMAL_ZERO;
     sJoeDayData.collectedUSD = BIG_DECIMAL_ZERO;
+
+    sJoeDayData.save();
   }
 
   return sJoeDayData as SJoeDayData;
