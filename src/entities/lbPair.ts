@@ -29,7 +29,7 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
     return null;
   }
 
-  const tokenX = loadToken(tokenYCall.value);
+  const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
 
   lbPair.factory = LBFACTORY_ADDRESS.toHexString();
