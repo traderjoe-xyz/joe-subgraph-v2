@@ -454,10 +454,6 @@ type LiquidityPosition @entity {
   # user's lp token balance
   lbTokenBalance: BigDecimal!
 
-  # liquidity shape
-  # distributionX: [BigInt!]!
-  # distributionY: [BigInt!]!
-
   # snapshot of liquidity positions
   snapshots: [LiquidityPositionSnapshot!]!
     @derivedFrom(field: "liquidityPosition")
@@ -506,7 +502,6 @@ type Transaction @entity {
   blockNumber: Int!
   timestamp: Int!
 
-  # This is not the reverse of Mint.transaction; it is only used to track incomplete mints (similar for burns and swaps)
   mints: [Mint!]! @derivedFrom(field: "transaction")
   burns: [Burn!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")

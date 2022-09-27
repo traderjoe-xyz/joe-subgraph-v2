@@ -12,7 +12,6 @@ import {
   TransferSingle,
   TransferBatch,
   ApprovalForAll,
-  LBPair as LBPairABI,
 } from "../generated/LBPair/LBPair";
 import {
   Token,
