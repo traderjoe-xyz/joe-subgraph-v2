@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, BigInt } from "@graphprotocol/graph-ts";
 import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
@@ -7,6 +7,7 @@ import {
   WHITELIST_TOKENS,
 } from "../constants";
 import { loadToken } from "./token";
+import { trackBin } from "./bin";
 import { LBPairCreated } from "../../generated/LBFactory/LBFactory";
 import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
@@ -41,6 +42,7 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.tokenX = tokenXCall.value.toHexString();
   lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = event.params.binStep;
+  lbPair.activeId = trackBin(lbPair as LBPair, BigInt.fromI32(0)).id;
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;

@@ -289,6 +289,7 @@ type LBPair @entity {
   tokenX: Token!
   tokenY: Token!
   binStep: BigInt!
+  activeId: Bin!
 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
@@ -322,7 +323,6 @@ type LBPair @entity {
   liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
     @derivedFrom(field: "lbPair")
 
-  activeId: Bin!
   bins: [Bin!]! @derivedFrom(field: "lbPair")
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
