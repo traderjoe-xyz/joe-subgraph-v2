@@ -18,6 +18,7 @@ export function trackBin(lbPair: LBPair, binId: BigInt): Bin {
   if (!bin) {
     bin = new Bin(id);
     bin.lbPair = lbPair.id;
+    bin.binId = binId;
   }
 
   if (!binReservesCall.reverted) {

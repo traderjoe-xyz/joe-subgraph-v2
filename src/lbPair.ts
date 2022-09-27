@@ -366,8 +366,6 @@ export function handleSwap(event: SwapEvent): void {
 
     candle.save();
   }
-
-  // TODO: keep track of the Bin entity
 }
 
 export function handleFlashLoan(event: FlashLoan): void {
@@ -516,7 +514,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     return;
   }
 
-  trackBin(lbPair as LBPair, event.params.id);
+  const bin = trackBin(lbPair as LBPair, event.params.id);
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
@@ -617,6 +615,18 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     event.params.recipient,
     event.block
   );
+  const userBins = liquidityPosition.bins;
+  let trackedCurrentUserBin = false;
+  for (let i = 0; i < userBins.length; i++) {
+    if (userBins[i] === bin.id) {
+      trackedCurrentUserBin = true;
+      break;
+    }
+  }
+  if (!trackedCurrentUserBin) {
+    userBins.push(bin.id);
+    liquidityPosition.bins = userBins;
+  }
   if (liquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
     lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
       BIG_INT_ONE
@@ -626,12 +636,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   liquidityPosition.lbTokenBalance = liquidityPosition.lbTokenBalance.plus(
     lbTokensMinted
   );
-  const userLpDistributionX = liquidityPosition.distributionX;
-  userLpDistributionX.push(event.params.distributionX);
-  liquidityPosition.distributionX = userLpDistributionX;
-  const userLpDistributionY = liquidityPosition.distributionY;
-  userLpDistributionY.push(event.params.distributionY);
-  liquidityPosition.distributionY = userLpDistributionY;
   liquidityPosition.save();
 
   // LiquidityPositionSnapshot
@@ -656,8 +660,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   mint.amountUSD = amountUSD;
   mint.logIndex = event.logIndex;
   mint.save();
-
-  // TODO: keep track of the Bin entity
 }
 
 export function handleCompositionFee(event: CompositionFee): void {
@@ -882,8 +884,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   );
   // reset distributions if user withdraws all lbTokens
   if (liquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
-    liquidityPosition.distributionX = [];
-    liquidityPosition.distributionY = [];
+    liquidityPosition.bins = [];
     lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
       BIG_INT_ZERO
     );
@@ -913,8 +914,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   burn.amountUSD = amountUSD;
   burn.logIndex = event.logIndex;
   burn.save();
-
-  // TODO: keep track of the Bin entity
 }
 
 export function handleFeesCollected(event: FeesCollected): void {
@@ -1063,15 +1062,11 @@ export function handleTransferSingle(event: TransferSingle): void {
   recipientLiquidityPosition.lbTokenBalance = recipientLiquidityPosition.lbTokenBalance.plus(
     lbTokenAmountTransferred
   );
-  // - LiquidityPosition.distributionX (recipient)
-  // - LiquidityPosition.distributionY (recipient)
   recipientLiquidityPosition.save();
 
   senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
     lbTokenAmountTransferred
   );
-  // - LiquidityPosition.distributionX (sender)
-  // - LiquidityPosition.distributionY (sender)
   senderLiquidityPosition.save();
 
   saveLiquidityPositionSnapshot(
@@ -1162,16 +1157,10 @@ export function handleTransferBatch(event: TransferBatch): void {
     lbTokenAmountTransferred
   );
   recipientLiquidityPosition.save();
-  // - LiquidityPosition.distributionX (recipient)
-  // - LiquidityPosition.distributionY (recipient)
-
-  // - LiquidityPosition.lbTokenBalance (sender)
   senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
     lbTokenAmountTransferred
   );
   senderLiquidityPosition.save();
-  // - LiquidityPosition.distributionX (sender)
-  // - LiquidityPosition.distributionY (sender)
 
   saveLiquidityPositionSnapshot(
     recipientLiquidityPosition as LiquidityPosition,

@@ -348,6 +348,7 @@ type Bin @entity {
   totalSupply: BigDecimal!
   reserveX: BigDecimal!
   reserveY: BigDecimal!
+  binId: BigInt!
 }
 
 type User @entity {
@@ -447,14 +448,15 @@ type LiquidityPosition @entity {
   lbPair: LBPair!
 
   # number of bins user has liquidity in
-  binCount: BigInt!
+  binCount: Int!
+  bins: [Bin!]!
 
   # user's lp token balance
   lbTokenBalance: BigDecimal!
 
   # liquidity shape
-  distributionX: [BigInt!]!
-  distributionY: [BigInt!]!
+  # distributionX: [BigInt!]!
+  # distributionY: [BigInt!]!
 
   # snapshot of liquidity positions
   snapshots: [LiquidityPositionSnapshot!]!
