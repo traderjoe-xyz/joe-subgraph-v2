@@ -322,7 +322,7 @@ type LBPair @entity {
   liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
     @derivedFrom(field: "lbPair")
 
-  activeId: Bin! @derivedFrom(field: "lbPair")
+  activeId: Bin!
   bins: [Bin!]! @derivedFrom(field: "lbPair")
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
@@ -342,12 +342,13 @@ type LBPair @entity {
 }
 
 type Bin @entity {
-  id: ID! # lbPair address + binId
+  id: ID! # lbPair address + # + binId
   lbPair: LBPair!
   price: BigDecimal!
   totalSupply: BigDecimal!
   reserveX: BigDecimal!
   reserveY: BigDecimal!
+  binId: BigInt!
 }
 
 type User @entity {
@@ -447,14 +448,11 @@ type LiquidityPosition @entity {
   lbPair: LBPair!
 
   # number of bins user has liquidity in
-  binCount: BigInt!
+  binCount: Int!
+  bins: [Bin!]!
 
   # user's lp token balance
   lbTokenBalance: BigDecimal!
-
-  # liquidity shape
-  distributionX: [BigInt!]!
-  distributionY: [BigInt!]!
 
   # snapshot of liquidity positions
   snapshots: [LiquidityPositionSnapshot!]!
@@ -504,7 +502,6 @@ type Transaction @entity {
   blockNumber: Int!
   timestamp: Int!
 
-  # This is not the reverse of Mint.transaction; it is only used to track incomplete mints (similar for burns and swaps)
   mints: [Mint!]! @derivedFrom(field: "transaction")
   burns: [Burn!]! @derivedFrom(field: "transaction")
   swaps: [Swap!]! @derivedFrom(field: "transaction")
