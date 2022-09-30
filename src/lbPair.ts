@@ -1,4 +1,4 @@
-// Bin entity and Tick field are yet to be added
+// Tick field is yet to be added
 
 import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
@@ -938,14 +938,10 @@ export function handleFeesCollected(event: FeesCollected): void {
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
 
-  const id = event.params.sender
-    .toHexString()
-    .concat(event.address.toHexString())
-    .concat("#")
-    .concat(user.collects.length.toString());
-
   const transaction = loadTransaction(event);
-  const feeCollected = new Collect(id);
+  const feeCollected = new Collect(
+    transaction.id.concat("#").concat(lbPair.txCount.toString())
+  );
   feeCollected.transaction = transaction.id;
   feeCollected.timestamp = event.block.timestamp.toI32();
 
@@ -954,12 +950,8 @@ export function handleFeesCollected(event: FeesCollected): void {
   feeCollected.amountY = amountY;
 
   feeCollected.sender = user.id;
-  feeCollected.recipient = Bytes.fromHexString(
-    event.params.recipient.toHexString()
-  );
-  feeCollected.origin = Bytes.fromHexString(
-    event.transaction.from.toHexString()
-  );
+  feeCollected.recipient = event.params.recipient;
+  feeCollected.origin = event.transaction.from;
   feeCollected.collectedUSD = amountUSD;
   feeCollected.collectedAVAX = safeDiv(amountUSD, bundle.avaxPriceUSD);
   feeCollected.logIndex = event.logIndex;
@@ -1089,7 +1081,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   transfer.lbTokenAmount = lbTokenAmountTransferred;
   transfer.sender = sender.id;
   transfer.recipient = recipient.id;
-  transfer.origin = Bytes.fromHexString(event.transaction.from.toHexString());
+  transfer.origin = event.transaction.from;
   transfer.logIndex = event.logIndex;
 
   transfer.save();
@@ -1182,7 +1174,7 @@ export function handleTransferBatch(event: TransferBatch): void {
   transfer.lbTokenAmount = lbTokenAmountTransferred;
   transfer.sender = sender.id;
   transfer.recipient = recipient.id;
-  transfer.origin = Bytes.fromHexString(event.transaction.from.toHexString());
+  transfer.origin = event.transaction.from;
   transfer.logIndex = event.logIndex;
 
   transfer.save();
@@ -1193,25 +1185,14 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   const lbTokenApprovals = user.lbTokenApprovals;
 
   if (event.params.approved) {
-    if (
-      !isAccountApproved(
-        lbTokenApprovals,
-        Bytes.fromHexString(event.params.account.toHexString())
-      )
-    ) {
-      lbTokenApprovals.push(
-        Bytes.fromHexString(event.params.sender.toHexString())
-      );
+    if (!isAccountApproved(lbTokenApprovals, event.params.account)) {
+      lbTokenApprovals.push(event.params.sender);
       user.lbTokenApprovals = lbTokenApprovals;
     }
   } else {
     const newLbTokenApprovals: Bytes[] = [];
     for (let i = 0; i < lbTokenApprovals.length; i++) {
-      if (
-        lbTokenApprovals[i].notEqual(
-          Bytes.fromHexString(event.params.sender.toHexString())
-        )
-      ) {
+      if (lbTokenApprovals[i].notEqual(event.params.sender)) {
         newLbTokenApprovals.push(lbTokenApprovals[i]);
       }
     }

@@ -22,7 +22,6 @@ $ graph auth
 
 # deploy subgraph
 $ yarn deploy
-```
 ````
 
 ### Setting up local node (for development)
