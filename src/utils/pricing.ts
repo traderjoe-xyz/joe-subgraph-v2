@@ -1,13 +1,17 @@
-import { Address, BigDecimal } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import {
+  BIG_DECIMAL_1E18,
+  BIG_DECIMAL_1E6,
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
   WAVAX_ADDRESS,
   AVAX_USDC_20BPS,
   STABLECOINS,
   WHITELIST_TOKENS,
+  AVAX_USDC_V1
 } from "../constants";
 import { Token } from "../../generated/schema";
+import { Pair as PairContract } from "../../generated/LBPair/Pair"
 import { loadLbPair, loadBundle, loadToken, loadLBFactory } from "../entities";
 import { safeDiv } from "../utils";
 
@@ -23,12 +27,25 @@ function isPairIgnored(ignoredLbPairs: string[], pair: string): bool {
 }
 
 export function getAvaxPriceInUSD(): BigDecimal {
-  // fetch avax price from avax-usdc pool
-  let avaxUsdcPool = loadLbPair(AVAX_USDC_20BPS);
-  if (avaxUsdcPool) {
-    return safeDiv(avaxUsdcPool.reserveY, avaxUsdcPool.reserveX);
+
+  // fetch from V1 AVAX-USDC pool
+  const pair = PairContract.bind(AVAX_USDC_V1)
+
+  const reservesResult = pair.try_getReserves()
+  if (reservesResult.reverted) {
+    log.warning('[getAvaxPriceInUSD] getReserves reverted', [])
+    return BIG_DECIMAL_ZERO
   }
-  return BIG_DECIMAL_ZERO;
+
+  log.warning('[getAvaxPriceInUSD] getReserves success', [])
+
+  const reserves = reservesResult.value
+  const reserve0 = reserves.value0.toBigDecimal().times(BIG_DECIMAL_1E18) // USDC 6 + 18 = 24 decimals
+  const reserve1 = reserves.value1.toBigDecimal().times(BIG_DECIMAL_1E6)  // WAVAX 18 + 6 = 24 decimals
+
+  log.warning('[getAvaxPriceInUSD] avaxPriceInUSD {}', [reserve0.div(reserve1).toString()])
+
+  return reserve0.div(reserve1)
 }
 
 export function getTokenPriceInAVAX(token: Token): BigDecimal {
