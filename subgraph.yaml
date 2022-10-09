@@ -76,6 +76,8 @@ dataSources:
           file: ./abis/LBPair.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: Pair
+          file: ./abis/JoePair.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,indexed uint24,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleSwap
