@@ -16,6 +16,11 @@
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "LBFactory__AddressZero",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint16",
@@ -274,7 +279,7 @@
   },
   {
     "inputs": [],
-    "name": "LBFactory__ZeroAddress",
+    "name": "PendingOwnable__AddressZero",
     "type": "error"
   },
   {
@@ -298,6 +303,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "x",
+        "type": "uint256"
+      }
+    ],
+    "name": "SafeCast__Exceeds24Bits",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -314,7 +330,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "sender",
         "type": "address"
@@ -456,7 +472,7 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "contract ILBPair",
         "name": "LBPair",
         "type": "address"
@@ -721,19 +737,6 @@
   },
   {
     "inputs": [],
-    "name": "allPairsLength",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "becomeOwner",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -771,6 +774,19 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "creationUnlocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -813,6 +829,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getAllBinSteps",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "presetsBinStep",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "contract IERC20",
@@ -825,14 +854,14 @@
         "type": "address"
       }
     ],
-    "name": "getAvailableLBPairsBinStep",
+    "name": "getAllLBPairs",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "uint256",
+            "internalType": "uint24",
             "name": "binStep",
-            "type": "uint256"
+            "type": "uint24"
           },
           {
             "internalType": "contract ILBPair",
@@ -850,22 +879,9 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct ILBFactory.LBPairAvailable[]",
+        "internalType": "struct ILBFactory.LBPairInformation[]",
         "name": "LBPairsAvailable",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAvailablePresetsBinStep",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "presetsBinStep",
-        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -889,10 +905,15 @@
         "type": "uint256"
       }
     ],
-    "name": "getLBPairInfo",
+    "name": "getLBPairInformation",
     "outputs": [
       {
         "components": [
+          {
+            "internalType": "uint24",
+            "name": "binStep",
+            "type": "uint24"
+          },
           {
             "internalType": "contract ILBPair",
             "name": "LBPair",
@@ -909,9 +930,35 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct ILBFactory.LBPairInfo",
+        "internalType": "struct ILBFactory.LBPairInformation",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNumberOfLBPairs",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNumberOfQuoteAssets",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -985,19 +1032,6 @@
         "internalType": "contract IERC20",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getQuoteAssetCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1096,7 +1130,7 @@
         "type": "bool"
       }
     ],
-    "name": "setFactoryLocked",
+    "name": "setFactoryLockedState",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1290,19 +1324,6 @@
     "name": "setPreset",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "unlocked",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]
