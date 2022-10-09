@@ -35,7 +35,7 @@ dataSources:
           handler: handleFlashLoanFeeSet
         - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
           handler: handleLBPairCreated
-        - event: LBPairIgnoredStateChanged(address,bool)
+        - event: LBPairIgnoredStateChanged(indexed address,bool)
           handler: handleLBPairIgnoredStateChanged
       file: ./src/lbFactory.ts
 
