@@ -12,11 +12,11 @@ export const NULL_CALL_RESULT_VALUE =
 
 // -> FUJI
 export const AVAX_USDC_20BPS = Address.fromString(
-  "0x05040a918bc971f6e7f660E99A588951015A71C1"
+  "0xc8aa3bF8623C35EAc518Ea82B55C2aa46D5A02f6"
 );
 
 export const LBFACTORY_ADDRESS = Address.fromString(
-  "0x2c2A4F4F0d5BABB0E501784F4D66a7131eff86F1"
+  "0x2950b9bd19152C91d69227364747b3e6EFC8Ab7F"
 );
 
 export const WAVAX_ADDRESS = Address.fromString(
@@ -25,8 +25,8 @@ export const WAVAX_ADDRESS = Address.fromString(
 
 export const WHITELIST_TOKENS: Address[] = [
   WAVAX_ADDRESS, // WAVAX
-  Address.fromString("0x8c0f5Ade9cBdb19a49B06aDFB67b6702B459162B"), // USDC
-  Address.fromString("0x791B0c848AD79549F950f69E6E4CF9e3C112a230"), // USDT
+  Address.fromString("0xB6076C93701D6a07266c31066B298AeC6dd65c2d"), // USDC
+  Address.fromString("0xAb231A5744C8E6c45481754928cCfFFFD4aa0732"), // USDT
   // USDC_E
   // MIM
   // USDT_E
@@ -36,8 +36,8 @@ export const WHITELIST_TOKENS: Address[] = [
 ];
 
 export const STABLECOINS: Address[] = [
-  Address.fromString("0x8c0f5Ade9cBdb19a49B06aDFB67b6702B459162B"), // USDC
-  Address.fromString("0x791B0c848AD79549F950f69E6E4CF9e3C112a230"), // USDT
+  Address.fromString("0xB6076C93701D6a07266c31066B298AeC6dd65c2d"), // USDC
+  Address.fromString("0xAb231A5744C8E6c45481754928cCfFFFD4aa0732"), // USDT
 ];
 
 // -> AVALANCHE
