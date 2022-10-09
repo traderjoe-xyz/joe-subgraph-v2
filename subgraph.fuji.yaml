@@ -8,9 +8,9 @@ dataSources:
     name: LBFactory
     network: fuji
     source:
-      address: "0x2c2A4F4F0d5BABB0E501784F4D66a7131eff86F1"
+      address: "0x2950b9bd19152C91d69227364747b3e6EFC8Ab7F"
       abi: LBFactory
-      startBlock: 13511977
+      startBlock: 14392417
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -44,7 +44,7 @@ dataSources:
     network: fuji
     source:
       abi: LBPair
-      startBlock: 13511977
+      startBlock: 14392417
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
