@@ -106,7 +106,7 @@ export function getTrackedVolumeUSD(
   tokenX: Token,
   tokenYAmount: BigDecimal,
   tokenY: Token
-) {
+): BigDecimal {
   const bundle = loadBundle();
   const priceXUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
   const priceYUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
