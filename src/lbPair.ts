@@ -523,7 +523,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensMinted = formatTokenAmountByDecimals(
     event.params.minted,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -791,7 +791,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensBurned = formatTokenAmountByDecimals(
     event.params.burned,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -1003,7 +1003,7 @@ export function handleTransferSingle(event: TransferSingle): void {
 
   const lbTokenAmountTransferred = formatTokenAmountByDecimals(
     event.params.amount,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   const lbFactory = loadLBFactory();
@@ -1095,7 +1095,7 @@ export function handleTransferBatch(event: TransferBatch): void {
     lbTokenAmountTransferred = lbTokenAmountTransferred.plus(
       formatTokenAmountByDecimals(
         event.params.amounts[i],
-        BigInt.fromString("18")
+        BigInt.fromString("18") // TODO @gaepsuni fix decimal
       )
     );
   }

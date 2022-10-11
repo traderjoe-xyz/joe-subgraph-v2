@@ -206,9 +206,11 @@ export function loadLBPairHourData(
   const hourId = timestamp.div(SECONDS_IN_HOUR);
   const hourStartTimestamp = hourId.times(SECONDS_IN_HOUR);
 
-  let lbPairHourData = LBPairHourData.load(hourId.toString());
+  const id = lbPair.id.concat("-").concat(hourStartTimestamp.toString());
+
+  let lbPairHourData = LBPairHourData.load(id);
   if (!lbPairHourData) {
-    lbPairHourData = new LBPairHourData(hourId.toString());
+    lbPairHourData = new LBPairHourData(id);
     lbPairHourData.date = hourStartTimestamp.toI32();
     lbPairHourData.lbPair = lbPair.id;
     lbPairHourData.tokenX = lbPair.tokenX;
@@ -247,9 +249,11 @@ export function loadLBPairDayData(
   const dayId = timestamp.div(SECONDS_IN_DAY);
   const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
 
-  let lbPairDayData = LBPairDayData.load(dayId.toString());
+  const id = lbPair.id.concat("-").concat(dayStartTimestamp.toString());
+
+  let lbPairDayData = LBPairDayData.load(id);
   if (!lbPairDayData) {
-    lbPairDayData = new LBPairDayData(dayId.toString());
+    lbPairDayData = new LBPairDayData(id);
     lbPairDayData.date = dayStartTimestamp.toI32();
     lbPairDayData.lbPair = lbPair.id;
     lbPairDayData.tokenX = lbPair.tokenX;
