@@ -86,26 +86,23 @@ export function handleSwap(event: SwapEvent): void {
     event.params.amountXIn,
     tokenX.decimals
   );
-  log.warning("amountXIn {}", [amountXIn.toString()]);
   const amountXOut = formatTokenAmountByDecimals(
     event.params.amountXOut,
     tokenX.decimals
   );
-  log.warning("amountXOut {}", [amountXOut.toString()]);
+
   const amountYIn = formatTokenAmountByDecimals(
     event.params.amountYIn,
     tokenY.decimals
   );
-  log.warning("amountYIn {}", [amountYIn.toString()]);
   const amountYOut = formatTokenAmountByDecimals(
     event.params.amountYOut,
     tokenY.decimals
   );
-  log.warning("amountYOut {}", [amountYOut.toString()]);
+
   const amountXTotal = amountXIn.plus(amountXOut);
   const amountYTotal = amountYIn.plus(amountYOut);
-  log.warning("amountXTotal {}", [amountXTotal.toString()]);
-  log.warning("amountYTotal {}", [amountYTotal.toString()]);
+
   const feesX = formatTokenAmountByDecimals(
     event.params.feesX,
     tokenX.decimals
