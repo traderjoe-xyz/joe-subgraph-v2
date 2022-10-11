@@ -12,6 +12,7 @@ import {
 import { Token, Bin } from "../../generated/schema";
 import { Pair as PairContract } from "../../generated/LBPair/Pair"
 import { loadBundle } from "../entities";
+import { safeDiv } from "../utils";
 
 export function getAvaxPriceInUSD(): BigDecimal {
 
@@ -30,7 +31,7 @@ export function getAvaxPriceInUSD(): BigDecimal {
 
   log.warning('[getAvaxPriceInUSD] avaxPriceInUSD {}', [reserve0.div(reserve1).toString()])
 
-  return reserve0.div(reserve1)
+  return safeDiv(reserve0, reserve1)
 }
 
 export function getTokenPriceInAVAX(token: Token, otherToken: Token, bin: Bin, isTokenX: boolean): BigDecimal {
