@@ -57,6 +57,8 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.totalValueLockedUSD = BIG_DECIMAL_ZERO;
   lbPair.tokenXPrice = BIG_DECIMAL_ZERO;
   lbPair.tokenYPrice = BIG_DECIMAL_ZERO;
+  lbPair.tokenXPriceUSD = BIG_DECIMAL_ZERO;
+  lbPair.tokenYPriceUSD = BIG_DECIMAL_ZERO;
   lbPair.volumeTokenX = BIG_DECIMAL_ZERO;
   lbPair.volumeTokenY = BIG_DECIMAL_ZERO;
   lbPair.volumeUSD = BIG_DECIMAL_ZERO;
