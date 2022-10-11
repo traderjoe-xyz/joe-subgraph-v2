@@ -115,7 +115,12 @@ export function handleSwap(event: SwapEvent): void {
   const untrackedVolumeUSD = derivedAmountAVAX.times(bundle.avaxPriceUSD);
 
   // Bin
-  const bin = trackBin(lbPair as LBPair, BigInt.fromI32(event.params.id), tokenX, tokenY);
+  const bin = trackBin(
+    lbPair as LBPair,
+    BigInt.fromI32(event.params.id),
+    tokenX,
+    tokenY
+  );
 
   // LBPair
   lbPair.activeId = BigInt.fromI32(event.params.id);
@@ -543,7 +548,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   );
 
   // LBPair
-  lbPair.activeId = event.params.id
+  lbPair.activeId = event.params.id;
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.plus(amountX);
   lbPair.reserveY = lbPair.reserveY.plus(amountY);
@@ -674,7 +679,6 @@ export function handleCompositionFee(event: CompositionFee): void {
     return;
   }
 
-  
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
   const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
@@ -813,7 +817,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   );
 
   // LBPair
-  lbPair.activeId = event.params.id
+  lbPair.activeId = event.params.id;
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.minus(amountX);
   lbPair.reserveY = lbPair.reserveY.minus(amountY);

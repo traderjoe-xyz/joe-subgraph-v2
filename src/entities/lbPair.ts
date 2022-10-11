@@ -31,11 +31,11 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   }
 
   const lbPairReservesAndIdCall = lbPairContract.try_getReservesAndId();
-  if (lbPairReservesAndIdCall.reverted ) {
+  if (lbPairReservesAndIdCall.reverted) {
     return null;
   }
 
-  const activeId = lbPairReservesAndIdCall.value.getActiveId()
+  const activeId = lbPairReservesAndIdCall.value.getActiveId();
 
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
@@ -49,7 +49,7 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.tokenX = tokenXCall.value.toHexString();
   lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = event.params.binStep;
-  lbPair.activeId = activeId
+  lbPair.activeId = activeId;
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;
@@ -85,7 +85,7 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   }
 
   // generate Bin
-  trackBin(lbPair, activeId, tokenX, tokenY)
+  trackBin(lbPair, activeId, tokenX, tokenY);
 
   lbPair.save();
   tokenX.save();
