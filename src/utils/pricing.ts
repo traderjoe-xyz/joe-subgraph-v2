@@ -6,7 +6,6 @@ import {
   BIG_DECIMAL_ZERO,
   WAVAX_ADDRESS,
   USDC_ADDRESS,
-  WHITELIST_TOKENS,
   AVAX_USDC_V1,
 } from "../constants";
 import { Token, Bin } from "../../generated/schema";
@@ -69,7 +68,16 @@ export function getTokenPriceInAVAX(
   return BIG_DECIMAL_ZERO;
 }
 
-// Accepts tokens and amounts, return tracked amount based on token whitelist
+/**
+ * Returns the liquidity in USD
+ * - Liquidity is tracked for all tokens
+ *
+ * @param tokenXAmount
+ * @param tokenX
+ * @param tokenYAmount
+ * @param tokenY
+ * @returns
+ */
 export function getTrackedLiquidityUSD(
   tokenXAmount: BigDecimal,
   tokenX: Token,
@@ -77,38 +85,36 @@ export function getTrackedLiquidityUSD(
   tokenY: Token
 ): BigDecimal {
   const bundle = loadBundle();
-  const priceX = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
-  const priceY = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
+  const priceXUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const priceYUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
-  // both are whitelist tokens, take average of both amounts
-  if (
-    WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
-    WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
-  ) {
-    return tokenXAmount
-      .times(priceX)
-      .plus(tokenYAmount.times(priceY))
-      .div(BigDecimal.fromString("2"));
-  }
+  return tokenXAmount.times(priceXUSD).plus(tokenYAmount.times(priceYUSD));
+}
 
-  // take double value of the whitelisted token amount
-  if (
-    WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
-    !WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
-  ) {
-    return tokenXAmount.times(priceX).times(BigDecimal.fromString("2"));
-  }
+/**
+ * Returns the volume in USD by taking the average of both amounts
+ * - Volume is tracked for all tokens
+ *
+ * @param tokenXAmount
+ * @param tokenX
+ * @param tokenYAmount
+ * @param tokenY
+ * @returns
+ */
+export function getTrackedVolumeUSD(
+  tokenXAmount: BigDecimal,
+  tokenX: Token,
+  tokenYAmount: BigDecimal,
+  tokenY: Token
+) {
+  const bundle = loadBundle();
+  const priceXUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const priceYUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
 
-  // take double value of the whitelisted token amount
-  if (
-    !WHITELIST_TOKENS.includes(Address.fromString(tokenX.id)) &&
-    WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))
-  ) {
-    return tokenYAmount.times(priceY).times(BigDecimal.fromString("2"));
-  }
-
-  // neither token is on white list, tracked volume is 0
-  return BIG_DECIMAL_ZERO;
+  return tokenXAmount
+    .times(priceXUSD)
+    .plus(tokenYAmount.times(priceYUSD))
+    .div(BigDecimal.fromString("2"));
 }
 
 /**
