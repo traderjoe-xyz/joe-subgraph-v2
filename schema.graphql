@@ -289,7 +289,7 @@ type LBPair @entity {
   tokenX: Token!
   tokenY: Token!
   binStep: BigInt!
-  activeId: Bin!
+  activeId: BigInt!
 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
@@ -344,7 +344,8 @@ type LBPair @entity {
 type Bin @entity {
   id: ID! # lbPair address + # + binId
   lbPair: LBPair!
-  price: BigDecimal!
+  priceX: BigDecimal!
+  priceY: BigDecimal!
   totalSupply: BigDecimal!
   reserveX: BigDecimal!
   reserveY: BigDecimal!

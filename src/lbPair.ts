@@ -61,7 +61,6 @@ export function handleSwap(event: SwapEvent): void {
     return;
   }
 
-  const bin = trackBin(lbPair as LBPair, BigInt.fromI32(event.params.id));
   // reset tvl aggregates until new amounts calculated
   const lbFactory = loadLBFactory();
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
@@ -115,8 +114,11 @@ export function handleSwap(event: SwapEvent): void {
     .div(BigDecimal.fromString("2"));
   const untrackedVolumeUSD = derivedAmountAVAX.times(bundle.avaxPriceUSD);
 
+  // Bin
+  trackBin(lbPair as LBPair, BigInt.fromI32(event.params.id), tokenX, tokenY);
+
   // LBPair
-  lbPair.activeId = bin.id;
+  lbPair.activeId = BigInt.fromI32(event.params.id);
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.plus(amountXIn).minus(amountXOut);
   lbPair.reserveY = lbPair.reserveY.plus(amountYIn).minus(amountYOut);
@@ -513,9 +515,11 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     return;
   }
 
-  const bin = trackBin(lbPair as LBPair, event.params.id);
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  // Bin
+  const bin = trackBin(lbPair, event.params.id, tokenX, tokenY);
 
   const amountX = formatTokenAmountByDecimals(
     event.params.amountX,
@@ -669,11 +673,14 @@ export function handleCompositionFee(event: CompositionFee): void {
     return;
   }
 
-  trackBin(lbPair as LBPair, event.params.id);
+  
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
   const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
   const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
+
+  // Bin
+  trackBin(lbPair as LBPair, event.params.id, tokenX, tokenY);
 
   const feesX = formatTokenAmountByDecimals(
     event.params.feesX,
@@ -777,9 +784,11 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     return;
   }
 
-  trackBin(lbPair as LBPair, event.params.id);
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  // Bin
+  trackBin(lbPair as LBPair, event.params.id, tokenX, tokenY);
 
   const amountX = formatTokenAmountByDecimals(
     event.params.amountX,

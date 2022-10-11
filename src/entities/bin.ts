@@ -1,25 +1,27 @@
-import { BigInt, Address, bigDecimal } from "@graphprotocol/graph-ts";
-import { Bin, LBPair } from "../../generated/schema";
+import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { Bin, LBPair, Token } from "../../generated/schema";
 import { LBPair as LBPairABI } from "../../generated/LBPair/LBPair";
-import { BIG_DECIMAL_ZERO } from "../constants";
-import { formatTokenAmountByDecimals, safeDiv } from "../utils";
-import { loadToken } from "./token";
+import { BIG_DECIMAL_ONE, BIG_DECIMAL_ZERO } from "../constants";
+import { formatTokenAmountByDecimals, getPriceYOfBin } from "../utils";
 
-export function trackBin(lbPair: LBPair, binId: BigInt): Bin {
+export function trackBin(lbPair: LBPair, binId: BigInt, tokenX: Token, tokenY: Token): Bin {
   const id = lbPair.id.concat("#").concat(binId.toString());
   let bin = Bin.load(id);
-  const contract = LBPairABI.bind(Address.fromString(lbPair.id));
-  const binReservesCall = contract.try_getBin(binId.toI32());
-  const binTotalSupplyCall = contract.try_totalSupply(binId);
-
-  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
-  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
   if (!bin) {
     bin = new Bin(id);
     bin.lbPair = lbPair.id;
     bin.binId = binId;
+    bin.reserveX = BIG_DECIMAL_ZERO;
+    bin.reserveY = BIG_DECIMAL_ZERO;
+    bin.totalSupply = BIG_DECIMAL_ZERO;
+    bin.priceY = getPriceYOfBin(binId, lbPair.binStep, tokenX, tokenY ); // each bin has a determined price
+    bin.priceX = BIG_DECIMAL_ONE.div(bin.priceY)
   }
+
+  const contract = LBPairABI.bind(Address.fromString(lbPair.id));
+  const binReservesCall = contract.try_getBin(binId.toI32());
+  const binTotalSupplyCall = contract.try_totalSupply(binId);
 
   if (!binReservesCall.reverted) {
     bin.reserveX = formatTokenAmountByDecimals(
@@ -30,21 +32,14 @@ export function trackBin(lbPair: LBPair, binId: BigInt): Bin {
       binReservesCall.value.value1,
       tokenY.decimals
     );
-    bin.price = safeDiv(bin.reserveX, bin.reserveY);
-  } else {
-    bin.reserveX = BIG_DECIMAL_ZERO;
-    bin.reserveY = BIG_DECIMAL_ZERO;
-    bin.price = BIG_DECIMAL_ZERO;
-  }
+  } 
 
   if (!binTotalSupplyCall.reverted) {
     bin.totalSupply = formatTokenAmountByDecimals(
       binTotalSupplyCall.value,
-      BigInt.fromI32(18)
+      tokenY.decimals // bin's totalSupply is in terms of tokenY
     );
-  } else {
-    bin.totalSupply = BIG_DECIMAL_ZERO;
-  }
+  } 
 
   bin.save();
 

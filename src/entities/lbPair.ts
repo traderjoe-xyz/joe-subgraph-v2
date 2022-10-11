@@ -1,4 +1,4 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address } from "@graphprotocol/graph-ts";
 import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
@@ -30,6 +30,13 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
     return null;
   }
 
+  const lbPairReservesAndIdCall = lbPairContract.try_getReservesAndId();
+  if (lbPairReservesAndIdCall.reverted ) {
+    return null;
+  }
+
+  const activeId = lbPairReservesAndIdCall.value.getActiveId()
+
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
 
@@ -42,7 +49,7 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.tokenX = tokenXCall.value.toHexString();
   lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = event.params.binStep;
-  lbPair.activeId = trackBin(lbPair as LBPair, BigInt.fromI32(0)).id;
+  lbPair.activeId = activeId
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;
@@ -76,6 +83,9 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
     whitelistPools.push(lbPair.id);
     tokenY.whitelistPools = whitelistPools;
   }
+
+  // generate Bin
+  trackBin(lbPair, activeId, tokenX, tokenY)
 
   lbPair.save();
   tokenX.save();
