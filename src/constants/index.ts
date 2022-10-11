@@ -30,6 +30,10 @@ export const WAVAX_ADDRESS = Address.fromString(
   "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
 );
 
+export const USDC_ADDRESS = Address.fromString(
+  "0xB6076C93701D6a07266c31066B298AeC6dd65c2d"
+);
+
 export const WHITELIST_TOKENS: Address[] = [
   WAVAX_ADDRESS, // WAVAX
   Address.fromString("0xB6076C93701D6a07266c31066B298AeC6dd65c2d"), // USDC

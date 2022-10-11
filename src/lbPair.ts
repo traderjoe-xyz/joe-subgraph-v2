@@ -115,7 +115,7 @@ export function handleSwap(event: SwapEvent): void {
   const untrackedVolumeUSD = derivedAmountAVAX.times(bundle.avaxPriceUSD);
 
   // Bin
-  trackBin(lbPair as LBPair, BigInt.fromI32(event.params.id), tokenX, tokenY);
+  const bin = trackBin(lbPair as LBPair, BigInt.fromI32(event.params.id), tokenX, tokenY);
 
   // LBPair
   lbPair.activeId = BigInt.fromI32(event.params.id);
@@ -258,8 +258,8 @@ export function handleSwap(event: SwapEvent): void {
   // update USD pricing
   bundle.avaxPriceUSD = getAvaxPriceInUSD();
   bundle.save();
-  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX as Token);
-  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY as Token);
+  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
+  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
   tokenX.save();
   tokenY.save();
 
