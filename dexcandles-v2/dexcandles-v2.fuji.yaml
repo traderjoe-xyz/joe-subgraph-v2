@@ -17,6 +17,12 @@ dataSources:
       abis:
         - name: LBPair
           file: ../abis/LBPair.json
+        - name: ERC20SymbolBytes
+          file: ../abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ../abis/ERC20NameBytes.json
+        - name: ERC20DecimalBytes
+          file: ../abis/ERC20DecimaleBytes.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,indexed uint24,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleSwap
