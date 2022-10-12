@@ -155,9 +155,6 @@ type Token @entity {
 
   derivedAVAX: BigDecimal!
 
-  # pools token is in that are white listed for USD pricing
-  whitelistPools: [LBPair!]!
-
   feesUSD: BigDecimal!
 
   # Token hour data
@@ -295,16 +292,17 @@ type LBPair @entity {
   reserveY: BigDecimal!
   totalSupply: BigDecimal!
 
-  # derived tvl
+  # tvl
   totalValueLockedAVAX: BigDecimal!
   totalValueLockedUSD: BigDecimal!
-
-  # used for separating per pair reserves and global
-  trackedReserveAVAX: BigDecimal!
 
   # Price in terms of the asset pair
   tokenXPrice: BigDecimal!
   tokenYPrice: BigDecimal!
+
+  # Price in terms of USDC
+  tokenXPriceUSD: BigDecimal!
+  tokenYPriceUSD: BigDecimal!
 
   # lifetime volume stats
   volumeTokenX: BigDecimal!
