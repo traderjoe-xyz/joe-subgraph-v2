@@ -1,0 +1,23 @@
+specVersion: 0.0.4
+schema:
+  file: ./dexcandles-v2.graphql
+dataSources:
+  - kind: ethereum
+    name: LBPair
+    network: fuji
+    source:
+      abi: LBPair
+      startBlock: 14392417
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Candle
+      abis:
+        - name: LBPair
+          file: ../abis/LBPair.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,indexed uint24,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSwap
+      file: ./src/dexcandles-v2.ts

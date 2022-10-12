@@ -1,0 +1,17 @@
+type Candle @entity {
+  id: ID! # period start timestamp + tokenX + tokenY
+  timeStart: Int!
+  period: Int!
+  lastBlock: Int!
+
+  tokenX: Bytes!
+  tokenY: Bytes!
+
+  volumeAVAX: BigDecimal!
+  volumeUSD: BigDecimal!
+
+  high: BigDecimal!
+  open: BigDecimal!
+  close: BigDecimal!
+  low: BigDecimal!
+}

@@ -1,0 +1,25 @@
+{
+  "name": "dex-candles-v2-fuji",
+  "version": "2.0.0",
+  "scripts": {
+    "prepare:avax": "mustache config/avax.json dexcandles-v2.template.yaml > dexcandles-v2.avax.yaml",
+    "prepare:fuji": "mustache config/fuji.json dexcandles-v2.template.yaml > dexcandles-v2.fuji.yaml",
+    "codegen:avax": "graph codegen dexcandles-v2.avax.yaml",
+    "codegen:fuji": "graph codegen dexcandles-v2.fuji.yaml",
+    "build:avax": "graph build dexcandles-v2.avax.yaml",
+    "build:fuji": "graph build dexcandles-v2.fuji.yaml",
+    "deploy:avax": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/dex-candles-v2 dexcandles-v2.avax.yaml",
+    "deploy:fuji": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/dex-candles-v2-fuji dexcandles-v2.fuji.yaml",
+    "create-local": "graph create --node http://localhost:8020/ traderjoe-xyz/dex-candles-v2-fuji",
+    "remove-local": "graph remove --node http://localhost:8020/ traderjoe-xyz/dex-candles-v2-fuji",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 traderjoe-xyz/dex-candles-v2-fuji"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.32.0",
+    "@graphprotocol/graph-ts": "0.27.0",
+    "mustache": "^4.2.0"
+  },
+  "repository": "https://github.com/traderjoe-xyz/joe-subgraph-v2.git",
+  "author": "traderjoexyz",
+  "license": "MIT"
+}
