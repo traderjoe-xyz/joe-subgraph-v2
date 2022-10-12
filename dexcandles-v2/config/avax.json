@@ -1,5 +1,7 @@
 {
   "network": "avalanche",
-  "startBlock": 0,
-  "factory": ""
+  "startBlockV2": 0,
+  "startBlockV1": 0,
+  "factoryV2": "",
+  "factoryV1": ""
 }

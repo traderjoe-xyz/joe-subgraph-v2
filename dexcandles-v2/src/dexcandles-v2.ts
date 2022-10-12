@@ -1,16 +1,21 @@
 import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
-import { Swap } from "../generated/LBPair/LBPair";
+import { Swap as SwapV1 } from "../generated/Pair/Pair";
+import { Swap as SwapV2 } from "../generated/LBPair/LBPair";
 import { Candle, LBPair } from "../generated/schema";
 import { loadToken } from "./entities";
 import { getPriceYOfBin, getAmountTraded } from "./utils/pricing";
 
-export function handleSwap(event: Swap): void {
+// @analog TODO: handle swap event from v1 pairs
+
+export function handleSwapV2(event: SwapV2): void {
   const BIG_DECIMAL_ZERO = BigDecimal.fromString("0");
   const lbPair = LBPair.load(event.address.toHexString());
   if (!lbPair) {
     return;
   }
 
+  // @analog TODO: make sure prices from ignored pairs are not tracked
+  // in candlestics
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
@@ -82,3 +87,5 @@ export function handleSwap(event: Swap): void {
     candle.save();
   }
 }
+
+export function handleSwapV1(event: SwapV1): void {}

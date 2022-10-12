@@ -7,6 +7,8 @@ type Token @entity {
   decimals: BigInt!
 }
 
+# @analog TODO: add entity for V1 pair
+
 type LBPair @entity {
   id: ID!
 

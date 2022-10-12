@@ -1,4 +1,5 @@
 import { LBPairCreated } from "../generated/LBFactory/LBFactory";
+import { PairCreated } from "../generated/Factory/Factory";
 import { LBPair } from "../generated/schema";
 import { loadToken } from "./entities";
 
@@ -13,3 +14,5 @@ export function handleLBPairCreated(event: LBPairCreated): void {
 
   lbPair.save();
 }
+
+export function handleV1PairCreated(event: PairCreated): void {}
