@@ -42,3 +42,24 @@ export function getPriceYOfBin(
 
   return result.times(tokenXDecimals).div(tokenYDecimals);
 }
+
+/**
+ * Returns the total amount traded given the amount in
+ * and amout out of an LBPair
+ *
+ * @param { BigInt } amountIn
+ * @param { BigInt } amountOut
+ * @param { BigInt } decimals
+ * @returns { BigDecimal }
+ */
+export function getAmountTraded(
+  amountIn: BigInt,
+  amountOut: BigInt,
+  tokenDecimals: BigInt
+): BigDecimal {
+  const decimals = BigDecimal.fromString(tokenDecimals.toString());
+  return amountIn
+    .minus(amountOut)
+    .abs()
+    .divDecimal(decimals);
+}

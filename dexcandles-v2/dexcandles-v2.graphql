@@ -18,15 +18,15 @@ type LBPair @entity {
 
 type Candle @entity {
   id: ID! # period start timestamp + tokenX + tokenY
-  timeStart: Int!
+  time: Int!
   period: Int!
   lastBlock: Int!
 
   tokenX: Bytes!
   tokenY: Bytes!
 
-  volumeAVAX: BigDecimal!
-  volumeUSD: BigDecimal!
+  tokenXTotalAmount: BigDecimal!
+  tokenYTotalAmount: BigDecimal!
 
   high: BigDecimal!
   open: BigDecimal!
