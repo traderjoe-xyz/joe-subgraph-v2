@@ -38,6 +38,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Candle
+        - LBPair
+        - Token
       abis:
         - name: LBPair
           file: ../abis/LBPair.json
