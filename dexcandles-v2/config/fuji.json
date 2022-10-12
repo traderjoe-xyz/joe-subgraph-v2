@@ -1,4 +1,5 @@
 {
   "network": "fuji",
-  "startBlock": 14392417
+  "startBlock": 14392417,
+  "factory": "0x2950b9bd19152C91d69227364747b3e6EFC8Ab7F"
 }
