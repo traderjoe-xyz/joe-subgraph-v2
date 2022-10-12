@@ -1,3 +1,21 @@
+type Token @entity {
+  id: ID! # token address
+
+  # mirrored from smart contract
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+}
+
+type LBPair @entity {
+  id: ID!
+
+  # mirrored from the smart contract
+  tokenX: Token!
+  tokenY: Token!
+  binStep: BigInt!
+}
+
 type Candle @entity {
   id: ID! # period start timestamp + tokenX + tokenY
   timeStart: Int!
