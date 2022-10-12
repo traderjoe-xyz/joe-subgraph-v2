@@ -24,11 +24,13 @@ export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
 export function handleLBPairCreated(event: LBPairCreated): void {
   const lbPair = createLBPair(event);
 
-  if (lbPair) {
-    const lbFactory = loadLBFactory();
-    lbFactory.pairCount = lbFactory.pairCount.plus(BIG_INT_ONE);
-    lbFactory.save();
+  if (!lbPair) {
+    return;
   }
+
+  const lbFactory = loadLBFactory();
+  lbFactory.pairCount = lbFactory.pairCount.plus(BIG_INT_ONE);
+  lbFactory.save();
 }
 
 export function handleLBPairIgnoredStateChanged(

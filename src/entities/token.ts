@@ -33,7 +33,6 @@ export function loadToken(address: Address): Token {
     token.totalValueLocked = BIG_DECIMAL_ZERO;
     token.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     token.derivedAVAX = BIG_DECIMAL_ZERO;
-    token.whitelistPools = [];
     token.feesUSD = BIG_DECIMAL_ZERO;
 
     token.save();

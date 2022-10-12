@@ -4,7 +4,6 @@ import {
   BIG_INT_ZERO,
   BIG_DECIMAL_ZERO,
   LBFACTORY_ADDRESS,
-  WHITELIST_TOKENS,
 } from "../constants";
 import { loadToken } from "./token";
 import { trackBin } from "./bin";
@@ -56,9 +55,10 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.totalSupply = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedUSD = BIG_DECIMAL_ZERO;
-  lbPair.trackedReserveAVAX = BIG_DECIMAL_ZERO;
   lbPair.tokenXPrice = BIG_DECIMAL_ZERO;
   lbPair.tokenYPrice = BIG_DECIMAL_ZERO;
+  lbPair.tokenXPriceUSD = BIG_DECIMAL_ZERO;
+  lbPair.tokenYPriceUSD = BIG_DECIMAL_ZERO;
   lbPair.volumeTokenX = BIG_DECIMAL_ZERO;
   lbPair.volumeTokenY = BIG_DECIMAL_ZERO;
   lbPair.volumeUSD = BIG_DECIMAL_ZERO;
@@ -72,24 +72,10 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.timestamp = event.block.timestamp;
   lbPair.block = event.block.number;
 
-  // update whitelisted lbPairs
-  if (WHITELIST_TOKENS.includes(Address.fromString(tokenX.id))) {
-    let whitelistPools = tokenX.whitelistPools;
-    whitelistPools.push(lbPair.id);
-    tokenX.whitelistPools = whitelistPools;
-  }
-  if (WHITELIST_TOKENS.includes(Address.fromString(tokenY.id))) {
-    let whitelistPools = tokenY.whitelistPools;
-    whitelistPools.push(lbPair.id);
-    tokenY.whitelistPools = whitelistPools;
-  }
-
   // generate Bin
   trackBin(lbPair, activeId, tokenX, tokenY);
 
   lbPair.save();
-  tokenX.save();
-  tokenY.save();
 
   return lbPair as LBPair;
 }

@@ -1,6 +1,12 @@
 // Tick field is yet to be added
 
-import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigDecimal,
+  BigInt,
+  Bytes,
+  log,
+} from "@graphprotocol/graph-ts";
 import {
   Swap as SwapEvent,
   FlashLoan,
@@ -48,6 +54,7 @@ import {
   formatTokenAmountByDecimals,
   getAvaxPriceInUSD,
   getTrackedLiquidityUSD,
+  getTrackedVolumeUSD,
   getTokenPriceInAVAX,
   safeDiv,
   isAccountApproved,
@@ -58,6 +65,9 @@ export function handleSwap(event: SwapEvent): void {
   const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
+    log.warning("[handleSwap] LBPair not detected: {} ", [
+      event.address.toHexString(),
+    ]);
     return;
   }
 
@@ -80,6 +90,7 @@ export function handleSwap(event: SwapEvent): void {
     event.params.amountXOut,
     tokenX.decimals
   );
+
   const amountYIn = formatTokenAmountByDecimals(
     event.params.amountYIn,
     tokenY.decimals
@@ -88,8 +99,10 @@ export function handleSwap(event: SwapEvent): void {
     event.params.amountYOut,
     tokenY.decimals
   );
+
   const amountXTotal = amountXIn.plus(amountXOut);
   const amountYTotal = amountYIn.plus(amountYOut);
+
   const feesX = formatTokenAmountByDecimals(
     event.params.feesX,
     tokenX.decimals
@@ -101,18 +114,13 @@ export function handleSwap(event: SwapEvent): void {
   const feesUSD = feesX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(feesY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
-  const trackedVolumeUSD = getTrackedLiquidityUSD(
+  const trackedVolumeUSD = getTrackedVolumeUSD(
     amountXTotal,
     tokenX as Token,
     amountYTotal,
     tokenY as Token
   );
   const trackedVolumeAVAX = safeDiv(trackedVolumeUSD, bundle.avaxPriceUSD);
-  const derivedAmountAVAX = tokenX.derivedAVAX
-    .times(amountXTotal)
-    .plus(tokenY.derivedAVAX.times(amountYTotal))
-    .div(BigDecimal.fromString("2"));
-  const untrackedVolumeUSD = derivedAmountAVAX.times(bundle.avaxPriceUSD);
 
   // Bin
   const bin = trackBin(
@@ -127,29 +135,23 @@ export function handleSwap(event: SwapEvent): void {
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.plus(amountXIn).minus(amountXOut);
   lbPair.reserveY = lbPair.reserveY.plus(amountYIn).minus(amountYOut);
-  lbPair.totalValueLockedAVAX = lbPair.reserveX
-    .times(tokenX.derivedAVAX)
-    .plus(lbPair.reserveY.times(tokenY.derivedAVAX));
-  lbPair.totalValueLockedUSD = lbPair.totalValueLockedAVAX.times(
+  lbPair.totalValueLockedUSD = getTrackedLiquidityUSD(
+    lbPair.reserveX,
+    tokenX as Token,
+    lbPair.reserveY,
+    tokenY as Token
+  );
+  lbPair.totalValueLockedAVAX = safeDiv(
+    lbPair.totalValueLockedUSD,
     bundle.avaxPriceUSD
   );
-  lbPair.trackedReserveAVAX = safeDiv(
-    getTrackedLiquidityUSD(
-      lbPair.reserveX,
-      tokenX as Token,
-      lbPair.reserveY,
-      tokenY as Token
-    ),
-    bundle.avaxPriceUSD
-  );
-  lbPair.tokenXPrice = tokenXPriceUSD;
-  lbPair.tokenYPrice = tokenYPriceUSD;
+  lbPair.tokenXPrice = bin.priceX;
+  lbPair.tokenYPrice = bin.priceY;
+  lbPair.tokenXPriceUSD = tokenXPriceUSD;
+  lbPair.tokenYPriceUSD = tokenYPriceUSD;
   lbPair.volumeTokenX = lbPair.volumeTokenX.plus(amountXTotal);
   lbPair.volumeTokenY = lbPair.volumeTokenY.plus(amountYTotal);
   lbPair.volumeUSD = lbPair.volumeUSD.plus(trackedVolumeUSD);
-  lbPair.untrackedVolumeUSD = lbPair.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
   lbPair.feesTokenY = lbPair.feesTokenY.plus(feesY);
   lbPair.feesUSD = lbPair.feesUSD.plus(feesUSD);
@@ -164,9 +166,6 @@ export function handleSwap(event: SwapEvent): void {
   lbPairHourData.volumeTokenX = lbPairHourData.volumeTokenX.plus(amountXTotal);
   lbPairHourData.volumeTokenY = lbPairHourData.volumeTokenY.plus(amountYTotal);
   lbPairHourData.volumeUSD = lbPairHourData.volumeUSD.plus(trackedVolumeUSD);
-  lbPairHourData.untrackedVolumeUSD = lbPairHourData.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   lbPairHourData.feesUSD = lbPairHourData.feesUSD.plus(feesUSD);
   lbPairHourData.save();
 
@@ -179,9 +178,6 @@ export function handleSwap(event: SwapEvent): void {
   lbPairDayData.volumeTokenX = lbPairDayData.volumeTokenX.plus(amountXTotal);
   lbPairDayData.volumeTokenY = lbPairDayData.volumeTokenY.plus(amountYTotal);
   lbPairDayData.volumeUSD = lbPairDayData.volumeUSD.plus(trackedVolumeUSD);
-  lbPairDayData.untrackedVolumeUSD = lbPairDayData.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
 
@@ -189,9 +185,6 @@ export function handleSwap(event: SwapEvent): void {
   lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
   lbFactory.volumeUSD = lbFactory.volumeUSD.plus(trackedVolumeUSD);
   lbFactory.volumeAVAX = lbFactory.volumeAVAX.plus(trackedVolumeAVAX);
-  lbFactory.untrackedVolumeUSD = lbFactory.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.plus(
     lbPair.totalValueLockedAVAX
   );
@@ -210,9 +203,6 @@ export function handleSwap(event: SwapEvent): void {
   traderJoeHourData.volumeUSD = traderJoeHourData.volumeUSD.plus(
     trackedVolumeUSD
   );
-  traderJoeHourData.untrackedVolumeUSD = traderJoeHourData.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   traderJoeHourData.feesUSD = traderJoeHourData.feesUSD.plus(feesUSD);
   traderJoeHourData.save();
 
@@ -224,9 +214,6 @@ export function handleSwap(event: SwapEvent): void {
   traderJoeDayData.volumeUSD = traderJoeDayData.volumeUSD.plus(
     trackedVolumeUSD
   );
-  traderJoeDayData.untrackedVolumeUSD = traderJoeDayData.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
   traderJoeDayData.save();
 
@@ -234,9 +221,6 @@ export function handleSwap(event: SwapEvent): void {
   tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
   tokenX.volume = tokenX.volume.plus(amountXTotal);
   tokenX.volumeUSD = tokenX.volumeUSD.plus(trackedVolumeUSD);
-  tokenX.untrackedVolumeUSD = tokenX.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   tokenX.totalValueLocked = tokenX.totalValueLocked
     .plus(amountXIn)
     .minus(amountXOut);
@@ -249,9 +233,6 @@ export function handleSwap(event: SwapEvent): void {
   tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
   tokenY.volume = tokenY.volume.plus(amountYTotal);
   tokenY.volumeUSD = tokenY.volumeUSD.plus(trackedVolumeUSD);
-  tokenY.untrackedVolumeUSD = tokenY.untrackedVolumeUSD.plus(
-    untrackedVolumeUSD
-  );
   tokenY.totalValueLocked = tokenY.totalValueLocked
     .plus(amountYIn)
     .minus(amountYOut);
@@ -539,7 +520,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensMinted = formatTokenAmountByDecimals(
     event.params.minted,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -576,7 +557,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   } else {
     trackedLiquidityAVAX = BIG_DECIMAL_ZERO;
   }
-  lbPair.trackedReserveAVAX = trackedLiquidityAVAX;
   lbPair.save();
 
   // LBFactory
@@ -808,7 +788,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
   const lbTokensBurned = formatTokenAmountByDecimals(
     event.params.burned,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   // reset tvl aggregates until new amounts calculated
@@ -845,7 +825,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   } else {
     trackedLiquidityAVAX = BIG_DECIMAL_ZERO;
   }
-  lbPair.trackedReserveAVAX = trackedLiquidityAVAX;
   lbPair.save();
 
   // LBFactory
@@ -1021,7 +1000,7 @@ export function handleTransferSingle(event: TransferSingle): void {
 
   const lbTokenAmountTransferred = formatTokenAmountByDecimals(
     event.params.amount,
-    BigInt.fromString("18")
+    BigInt.fromString("18") // TODO @gaepsuni fix decimal
   );
 
   const lbFactory = loadLBFactory();
@@ -1113,7 +1092,7 @@ export function handleTransferBatch(event: TransferBatch): void {
     lbTokenAmountTransferred = lbTokenAmountTransferred.plus(
       formatTokenAmountByDecimals(
         event.params.amounts[i],
-        BigInt.fromString("18")
+        BigInt.fromString("18") // TODO @gaepsuni fix decimal
       )
     );
   }
