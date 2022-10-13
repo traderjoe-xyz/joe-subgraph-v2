@@ -5,24 +5,6 @@ type Bundle @entity {
   avaxPriceUSD: BigDecimal!
 }
 
-type Candle @entity {
-  id: ID! # timeId (timestamp/period) + period + tokenX + tokenY
-  timeStart: Int!
-  period: Int!
-  lastBlock: Int!
-
-  tokenX: Bytes!
-  tokenY: Bytes!
-
-  volumeAVAX: BigDecimal!
-  volumeUSD: BigDecimal!
-
-  high: BigDecimal!
-  open: BigDecimal!
-  close: BigDecimal!
-  low: BigDecimal!
-}
-
 type LBFactory @entity {
   # Contract address
   id: ID!
