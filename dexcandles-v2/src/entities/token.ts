@@ -8,7 +8,7 @@ export function loadToken(address: Address): Token {
   let token = Token.load(address.toHexString());
 
   if (!token) {
-    token = new Token(address.toString());
+    token = new Token(address.toHexString());
     token.name = getName(address);
     token.symbol = getSymbol(address);
     token.decimals = getDecimals(address);

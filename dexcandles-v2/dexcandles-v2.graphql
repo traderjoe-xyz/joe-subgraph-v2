@@ -11,7 +11,7 @@ type Pair @entity {
 
   # mirrored from smart contract
   token0: Token!
-  tokenY1: Token!
+  token1: Token!
 }
 
 type LBPair @entity {

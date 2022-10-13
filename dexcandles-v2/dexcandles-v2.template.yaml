@@ -24,6 +24,12 @@ dataSources:
           file: ../abis/LBFactory.json
         - name: LBPair
           file: ../abis/LBPair.json
+        - name: ERC20SymbolBytes
+          file: ../abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ../abis/ERC20NameBytes.json
+        - name: ERC20DecimalBytes
+          file: ../abis/ERC20DecimaleBytes.json
       eventHandlers:
         - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
           handler: handleLBPairCreated
@@ -74,6 +80,14 @@ dataSources:
       abis:
         - name: Factory
           file: ../abis/JoeFactory.json
+        - name: Pair
+          file: ../abis/JoePair.json
+        - name: ERC20SymbolBytes
+          file: ../abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ../abis/ERC20NameBytes.json
+        - name: ERC20DecimalBytes
+          file: ../abis/ERC20DecimaleBytes.json
       eventHandlers:
         - event: PairCreated(indexed address,indexed address,address,uint256)
           handler: handleV1PairCreated
@@ -96,6 +110,12 @@ dataSources:
       abis:
         - name: Pair
           file: ../abis/JoePair.json
+        - name: ERC20SymbolBytes
+          file: ../abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ../abis/ERC20NameBytes.json
+        - name: ERC20DecimalBytes
+          file: ../abis/ERC20DecimaleBytes.json
       eventHandlers:
         - event: Swap(indexed address,uint256,uint256,uint256,uint256,indexed address)
           handler: handleSwapV1
