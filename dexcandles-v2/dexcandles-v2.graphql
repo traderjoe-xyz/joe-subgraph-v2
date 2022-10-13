@@ -1,18 +1,23 @@
 type Token @entity {
   id: ID! # token address
-
   # mirrored from smart contract
   symbol: String!
   name: String!
   decimals: BigInt!
 }
 
-# @analog TODO: add entity for V1 pair
+type Pair @entity {
+  id: ID!
+
+  # mirrored from smart contract
+  token0: Token!
+  tokenY1: Token!
+}
 
 type LBPair @entity {
   id: ID!
 
-  # mirrored from the smart contract
+  # mirrored from smart contract
   tokenX: Token!
   tokenY: Token!
   binStep: BigInt!
