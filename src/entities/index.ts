@@ -7,5 +7,4 @@ export * from "./user";
 export * from "./liquidityPosition";
 export * from "./transaction";
 export * from "./liquidityPositionSnapshot";
-export * from "./candle";
 export * from "./bin"
