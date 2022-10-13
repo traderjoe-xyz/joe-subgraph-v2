@@ -26,11 +26,9 @@ export function handleSwapV2(event: SwapV2): void {
   for (let i = 0; i < candlestickPeriods.length; i++) {
     const timestamp = event.block.timestamp.toI32();
     const periodStart = timestamp - (timestamp % candlestickPeriods[i]);
-    // @analog TODO: fix candleId bug that occurs when period timestamp overlap
-    // for example, at 00:00 day timestamp and hour timestamp overlap.
-    // at 16:00, 4 hour timestamp and hour timestamp overlap
     const candleId = periodStart
       .toString()
+      .concat(candlestickPeriods[i].toString())
       .concat(tokenX.id)
       .concat(tokenY.id);
 
@@ -99,11 +97,9 @@ export function handleSwapV1(event: SwapV1): void {
   for (let i = 0; i < candlestickPeriods.length; i++) {
     const timestamp = event.block.timestamp.toI32();
     const periodStart = timestamp - (timestamp % candlestickPeriods[i]);
-    // @analog TODO: fix candleId bug that occurs when period timestamp overlap
-    // for example, at 00:00 day timestamp and hour timestamp overlap.
-    // at 16:00, 4 hour timestamp and hour timestamp overlap
     const candleId = periodStart
       .toString()
+      .concat(candlestickPeriods[i].toString())
       .concat(token0.id)
       .concat(token1.id);
 
