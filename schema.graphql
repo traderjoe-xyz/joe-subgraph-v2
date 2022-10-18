@@ -422,58 +422,20 @@ type LBPairHourData @entity {
   feesUSD: BigDecimal!
 }
 
-type LiquidityPosition @entity {
+type LiquidityPositions @entity {
   # lbPair address + user address
   id: ID!
   user: User!
   lbPair: LBPair!
 
   # number of bins user has liquidity in
-  binCount: Int!
-  bins: [Bin!]!
-
-  # user's lp token balance
-  lbTokenBalance: BigDecimal!
-
-  # snapshot of liquidity positions
-  snapshots: [LiquidityPositionSnapshot!]!
-    @derivedFrom(field: "liquidityPosition")
+  positionNumber: Int!
 
   # block info
   block: Int!
   timestamp: Int!
 }
 
-type LiquidityPositionSnapshot @entity {
-  # liquidity postition id + # + block number
-  id: ID!
-  user: User!
-  liquidityPosition: LiquidityPosition!
-
-  # block info: for fast historical lookups
-  timestamp: Int!
-  block: Int!
-
-  # pair
-  lbPair: LBPair!
-
-  # snapshot of tokens price in usd
-  tokenXPriceUSD: BigDecimal!
-  tokenYPriceUSD: BigDecimal!
-
-  # snapshot of pair tokens reserve
-  reserveX: BigDecimal!
-  reserveY: BigDecimal!
-
-  # snapshot of pair tvl in usd
-  totalValueLockedUSD: BigDecimal!
-
-  # snapshot of pool token supply
-  lbTokenTotalSupply: BigDecimal!
-
-  # snapshot of user's lp token balance
-  lbTokenBalance: BigDecimal!
-}
 
 type Transaction @entity {
   # transaction hash
