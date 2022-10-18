@@ -424,10 +424,25 @@ type LiquidityPositions @entity {
   user: User!
   lbPair: LBPair!
 
-  # number of bins user has liquidity in
-  positionNumber: Int!
+  # user's bins liquidities
+  userBinLiquidities: [UserBinLiquidity!]! @derivedFrom(field: "liquidityPostions")
 
   # block info
+  block: Int!
+  timestamp: Int!
+}
+
+type UserBinLiquidity @entity {
+  # lbPair address + user + bin address
+  id: ID!
+
+  user: User!
+  lbPair: LBPair!
+  bin: Bin!
+  liquidityPostions: LiquidityPositions!
+
+  liquidity: BigInt!
+
   block: Int!
   timestamp: Int!
 }
