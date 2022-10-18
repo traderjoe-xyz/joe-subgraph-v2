@@ -299,12 +299,8 @@ type LBPair @entity {
   # used to detect new exchanges
   liquidityProviderCount: BigInt!
 
-  # Liquidity position snapshots
-  liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
-    @derivedFrom(field: "lbPair")
-
   bins: [Bin!]! @derivedFrom(field: "lbPair")
-  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
+  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
   hourData: [LBPairHourData!]! @derivedFrom(field: "lbPair")
 
@@ -340,7 +336,7 @@ type User @entity {
   lbTokenApprovals: [Bytes!]!
 
   # Liquidity Positions
-  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
+  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "user")
 
   # fees collected by user for providing liquidity
   collects: [Collect!]! @derivedFrom(field: "sender")
@@ -435,7 +431,6 @@ type LiquidityPositions @entity {
   block: Int!
   timestamp: Int!
 }
-
 
 type Transaction @entity {
   # transaction hash
