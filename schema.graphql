@@ -272,7 +272,6 @@ type LBPair @entity {
 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
-  totalSupply: BigDecimal!
 
   # tvl
   totalValueLockedAVAX: BigDecimal!
@@ -472,7 +471,7 @@ type Mint @entity {
   lbPair: LBPair!
 
   # populated from the primary Transfer event
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   # populated from the Mint event
   sender: Bytes!
@@ -496,7 +495,7 @@ type Burn @entity {
   lbPair: LBPair!
 
   # populated from the primary Transfer event
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   # populated from the Mint event
   sender: Bytes!
@@ -590,7 +589,7 @@ type Transfer @entity {
 
   lbPair: LBPair!
 
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   sender: User!
   recipient: User!

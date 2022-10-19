@@ -61,7 +61,6 @@ export function createLBPair(lbPairAddr: Address, block?: ethereum.Block) {
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;
-  lbPair.totalSupply = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
   lbPair.totalValueLockedUSD = BIG_DECIMAL_ZERO;
   lbPair.tokenXPrice = BIG_DECIMAL_ZERO;

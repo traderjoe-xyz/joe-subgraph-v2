@@ -44,6 +44,8 @@ export function addLiquidityPosition(
   // increase count of bins user has liquidity
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
+
+    // update LBPair liquidityProviderCount 
   }
 
   // update liquidity
@@ -82,6 +84,9 @@ export function removeLiquidityPosition(
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
       BIG_INT_ONE
     );
+
+    // update LBPair liquidityProviderCount
+    
   }
 
   // update block and timestamp

@@ -22,7 +22,7 @@ import {
 import {
   Token,
   LBPair,
-  LiquidityPosition,
+  LiquidityPositions,
   Mint,
   Burn,
   Swap,
@@ -43,9 +43,9 @@ import {
   loadUser,
   loadLBPairDayData,
   loadLBPairHourData,
-  updateLiquidityPosition,
+  addLiquidityPosition,
+  removeLiquidityPosition,
   loadTransaction,
-  saveLiquidityPositionSnapshot,
   trackBin,
 } from "./entities";
 import { BIG_INT_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "./constants";
@@ -474,7 +474,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
   // Bin
-  const bin = trackBin(lbPair, event.params.id, tokenX, tokenY);
+  trackBin(lbPair, event.params.id, tokenX, tokenY);
 
   const amountX = formatTokenAmountByDecimals(
     event.params.amountX,
@@ -487,10 +487,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   const amountUSD = amountX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
-  const lbTokensMinted = formatTokenAmountByDecimals(
-    event.params.minted,
-    BigInt.fromString("18") // TODO @gaepsuni fix decimal
-  );
 
   // reset tvl aggregates until new amounts calculated
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
@@ -502,7 +498,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.plus(amountX);
   lbPair.reserveY = lbPair.reserveY.plus(amountY);
-  lbPair.totalSupply = lbPair.totalSupply.plus(lbTokensMinted);
 
   lbPair.totalValueLockedAVAX = lbPair.reserveX
     .times(tokenX.derivedAVAX)
@@ -568,36 +563,13 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   loadUser(event.params.recipient);
 
   // LiquidityPosition
-  const liquidityPosition = updateLiquidityPosition(
+  addLiquidityPosition(
     event.address,
     event.params.recipient,
+    event.params.id,
+    event.params.minted,
     event.block
   );
-  const userBins = liquidityPosition.bins;
-  let trackedCurrentUserBin = false;
-  for (let i = 0; i < userBins.length; i++) {
-    if (userBins[i] === bin.id) {
-      trackedCurrentUserBin = true;
-      break;
-    }
-  }
-  if (!trackedCurrentUserBin) {
-    userBins.push(bin.id);
-    liquidityPosition.bins = userBins;
-  }
-  if (liquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
-      BIG_INT_ONE
-    );
-    lbPair.save();
-  }
-  liquidityPosition.lbTokenBalance = liquidityPosition.lbTokenBalance.plus(
-    lbTokensMinted
-  );
-  liquidityPosition.save();
-
-  // LiquidityPositionSnapshot
-  saveLiquidityPositionSnapshot(liquidityPosition as LiquidityPosition, event);
 
   // Transaction
   const transaction = loadTransaction(event);
@@ -609,7 +581,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   mint.transaction = transaction.id;
   mint.timestamp = event.block.timestamp.toI32();
   mint.lbPair = lbPair.id;
-  mint.lbTokenAmount = lbTokensMinted;
+  mint.lbTokenAmount = event.params.minted;
   mint.sender = event.params.sender;
   mint.recipient = event.params.recipient;
   mint.origin = event.transaction.from;
@@ -755,10 +727,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   const amountUSD = amountX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
-  const lbTokensBurned = formatTokenAmountByDecimals(
-    event.params.burned,
-    BigInt.fromString("18") // TODO @gaepsuni fix decimal
-  );
 
   // reset tvl aggregates until new amounts calculated
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
@@ -770,7 +738,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.minus(amountX);
   lbPair.reserveY = lbPair.reserveY.minus(amountY);
-  lbPair.totalSupply = lbPair.totalSupply.minus(lbTokensBurned);
 
   lbPair.totalValueLockedAVAX = lbPair.reserveX
     .times(tokenX.derivedAVAX)
@@ -836,26 +803,13 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   loadUser(event.params.recipient);
 
   // LiquidityPosition
-  const liquidityPosition = updateLiquidityPosition(
+  removeLiquidityPosition(
     event.address,
     event.params.recipient,
+    event.params.id,
+    event.params.burned,
     event.block
   );
-  liquidityPosition.lbTokenBalance = liquidityPosition.lbTokenBalance.minus(
-    lbTokensBurned
-  );
-  // reset distributions if user withdraws all lbTokens
-  if (liquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
-    liquidityPosition.bins = [];
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
-      BIG_INT_ZERO
-    );
-    lbPair.save();
-  }
-  liquidityPosition.save();
-
-  // LiquidityPositionSnapshot
-  saveLiquidityPositionSnapshot(liquidityPosition as LiquidityPosition, event);
 
   // Transaction
   const transaction = loadTransaction(event);
@@ -867,7 +821,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   burn.transaction = transaction.id;
   burn.timestamp = event.block.timestamp.toI32();
   burn.lbPair = lbPair.id;
-  burn.lbTokenAmount = lbTokensBurned;
+  burn.lbTokenAmount = event.params.burned;
   burn.sender = event.params.sender;
   burn.recipient = event.params.recipient;
   burn.origin = event.transaction.from;
@@ -967,11 +921,6 @@ export function handleTransferSingle(event: TransferSingle): void {
     return;
   }
 
-  const lbTokenAmountTransferred = formatTokenAmountByDecimals(
-    event.params.amount,
-    BigInt.fromString("18") // TODO @gaepsuni fix decimal
-  );
-
   const lbFactory = loadLBFactory();
   lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
   lbFactory.save();
@@ -982,14 +931,18 @@ export function handleTransferSingle(event: TransferSingle): void {
   loadTraderJoeHourData(event.block.timestamp, true);
   loadTraderJoeDayData(event.block.timestamp, true);
 
-  const senderLiquidityPosition = updateLiquidityPosition(
+  removeLiquidityPosition(
     event.address,
     event.params.from,
+    event.params.id,
+    event.params.amount,
     event.block
   );
-  const recipientLiquidityPosition = updateLiquidityPosition(
+  addLiquidityPosition(
     event.address,
     event.params.to,
+    event.params.id,
+    event.params.amount,
     event.block
   );
 
@@ -997,41 +950,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   loadLBPairHourData(event.block.timestamp, lbPair as LBPair, true);
 
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  if (recipientLiquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
-      BIG_INT_ONE
-    );
-  }
-  if (
-    senderLiquidityPosition.lbTokenBalance
-      .minus(lbTokenAmountTransferred)
-      .equals(BIG_DECIMAL_ZERO)
-  ) {
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
-      BIG_INT_ONE
-    );
-  }
   lbPair.save();
-
-  recipientLiquidityPosition.lbTokenBalance = recipientLiquidityPosition.lbTokenBalance.plus(
-    lbTokenAmountTransferred
-  );
-  recipientLiquidityPosition.save();
-
-  senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
-    lbTokenAmountTransferred
-  );
-  senderLiquidityPosition.save();
-
-  saveLiquidityPositionSnapshot(
-    recipientLiquidityPosition as LiquidityPosition,
-    event
-  );
-
-  saveLiquidityPositionSnapshot(
-    senderLiquidityPosition as LiquidityPosition,
-    event
-  );
 
   const transaction = loadTransaction(event);
 
@@ -1041,7 +960,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   transfer.transaction = transaction.id;
   transfer.timestamp = event.block.timestamp.toI32();
   transfer.lbPair = lbPair.id;
-  transfer.lbTokenAmount = lbTokenAmountTransferred;
+  transfer.lbTokenAmount = event.params.amount;
   transfer.sender = sender.id;
   transfer.recipient = recipient.id;
   transfer.origin = event.transaction.from;
@@ -1056,91 +975,37 @@ export function handleTransferBatch(event: TransferBatch): void {
     return;
   }
 
-  let lbTokenAmountTransferred = BIG_DECIMAL_ZERO;
   for (let i = 0; i < event.params.amounts.length; i++) {
-    lbTokenAmountTransferred = lbTokenAmountTransferred.plus(
-      formatTokenAmountByDecimals(
-        event.params.amounts[i],
-        BigInt.fromString("18") // TODO @gaepsuni fix decimal
-      )
+    removeLiquidityPosition(
+      event.address,
+      event.params.from,
+      event.params.ids[i],
+      event.params.amounts[i],
+      event.block
     );
+    addLiquidityPosition(
+      event.address,
+      event.params.to,
+      event.params.ids[i],
+      event.params.amounts[i],
+      event.block
+    );
+    
   }
 
   const lbFactory = loadLBFactory();
   lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
   lbFactory.save();
 
-  const sender = loadUser(event.params.from);
-  const recipient = loadUser(event.params.to);
-
   loadTraderJoeHourData(event.block.timestamp, true);
   loadTraderJoeDayData(event.block.timestamp, true);
-
-  const senderLiquidityPosition = updateLiquidityPosition(
-    event.address,
-    event.params.from,
-    event.block
-  );
-  const recipientLiquidityPosition = updateLiquidityPosition(
-    event.address,
-    event.params.to,
-    event.block
-  );
-
   loadLBPairDayData(event.block.timestamp, lbPair as LBPair, true);
   loadLBPairHourData(event.block.timestamp, lbPair as LBPair, true);
 
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  if (recipientLiquidityPosition.lbTokenBalance.equals(BIG_DECIMAL_ZERO)) {
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
-      BIG_INT_ONE
-    );
-  }
-  if (
-    senderLiquidityPosition.lbTokenBalance
-      .minus(lbTokenAmountTransferred)
-      .equals(BIG_DECIMAL_ZERO)
-  ) {
-    lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
-      BIG_INT_ONE
-    );
-  }
   lbPair.save();
 
-  recipientLiquidityPosition.lbTokenBalance = recipientLiquidityPosition.lbTokenBalance.plus(
-    lbTokenAmountTransferred
-  );
-  recipientLiquidityPosition.save();
-  senderLiquidityPosition.lbTokenBalance = senderLiquidityPosition.lbTokenBalance.minus(
-    lbTokenAmountTransferred
-  );
-  senderLiquidityPosition.save();
-
-  saveLiquidityPositionSnapshot(
-    recipientLiquidityPosition as LiquidityPosition,
-    event
-  );
-
-  saveLiquidityPositionSnapshot(
-    senderLiquidityPosition as LiquidityPosition,
-    event
-  );
-
-  const transaction = loadTransaction(event);
-
-  const transfer = new Transfer(
-    transaction.id.concat("#").concat(lbPair.txCount.toString())
-  );
-  transfer.transaction = transaction.id;
-  transfer.timestamp = event.block.timestamp.toI32();
-  transfer.lbPair = lbPair.id;
-  transfer.lbTokenAmount = lbTokenAmountTransferred;
-  transfer.sender = sender.id;
-  transfer.recipient = recipient.id;
-  transfer.origin = event.transaction.from;
-  transfer.logIndex = event.logIndex;
-
-  transfer.save();
+  // TODO @gaepsuni: create appropriate batch transfer transaction entity. 
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
