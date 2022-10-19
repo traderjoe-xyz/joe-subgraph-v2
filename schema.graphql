@@ -425,7 +425,9 @@ type LiquidityPositions @entity {
   lbPair: LBPair!
 
   # user's bins liquidities
-  userBinLiquidities: [UserBinLiquidity!]! @derivedFrom(field: "liquidityPostions")
+  userBinLiquidities: [UserBinLiquidity!]!
+    @derivedFrom(field: "liquidityPostions")
+  binsCount: BigInt!
 
   # block info
   block: Int!
@@ -433,12 +435,10 @@ type LiquidityPositions @entity {
 }
 
 type UserBinLiquidity @entity {
-  # lbPair address + user + bin address
+  # lbPair address + user + binId
   id: ID!
 
-  user: User!
-  lbPair: LBPair!
-  bin: Bin!
+  binId: BigInt!
   liquidityPostions: LiquidityPositions!
 
   liquidity: BigInt!

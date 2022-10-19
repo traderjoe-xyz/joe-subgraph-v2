@@ -1,4 +1,4 @@
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
@@ -7,21 +7,24 @@ import {
 } from "../constants";
 import { loadToken } from "./token";
 import { trackBin } from "./bin";
-import { LBPairCreated } from "../../generated/LBFactory/LBFactory";
 import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
-export function loadLbPair(id: Address): LBPair | null {
+export function loadLbPair(id: Address, block?: ethereum.Block): LBPair | null {
   const lbPair = LBPair.load(id.toHexString());
-  if (!lbPair) {
-    return null;
+  if (!lbPair && block) {
+    return createLBPair(id, block);
   }
   return lbPair as LBPair;
 }
 
 // should be used if loadLBPair() evaluates to null
-export function createLBPair(event: LBPairCreated): LBPair | null {
-  const lbPair = new LBPair(event.params.LBPair.toHexString());
-  const lbPairContract = LBPairABI.bind(event.params.LBPair);
+export function createLBPair(lbPairAddr: Address, block?: ethereum.Block) {
+  if (!block) {
+    return null;
+  }
+
+  const lbPair = new LBPair(lbPairAddr.toHexString());
+  const lbPairContract = LBPairABI.bind(lbPairAddr);
 
   const tokenXCall = lbPairContract.try_tokenX();
   const tokenYCall = lbPairContract.try_tokenY();
@@ -34,7 +37,13 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
     return null;
   }
 
+  const lbPairFeeParamsCall = lbPairContract.try_feeParameters();
+  if (lbPairFeeParamsCall.reverted) {
+    return null;
+  }
+
   const activeId = lbPairReservesAndIdCall.value.getActiveId();
+  const binStep = BigInt.fromI32(lbPairFeeParamsCall.value.binStep);
 
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
@@ -44,10 +53,10 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
     .concat("-")
     .concat(tokenY.symbol)
     .concat("-")
-    .concat(event.params.binStep.toString());
+    .concat(binStep.toString());
   lbPair.tokenX = tokenXCall.value.toHexString();
   lbPair.tokenY = tokenYCall.value.toHexString();
-  lbPair.binStep = event.params.binStep;
+  lbPair.binStep = binStep;
   lbPair.activeId = activeId;
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
@@ -69,8 +78,8 @@ export function createLBPair(event: LBPairCreated): LBPair | null {
   lbPair.feesUSD = BIG_DECIMAL_ZERO;
   lbPair.liquidityProviderCount = BIG_INT_ZERO;
 
-  lbPair.timestamp = event.block.timestamp;
-  lbPair.block = event.block.number;
+  lbPair.timestamp = block.timestamp;
+  lbPair.block = block.number;
 
   // generate Bin
   trackBin(lbPair, activeId, tokenX, tokenY);

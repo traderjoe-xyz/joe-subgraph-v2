@@ -4,7 +4,7 @@ export * from "./token";
 export * from "./bundle";
 export * from "./intervalData";
 export * from "./user";
-export * from "./liquidityPosition";
+export * from "./liquidityPositions";
+export * from "./userBinLiquidity";
 export * from "./transaction";
-export * from "./liquidityPositionSnapshot";
-export * from "./bin"
+export * from "./bin";
