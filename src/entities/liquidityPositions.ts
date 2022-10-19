@@ -1,5 +1,5 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { LiquidityPositions } from "../../generated/schema";
+import { LiquidityPositions, LBPair } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_INT_ONE } from "../constants";
 import { getUserBinLiquidity } from "./userBinLiquidity";
 
@@ -45,7 +45,15 @@ export function addLiquidityPosition(
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
 
-    // update LBPair liquidityProviderCount
+    // increase LBPair liquidityProviderCount if user now has one bin with liquidity
+    // TODO @gaepsuni: investigate if there could be race conditions
+    const lbPair = LBPair.load(lbPairAddr.toHexString());
+    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ONE)) {
+      lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
+        BIG_INT_ONE
+      );
+      lbPair.save();
+    }
   }
 
   // update liquidity
@@ -85,7 +93,15 @@ export function removeLiquidityPosition(
       BIG_INT_ONE
     );
 
-    // update LBPair liquidityProviderCount
+    // decrease LBPair liquidityProviderCount if user no longer has bins with liquidity
+    // TODO @gaepsuni: investigate if there could be race conditions
+    const lbPair = LBPair.load(lbPairAddr.toHexString());
+    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ZERO)) {
+      lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
+        BIG_INT_ONE
+      );
+      lbPair.save();
+    }
   }
 
   // update block and timestamp
