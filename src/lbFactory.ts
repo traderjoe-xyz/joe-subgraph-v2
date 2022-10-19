@@ -22,7 +22,7 @@ export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
 }
 
 export function handleLBPairCreated(event: LBPairCreated): void {
-  const lbPair = createLBPair(event);
+  const lbPair = createLBPair(event.params.LBPair, event.block);
 
   if (!lbPair) {
     return;
