@@ -361,9 +361,6 @@ type LBPairDayData @entity {
   # tvl at end of day
   totalValueLockedUSD: BigDecimal!
 
-  # total supply for LP historical returns
-  totalSupply: BigDecimal!
-
   # volume
   volumeTokenX: BigDecimal!
   volumeTokenY: BigDecimal!
@@ -398,9 +395,6 @@ type LBPairHourData @entity {
 
   # tvl at end of hour
   totalValueLockedUSD: BigDecimal!
-
-  # total supply for LP historical returns
-  totalSupply: BigDecimal!
 
   # volume
   volumeTokenX: BigDecimal!

@@ -9,7 +9,7 @@ import { loadToken } from "./token";
 import { trackBin } from "./bin";
 import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
-export function loadLbPair(id: Address, block?: ethereum.Block): LBPair | null {
+export function loadLbPair(id: Address, block: ethereum.Block | null = null): LBPair | null {
   const lbPair = LBPair.load(id.toHexString());
   if (!lbPair && block) {
     return createLBPair(id, block);
@@ -18,7 +18,10 @@ export function loadLbPair(id: Address, block?: ethereum.Block): LBPair | null {
 }
 
 // should be used if loadLBPair() evaluates to null
-export function createLBPair(lbPairAddr: Address, block?: ethereum.Block) {
+export function createLBPair(
+  lbPairAddr: Address,
+  block: ethereum.Block | null = null
+): LBPair | null {
   if (!block) {
     return null;
   }

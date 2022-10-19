@@ -22,7 +22,6 @@ import {
 import {
   Token,
   LBPair,
-  LiquidityPositions,
   Mint,
   Burn,
   Swap,
@@ -990,7 +989,6 @@ export function handleTransferBatch(event: TransferBatch): void {
       event.params.amounts[i],
       event.block
     );
-    
   }
 
   const lbFactory = loadLBFactory();
@@ -1005,7 +1003,7 @@ export function handleTransferBatch(event: TransferBatch): void {
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.save();
 
-  // TODO @gaepsuni: create appropriate batch transfer transaction entity. 
+  // TODO @gaepsuni: create appropriate batch transfer transaction entity.
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {

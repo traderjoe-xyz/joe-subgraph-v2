@@ -218,7 +218,6 @@ export function loadLBPairHourData(
     lbPairHourData.reserveX = lbPair.reserveX;
     lbPairHourData.reserveY = lbPair.reserveY;
     lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-    lbPairHourData.totalSupply = lbPair.totalSupply;
     lbPairHourData.volumeTokenX = BIG_DECIMAL_ZERO;
     lbPairHourData.volumeTokenY = BIG_DECIMAL_ZERO;
     lbPairHourData.volumeUSD = BIG_DECIMAL_ZERO;
@@ -232,7 +231,6 @@ export function loadLBPairHourData(
     lbPairHourData.reserveX = lbPair.reserveX;
     lbPairHourData.reserveY = lbPair.reserveY;
     lbPairHourData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-    lbPairHourData.totalSupply = lbPair.totalSupply;
     lbPairHourData.txCount = lbPairHourData.txCount.plus(BIG_INT_ONE);
     lbPairHourData.save();
   }
@@ -261,7 +259,6 @@ export function loadLBPairDayData(
     lbPairDayData.reserveX = lbPair.reserveX;
     lbPairDayData.reserveY = lbPair.reserveY;
     lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-    lbPairDayData.totalSupply = lbPair.totalSupply;
     lbPairDayData.volumeTokenX = BIG_DECIMAL_ZERO;
     lbPairDayData.volumeTokenY = BIG_DECIMAL_ZERO;
     lbPairDayData.volumeUSD = BIG_DECIMAL_ZERO;
@@ -275,7 +272,6 @@ export function loadLBPairDayData(
     lbPairDayData.reserveX = lbPair.reserveX;
     lbPairDayData.reserveY = lbPair.reserveY;
     lbPairDayData.totalValueLockedUSD = lbPair.totalValueLockedUSD;
-    lbPairDayData.totalSupply = lbPair.totalSupply;
     lbPairDayData.txCount = lbPairDayData.txCount.plus(BIG_INT_ONE);
     lbPairDayData.save();
   }

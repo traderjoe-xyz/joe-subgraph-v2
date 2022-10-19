@@ -7,7 +7,7 @@ function getLiquidityPositions(
   lbPairAddr: Address,
   user: Address,
   block: ethereum.Block
-) {
+): LiquidityPositions {
   const id = lbPairAddr
     .toHexString()
     .concat("-")
@@ -19,12 +19,12 @@ function getLiquidityPositions(
     liquidityPosition = new LiquidityPositions(id);
     liquidityPosition.user = user.toHexString();
     liquidityPosition.lbPair = lbPairAddr.toHexString();
-    liquidityPosition.binsCount = BIG_INT_ZERO
+    liquidityPosition.binsCount = BIG_INT_ZERO;
     liquidityPosition.block = block.number.toI32();
     liquidityPosition.timestamp = block.timestamp.toI32();
   }
 
-  return liquidityPosition;
+  return liquidityPosition as LiquidityPositions;
 }
 
 export function addLiquidityPosition(
@@ -45,7 +45,7 @@ export function addLiquidityPosition(
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
 
-    // update LBPair liquidityProviderCount 
+    // update LBPair liquidityProviderCount
   }
 
   // update liquidity
@@ -54,10 +54,10 @@ export function addLiquidityPosition(
   // update block and timestamp
   liquidityPosition.block = block.number.toI32();
   liquidityPosition.timestamp = block.timestamp.toI32();
+  liquidityPosition.save();
   userBinLiquidity.block = block.number.toI32();
   userBinLiquidity.timestamp = block.timestamp.toI32();
   userBinLiquidity.save();
-  liquidityPosition.save();
 
   return liquidityPosition as LiquidityPositions;
 }
@@ -86,16 +86,15 @@ export function removeLiquidityPosition(
     );
 
     // update LBPair liquidityProviderCount
-    
   }
 
   // update block and timestamp
   liquidityPosition.block = block.number.toI32();
   liquidityPosition.timestamp = block.timestamp.toI32();
+  liquidityPosition.save();
   userBinLiquidity.block = block.number.toI32();
   userBinLiquidity.timestamp = block.timestamp.toI32();
   userBinLiquidity.save();
-  liquidityPosition.save();
 
   return liquidityPosition as LiquidityPositions;
 }
