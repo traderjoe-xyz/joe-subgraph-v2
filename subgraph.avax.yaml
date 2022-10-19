@@ -62,8 +62,8 @@ dataSources:
         - TokenHourData
         - TokenDayData
         - User
-        - LiquidityPosition
-        - LiquidityPositionSnapshot
+        - LiquidityPositions
+        - UserBinLiquidity
         - Transaction
         - Mint
         - Burn

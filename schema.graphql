@@ -272,7 +272,6 @@ type LBPair @entity {
 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
-  totalSupply: BigDecimal!
 
   # tvl
   totalValueLockedAVAX: BigDecimal!
@@ -299,12 +298,8 @@ type LBPair @entity {
   # used to detect new exchanges
   liquidityProviderCount: BigInt!
 
-  # Liquidity position snapshots
-  liquidityPositionSnapshots: [LiquidityPositionSnapshot!]!
-    @derivedFrom(field: "lbPair")
-
   bins: [Bin!]! @derivedFrom(field: "lbPair")
-  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
+  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
   hourData: [LBPairHourData!]! @derivedFrom(field: "lbPair")
 
@@ -340,7 +335,7 @@ type User @entity {
   lbTokenApprovals: [Bytes!]!
 
   # Liquidity Positions
-  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
+  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "user")
 
   # fees collected by user for providing liquidity
   collects: [Collect!]! @derivedFrom(field: "sender")
@@ -365,9 +360,6 @@ type LBPairDayData @entity {
 
   # tvl at end of day
   totalValueLockedUSD: BigDecimal!
-
-  # total supply for LP historical returns
-  totalSupply: BigDecimal!
 
   # volume
   volumeTokenX: BigDecimal!
@@ -404,9 +396,6 @@ type LBPairHourData @entity {
   # tvl at end of hour
   totalValueLockedUSD: BigDecimal!
 
-  # total supply for LP historical returns
-  totalSupply: BigDecimal!
-
   # volume
   volumeTokenX: BigDecimal!
   volumeTokenY: BigDecimal!
@@ -422,57 +411,33 @@ type LBPairHourData @entity {
   feesUSD: BigDecimal!
 }
 
-type LiquidityPosition @entity {
+type LiquidityPositions @entity {
   # lbPair address + user address
   id: ID!
   user: User!
   lbPair: LBPair!
 
-  # number of bins user has liquidity in
-  binCount: Int!
-  bins: [Bin!]!
-
-  # user's lp token balance
-  lbTokenBalance: BigDecimal!
-
-  # snapshot of liquidity positions
-  snapshots: [LiquidityPositionSnapshot!]!
-    @derivedFrom(field: "liquidityPosition")
+  # user's bins liquidities
+  userBinLiquidities: [UserBinLiquidity!]!
+    @derivedFrom(field: "liquidityPostions")
+  binsCount: BigInt!
 
   # block info
   block: Int!
   timestamp: Int!
 }
 
-type LiquidityPositionSnapshot @entity {
-  # liquidity postition id + # + block number
+type UserBinLiquidity @entity {
+  # lbPair address + user + binId
   id: ID!
-  user: User!
-  liquidityPosition: LiquidityPosition!
 
-  # block info: for fast historical lookups
-  timestamp: Int!
+  binId: BigInt!
+  liquidityPostions: LiquidityPositions!
+
+  liquidity: BigInt!
+
   block: Int!
-
-  # pair
-  lbPair: LBPair!
-
-  # snapshot of tokens price in usd
-  tokenXPriceUSD: BigDecimal!
-  tokenYPriceUSD: BigDecimal!
-
-  # snapshot of pair tokens reserve
-  reserveX: BigDecimal!
-  reserveY: BigDecimal!
-
-  # snapshot of pair tvl in usd
-  totalValueLockedUSD: BigDecimal!
-
-  # snapshot of pool token supply
-  lbTokenTotalSupply: BigDecimal!
-
-  # snapshot of user's lp token balance
-  lbTokenBalance: BigDecimal!
+  timestamp: Int!
 }
 
 type Transaction @entity {
@@ -500,7 +465,7 @@ type Mint @entity {
   lbPair: LBPair!
 
   # populated from the primary Transfer event
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   # populated from the Mint event
   sender: Bytes!
@@ -524,7 +489,7 @@ type Burn @entity {
   lbPair: LBPair!
 
   # populated from the primary Transfer event
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   # populated from the Mint event
   sender: Bytes!
@@ -618,7 +583,7 @@ type Transfer @entity {
 
   lbPair: LBPair!
 
-  lbTokenAmount: BigDecimal!
+  lbTokenAmount: BigInt!
 
   sender: User!
   recipient: User!
