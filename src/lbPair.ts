@@ -561,15 +561,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   // User
   loadUser(event.params.recipient);
 
-  // LiquidityPosition
-  // addLiquidityPosition(
-  //   event.address,
-  //   event.params.recipient,
-  //   event.params.id,
-  //   event.params.minted,
-  //   event.block
-  // );
-
   // Transaction
   const transaction = loadTransaction(event);
 
@@ -800,15 +791,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 
   // User
   loadUser(event.params.recipient);
-
-  // LiquidityPosition
-  // removeLiquidityPosition(
-  //   event.address,
-  //   event.params.recipient,
-  //   event.params.id,
-  //   event.params.burned,
-  //   event.block
-  // );
 
   // Transaction
   const transaction = loadTransaction(event);
