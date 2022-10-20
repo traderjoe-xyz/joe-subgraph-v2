@@ -561,15 +561,6 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   // User
   loadUser(event.params.recipient);
 
-  // LiquidityPosition
-  addLiquidityPosition(
-    event.address,
-    event.params.recipient,
-    event.params.id,
-    event.params.minted,
-    event.block
-  );
-
   // Transaction
   const transaction = loadTransaction(event);
 
@@ -801,15 +792,6 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   // User
   loadUser(event.params.recipient);
 
-  // LiquidityPosition
-  removeLiquidityPosition(
-    event.address,
-    event.params.recipient,
-    event.params.id,
-    event.params.burned,
-    event.block
-  );
-
   // Transaction
   const transaction = loadTransaction(event);
 
@@ -837,7 +819,7 @@ export function handleFeesCollected(event: FeesCollected): void {
     return;
   }
 
-  const user = loadUser(event.params.sender);
+  const user = loadUser(event.params.recipient);
   const bundle = loadBundle();
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -865,8 +847,7 @@ export function handleFeesCollected(event: FeesCollected): void {
   feeCollected.amountX = amountX;
   feeCollected.amountY = amountY;
 
-  feeCollected.sender = user.id;
-  feeCollected.recipient = event.params.recipient;
+  feeCollected.recipient = user.id;
   feeCollected.origin = event.transaction.from;
   feeCollected.collectedUSD = amountUSD;
   feeCollected.collectedAVAX = safeDiv(amountUSD, bundle.avaxPriceUSD);
