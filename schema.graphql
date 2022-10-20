@@ -338,7 +338,7 @@ type User @entity {
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
 
   # fees collected by user for providing liquidity
-  collects: [Collect!]! @derivedFrom(field: "sender")
+  collects: [Collect!]! @derivedFrom(field: "recipient")
 }
 
 type LBPairDayData @entity {
@@ -565,8 +565,7 @@ type Collect @entity {
   amountX: BigDecimal!
   amountY: BigDecimal!
 
-  sender: User!
-  recipient: Bytes!
+  recipient: User!
   origin: Bytes!
 
   collectedAVAX: BigDecimal!
