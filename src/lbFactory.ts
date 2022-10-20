@@ -1,3 +1,4 @@
+import { log } from "@graphprotocol/graph-ts";
 import {
   LBFactory as LBFactoryABI,
   FlashLoanFeeSet,

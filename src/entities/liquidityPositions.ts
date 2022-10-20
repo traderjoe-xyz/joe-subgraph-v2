@@ -1,30 +1,31 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { LiquidityPositions, LBPair } from "../../generated/schema";
+import { LiquidityPosition, LBPair } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_INT_ONE } from "../constants";
 import { getUserBinLiquidity } from "./userBinLiquidity";
 
-function getLiquidityPositions(
+function getLiquidityPosition(
   lbPairAddr: Address,
   user: Address,
   block: ethereum.Block
-): LiquidityPositions {
+): LiquidityPosition {
   const id = lbPairAddr
     .toHexString()
     .concat("-")
     .concat(user.toHexString());
 
-  let liquidityPosition = LiquidityPositions.load(id);
+  let liquidityPosition = LiquidityPosition.load(id);
 
   if (!liquidityPosition) {
-    liquidityPosition = new LiquidityPositions(id);
+    liquidityPosition = new LiquidityPosition(id);
     liquidityPosition.user = user.toHexString();
     liquidityPosition.lbPair = lbPairAddr.toHexString();
     liquidityPosition.binsCount = BIG_INT_ZERO;
     liquidityPosition.block = block.number.toI32();
     liquidityPosition.timestamp = block.timestamp.toI32();
+    liquidityPosition.save()
   }
 
-  return liquidityPosition as LiquidityPositions;
+  return liquidityPosition as LiquidityPosition;
 }
 
 export function addLiquidityPosition(
@@ -33,8 +34,8 @@ export function addLiquidityPosition(
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
-): LiquidityPositions {
-  let liquidityPosition = getLiquidityPositions(lbPairAddr, user, block);
+): LiquidityPosition {
+  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
     binId,
@@ -67,7 +68,7 @@ export function addLiquidityPosition(
   userBinLiquidity.timestamp = block.timestamp.toI32();
   userBinLiquidity.save();
 
-  return liquidityPosition as LiquidityPositions;
+  return liquidityPosition as LiquidityPosition;
 }
 
 export function removeLiquidityPosition(
@@ -76,8 +77,8 @@ export function removeLiquidityPosition(
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
-): LiquidityPositions {
-  let liquidityPosition = getLiquidityPositions(lbPairAddr, user, block);
+): LiquidityPosition {
+  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
     binId,
@@ -112,5 +113,5 @@ export function removeLiquidityPosition(
   userBinLiquidity.timestamp = block.timestamp.toI32();
   userBinLiquidity.save();
 
-  return liquidityPosition as LiquidityPositions;
+  return liquidityPosition as LiquidityPosition;
 }

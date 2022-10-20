@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, ethereum, log } from "@graphprotocol/graph-ts";
 import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
@@ -14,10 +14,10 @@ export function loadLbPair(
   block: ethereum.Block | null = null
 ): LBPair | null {
   const lbPair = LBPair.load(id.toHexString());
-  if (!lbPair && block) {
+  if (lbPair === null && block !== null) {
     return createLBPair(id, block);
-  }
-  return lbPair as LBPair;
+  } 
+  return lbPair;
 }
 
 // should be used if loadLBPair() evaluates to null
@@ -25,9 +25,7 @@ export function createLBPair(
   lbPairAddr: Address,
   block: ethereum.Block
 ): LBPair | null {
-  const lbPair = new LBPair(lbPairAddr.toHexString());
   const lbPairContract = LBPairABI.bind(lbPairAddr);
-
   const tokenXCall = lbPairContract.try_tokenX();
   const tokenYCall = lbPairContract.try_tokenY();
   if (tokenXCall.reverted || tokenYCall.reverted) {
@@ -50,6 +48,8 @@ export function createLBPair(
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
 
+  const lbPair = new LBPair(lbPairAddr.toHexString());
+  
   lbPair.factory = LBFACTORY_ADDRESS.toHexString();
   lbPair.name = tokenX.symbol
     .concat("-")

@@ -299,7 +299,7 @@ type LBPair @entity {
   liquidityProviderCount: BigInt!
 
   bins: [Bin!]! @derivedFrom(field: "lbPair")
-  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "lbPair")
+  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
   hourData: [LBPairHourData!]! @derivedFrom(field: "lbPair")
 
@@ -335,7 +335,7 @@ type User @entity {
   lbTokenApprovals: [Bytes!]!
 
   # Liquidity Positions
-  liquidityPositions: [LiquidityPositions!]! @derivedFrom(field: "user")
+  liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
 
   # fees collected by user for providing liquidity
   collects: [Collect!]! @derivedFrom(field: "sender")
@@ -411,7 +411,7 @@ type LBPairHourData @entity {
   feesUSD: BigDecimal!
 }
 
-type LiquidityPositions @entity {
+type LiquidityPosition @entity {
   # lbPair address + user address
   id: ID!
   user: User!
@@ -419,7 +419,7 @@ type LiquidityPositions @entity {
 
   # user's bins liquidities
   userBinLiquidities: [UserBinLiquidity!]!
-    @derivedFrom(field: "liquidityPostions")
+    @derivedFrom(field: "liquidityPosition")
   binsCount: BigInt!
 
   # block info
@@ -432,7 +432,7 @@ type UserBinLiquidity @entity {
   id: ID!
 
   binId: BigInt!
-  liquidityPostions: LiquidityPositions!
+  liquidityPosition: LiquidityPosition!
 
   liquidity: BigInt!
 

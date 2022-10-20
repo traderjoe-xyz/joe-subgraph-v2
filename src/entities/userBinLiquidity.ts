@@ -14,10 +14,11 @@ export function getUserBinLiquidity(
   if (!userBinLiquidity) {
     userBinLiquidity = new UserBinLiquidity(id);
     userBinLiquidity.binId = binId;
-    userBinLiquidity.liquidityPostions = liquidityPositionsId;
+    userBinLiquidity.liquidityPostion = liquidityPositionsId;
     userBinLiquidity.liquidity = BIG_INT_ZERO;
     userBinLiquidity.block = block.number.toI32();
     userBinLiquidity.timestamp = block.timestamp.toI32();
+    userBinLiquidity.save()
   }
 
   return userBinLiquidity as UserBinLiquidity;

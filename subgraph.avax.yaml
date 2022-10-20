@@ -62,7 +62,7 @@ dataSources:
         - TokenHourData
         - TokenDayData
         - User
-        - LiquidityPositions
+        - LiquidityPosition
         - UserBinLiquidity
         - Transaction
         - Mint
