@@ -48,8 +48,10 @@ export function createLBPair(
   const activeId = lbPairReservesAndIdCall.value.getActiveId();
   const binStep = BigInt.fromI32(lbPairFeeParamsCall.value.binStep);
   const baseFactor = BigInt.fromI32(lbPairFeeParamsCall.value.baseFactor);
-  const baseFee = binStep
-    .times(baseFactor)
+
+  // base fee in 1e18 precision: baseFactor * binStep * 1e10 / 1e18
+  const baseFee = binStep // 4 decimals
+    .times(baseFactor) // 4 decimals
     .toBigDecimal()
     .times(BIG_DECIMAL_1E10)
     .div(BIG_DECIMAL_1E18);
