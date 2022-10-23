@@ -264,6 +264,9 @@ type LBPair @entity {
   # Name
   name: String!
 
+  # Base Fee
+  baseFeePct: BigDecimal!
+
   # mirrored from the smart contract
   tokenX: Token!
   tokenY: Token!
