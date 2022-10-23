@@ -3,6 +3,9 @@ import { LBPair } from "../../generated/schema";
 import {
   BIG_INT_ZERO,
   BIG_DECIMAL_ZERO,
+  BIG_DECIMAL_HUNDRED,
+  BIG_DECIMAL_1E10,
+  BIG_DECIMAL_1E18,
   LBFACTORY_ADDRESS,
 } from "../constants";
 import { loadToken } from "./token";
@@ -16,7 +19,7 @@ export function loadLbPair(
   const lbPair = LBPair.load(id.toHexString());
   if (lbPair === null && block !== null) {
     return createLBPair(id, block);
-  } 
+  }
   return lbPair;
 }
 
@@ -44,12 +47,18 @@ export function createLBPair(
 
   const activeId = lbPairReservesAndIdCall.value.getActiveId();
   const binStep = BigInt.fromI32(lbPairFeeParamsCall.value.binStep);
+  const baseFactor = BigInt.fromI32(lbPairFeeParamsCall.value.baseFactor);
+  const baseFee = binStep
+    .times(baseFactor)
+    .toBigDecimal()
+    .times(BIG_DECIMAL_1E10)
+    .div(BIG_DECIMAL_1E18);
 
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
 
   const lbPair = new LBPair(lbPairAddr.toHexString());
-  
+
   lbPair.factory = LBFACTORY_ADDRESS.toHexString();
   lbPair.name = tokenX.symbol
     .concat("-")
@@ -60,6 +69,7 @@ export function createLBPair(
   lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = binStep;
   lbPair.activeId = activeId;
+  lbPair.baseFeePct = baseFee.times(BIG_DECIMAL_HUNDRED);
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;
