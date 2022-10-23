@@ -49,12 +49,11 @@ export function createLBPair(
   const binStep = BigInt.fromI32(lbPairFeeParamsCall.value.binStep);
   const baseFactor = BigInt.fromI32(lbPairFeeParamsCall.value.baseFactor);
 
-  // base fee in 1e18 precision: baseFactor * binStep * 1e10 / 1e18
+  // base fee in 1e18 precision: baseFactor * binStep * 1e10
   const baseFee = binStep // 4 decimals
     .times(baseFactor) // 4 decimals
     .toBigDecimal()
-    .times(BIG_DECIMAL_1E10)
-    .div(BIG_DECIMAL_1E18);
+    .times(BIG_DECIMAL_1E10);
 
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
@@ -71,7 +70,7 @@ export function createLBPair(
   lbPair.tokenY = tokenYCall.value.toHexString();
   lbPair.binStep = binStep;
   lbPair.activeId = activeId;
-  lbPair.baseFeePct = baseFee.times(BIG_DECIMAL_HUNDRED);
+  lbPair.baseFeePct = baseFee.div(BIG_DECIMAL_1E18).times(BIG_DECIMAL_HUNDRED);
 
   lbPair.reserveX = BIG_DECIMAL_ZERO;
   lbPair.reserveY = BIG_DECIMAL_ZERO;
