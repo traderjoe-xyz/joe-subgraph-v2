@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal, Bytes, Address } from "@graphprotocol/graph-ts";
+import { BigInt, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
 import { BIG_INT_ZERO, BIG_INT_ONE, BIG_DECIMAL_ZERO } from "../constants";
 
 export function formatDecimalsToExponent(decimals: BigInt): BigDecimal {
