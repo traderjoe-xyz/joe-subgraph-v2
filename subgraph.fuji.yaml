@@ -44,7 +44,7 @@ dataSources:
     network: fuji
     source:
       abi: LBPair
-      startBlock: 14392417
+      startBlock: 15428450
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
