@@ -324,7 +324,7 @@ type Bin @entity {
   lbPair: LBPair!
   priceX: BigDecimal!
   priceY: BigDecimal!
-  totalSupply: BigDecimal!
+  totalSupply: BigInt! 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
   binId: BigInt!
@@ -546,12 +546,12 @@ type Flash @entity {
   origin: Bytes!
   recipient: Bytes!
 
-  amountX: BigDecimal!
-  amountY: BigDecimal!
+  token: Token!
+
+  amount: BigDecimal!
   amountUSD: BigDecimal!
 
-  feesTokenX: BigDecimal!
-  feesTokenY: BigDecimal!
+  fees: BigDecimal!
   feesUSD: BigDecimal!
 
   logIndex: BigInt!
