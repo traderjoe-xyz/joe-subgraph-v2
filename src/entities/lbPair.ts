@@ -93,7 +93,6 @@ export function createLBPair(
   lbPair.timestamp = block.timestamp;
   lbPair.block = block.number;
 
-<<<<<<< HEAD
   // generate Bin
   trackBin(
     lbPair, 
@@ -108,8 +107,6 @@ export function createLBPair(
     BIG_INT_ZERO
     );
 
-=======
->>>>>>> main
   lbPair.save();
 
   return lbPair as LBPair;
