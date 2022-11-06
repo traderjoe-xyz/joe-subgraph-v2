@@ -41,7 +41,7 @@ export function getTokenPriceInAVAX(
   isTokenX: boolean
 ): BigDecimal {
   const bundle = loadBundle();
-  const AVAX_USDC_RATE = BIG_DECIMAL_ONE.div(bundle.avaxPriceUSD); // rate of AVAX/USDC based on AVAX-USDC-V1 pool
+  const AVAX_USDC_RATE = safeDiv(BIG_DECIMAL_ONE, bundle.avaxPriceUSD) // rate of AVAX/USDC based on AVAX-USDC-V1 pool
 
   // case 1: token is USDC
   if (token.id == USDC_ADDRESS.toHexString()) {

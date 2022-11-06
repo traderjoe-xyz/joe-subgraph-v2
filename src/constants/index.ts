@@ -23,11 +23,11 @@ export const AVAX_USDC_V1 = Address.fromString(
 );
 
 export const AVAX_USDC_20BPS = Address.fromString(
-  "0xc8aa3bF8623C35EAc518Ea82B55C2aa46D5A02f6"
+  "0x88F36a6B0e37E78d0Fb1d41B07A47BAD3D995453"
 );
 
 export const LBFACTORY_ADDRESS = Address.fromString(
-  "0x2950b9bd19152C91d69227364747b3e6EFC8Ab7F"
+  "0x6B8E020098cd1B3Ec9f811024bc24e51C660F768"
 );
 
 export const WAVAX_ADDRESS = Address.fromString(
