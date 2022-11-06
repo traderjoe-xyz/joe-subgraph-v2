@@ -64,7 +64,12 @@ import {
 } from "./utils";
 
 export function handleSwap(event: SwapEvent): void {
+
+  // update USD pricing
   const bundle = loadBundle();
+  bundle.avaxPriceUSD = getAvaxPriceInUSD();
+  bundle.save();
+
   const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
@@ -250,9 +255,6 @@ export function handleSwap(event: SwapEvent): void {
   );
   tokenY.feesUSD = tokenY.feesUSD.plus(feesY.times(tokenYPriceUSD));
 
-  // update USD pricing
-  bundle.avaxPriceUSD = getAvaxPriceInUSD();
-  bundle.save();
   tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
   tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
   tokenX.save();
@@ -437,6 +439,112 @@ export function handleFlashLoan(event: FlashLoan): void {
   flashloan.feesUSD = feesUSD;
   flashloan.logIndex = event.logIndex;
   flashloan.save();
+}
+
+export function handleCompositionFee(event: CompositionFee): void {
+  const bundle = loadBundle();
+  const lbPair = loadLbPair(event.address);
+
+  if (!lbPair) {
+    return;
+  }
+
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
+
+  const feesX = formatTokenAmountByDecimals(
+    event.params.feesX,
+    tokenX.decimals
+  );
+  const feesY = formatTokenAmountByDecimals(
+    event.params.feesY,
+    tokenY.decimals
+  );
+  const feesUSD = feesX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(feesY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  const lbFactory = loadLBFactory();
+  lbFactory.feesUSD = lbFactory.feesUSD.plus(feesUSD);
+  lbFactory.feesAVAX = safeDiv(lbFactory.feesUSD, bundle.avaxPriceUSD);
+  lbFactory.save();
+
+  const traderJoeHourData = loadTraderJoeHourData(event.block.timestamp, false);
+  traderJoeHourData.feesUSD = traderJoeHourData.feesUSD.plus(feesUSD);
+  traderJoeHourData.save();
+
+  const traderJoeDayData = loadTraderJoeDayData(event.block.timestamp, false);
+  traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
+  traderJoeDayData.save();
+
+  tokenX.feesUSD = tokenX.feesUSD.plus(feesX.times(tokenXPriceUSD));
+  tokenX.save();
+
+  tokenY.feesUSD = tokenY.feesUSD.plus(feesY.times(tokenYPriceUSD));
+  tokenY.save();
+
+  const tokenXHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenX as Token,
+    false
+  );
+  tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(
+    feesX.times(tokenXPriceUSD)
+  );
+  tokenXHourData.save();
+
+  const tokenYHourData = loadTokenHourData(
+    event.block.timestamp,
+    tokenY as Token,
+    false
+  );
+  tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenYHourData.save();
+
+  const tokenXDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenX as Token,
+    false
+  );
+  tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenXDayData.save();
+
+  const tokenYDayData = loadTokenDayData(
+    event.block.timestamp,
+    tokenX as Token,
+    false
+  );
+  tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(
+    feesY.times(tokenYPriceUSD)
+  );
+  tokenYDayData.save();
+
+  lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
+  lbPair.feesTokenY = lbPair.feesTokenY.plus(feesY);
+  lbPair.feesUSD = lbPair.feesUSD.plus(feesUSD);
+  lbPair.save();
+
+  const lbPairHourData = loadLBPairHourData(
+    event.block.timestamp,
+    lbPair as LBPair,
+    false
+  );
+  lbPairHourData.feesUSD = lbPairHourData.feesUSD.plus(feesUSD);
+  lbPairHourData.save();
+
+  const lbPairDayData = loadLBPairDayData(
+    event.block.timestamp,
+    lbPair as LBPair,
+    false
+  );
+  lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
+  lbPairDayData.save();
 }
 
 export function handleLiquidityAdded(event: DepositedToBin): void {
