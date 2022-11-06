@@ -2,6 +2,7 @@ import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import {
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
+  BIG_DECIMAL_1E6,
   WAVAX_ADDRESS,
   USDC_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
@@ -9,7 +10,7 @@ import {
 import { Token, Bin } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
 import { loadBundle } from "../entities";
-import { safeDiv, formatTokenAmountByDecimals } from "../utils";
+import { safeDiv } from "../utils";
 
 export function getAvaxPriceInUSD(): BigDecimal {
   const dexLens = DexLens.bind(JOE_DEX_LENS_ADDRESS);
@@ -21,13 +22,9 @@ export function getAvaxPriceInUSD(): BigDecimal {
     return BIG_DECIMAL_ZERO;
   }
 
-  const priceUSD = priceUsdResult.value; // 6 decimal precision
+  const priceUSD = priceUsdResult.value.toBigDecimal().div(BIG_DECIMAL_1E6);
 
-  log.warning("[getAvaxPriceInUSD] avaxPriceUSD: {}", [
-    formatTokenAmountByDecimals(priceUSD, BigInt.fromI32(6)).toString(),
-  ]);
-
-  return formatTokenAmountByDecimals(priceUSD, BigInt.fromI32(6));
+  return priceUSD;
 }
 
 export function getTokenPriceInAVAX(
