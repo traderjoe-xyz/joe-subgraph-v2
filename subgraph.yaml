@@ -83,8 +83,11 @@ dataSources:
           handler: handleSwap
         - event: FlashLoan(indexed address,indexed address,address,uint256,uint256)
           handler: handleFlashLoan
+<<<<<<< HEAD
         - event: CompositionFee(indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleCompositionFee
+=======
+>>>>>>> main
         - event: DepositedToBin(indexed address,indexed address,indexed uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: WithdrawnFromBin(indexed address,indexed address,indexed uint256,uint256,uint256)
