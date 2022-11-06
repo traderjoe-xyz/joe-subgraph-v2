@@ -76,8 +76,8 @@ dataSources:
           file: ./abis/LBPair.json
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: Pair
-          file: ./abis/JoePair.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: Swap(indexed address,indexed address,indexed uint256,bool,uint256,uint256,uint256,uint256)
           handler: handleSwap

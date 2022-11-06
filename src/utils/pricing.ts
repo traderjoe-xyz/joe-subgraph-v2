@@ -1,37 +1,30 @@
-import { Address, BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
 import {
-  BIG_DECIMAL_1E18,
-  BIG_DECIMAL_1E6,
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
+  BIG_DECIMAL_1E6,
   WAVAX_ADDRESS,
   USDC_ADDRESS,
-  AVAX_USDC_V1,
+  JOE_DEX_LENS_ADDRESS,
 } from "../constants";
 import { Token, Bin } from "../../generated/schema";
-import { Pair as PairContract } from "../../generated/LBPair/Pair";
+import { DexLens } from "../../generated/LBPair/DexLens";
 import { loadBundle } from "../entities";
 import { safeDiv } from "../utils";
 
 export function getAvaxPriceInUSD(): BigDecimal {
-  // fetch from V1 AVAX-USDC pool
-  const pair = PairContract.bind(AVAX_USDC_V1);
+  const dexLens = DexLens.bind(JOE_DEX_LENS_ADDRESS);
 
-  const reservesResult = pair.try_getReserves();
-  if (reservesResult.reverted) {
-    log.warning("[getAvaxPriceInUSD] getReserves reverted", []);
+  const priceUsdResult = dexLens.try_getTokenPriceUSD(WAVAX_ADDRESS);
+
+  if (priceUsdResult.reverted) {
+    log.warning("[getAvaxPriceInUSD] dexLens.getTokenPriceUSD() reverted", []);
     return BIG_DECIMAL_ZERO;
   }
 
-  const reserves = reservesResult.value;
-  const reserve0 = reserves.value0.toBigDecimal().times(BIG_DECIMAL_1E18); // USDC 6 + 18 = 24 decimals
-  const reserve1 = reserves.value1.toBigDecimal().times(BIG_DECIMAL_1E6); // WAVAX 18 + 6 = 24 decimals
+  const priceUSD = priceUsdResult.value.toBigDecimal().div(BIG_DECIMAL_1E6);
 
-  log.warning("[getAvaxPriceInUSD] avaxPriceInUSD {}", [
-    reserve0.div(reserve1).toString(),
-  ]);
-
-  return safeDiv(reserve0, reserve1);
+  return priceUSD;
 }
 
 export function getTokenPriceInAVAX(
@@ -41,7 +34,7 @@ export function getTokenPriceInAVAX(
   isTokenX: boolean
 ): BigDecimal {
   const bundle = loadBundle();
-  const AVAX_USDC_RATE = safeDiv(BIG_DECIMAL_ONE, bundle.avaxPriceUSD) // rate of AVAX/USDC based on AVAX-USDC-V1 pool
+  const AVAX_USDC_RATE = safeDiv(BIG_DECIMAL_ONE, bundle.avaxPriceUSD); // rate of AVAX/USDC based on AVAX-USDC-V1 pool
 
   // case 1: token is USDC
   if (token.id == USDC_ADDRESS.toHexString()) {

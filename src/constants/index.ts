@@ -30,6 +30,10 @@ export const LBFACTORY_ADDRESS = Address.fromString(
   "0x6B8E020098cd1B3Ec9f811024bc24e51C660F768"
 );
 
+export const JOE_DEX_LENS_ADDRESS = Address.fromString(
+  "0x8b9e4f329f013320670459bcab01c2b8dc9c32c3"
+);
+
 export const WAVAX_ADDRESS = Address.fromString(
   "0xd00ae08403B9bbb9124bB305C09058E32C39A48c"
 );
