@@ -151,8 +151,6 @@ export function handleSwap(event: SwapEvent): void {
   );
   lbPair.tokenXPrice = bin.priceX;
   lbPair.tokenYPrice = bin.priceY;
-  lbPair.tokenXPriceUSD = tokenXPriceUSD;
-  lbPair.tokenYPriceUSD = tokenYPriceUSD;
   lbPair.volumeTokenX = lbPair.volumeTokenX.plus(amountXTotal);
   lbPair.volumeTokenY = lbPair.volumeTokenY.plus(amountYTotal);
   lbPair.volumeUSD = lbPair.volumeUSD.plus(trackedVolumeUSD);

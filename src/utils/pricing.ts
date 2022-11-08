@@ -68,7 +68,6 @@ export function updateAvaxInUsdPricing(): void {
   const bundle = loadBundle();
   bundle.avaxPriceUSD = getAvaxPriceInUSD();
   bundle.save();
-
 }
 
 /**
@@ -79,7 +78,7 @@ export function updateAvaxInUsdPricing(): void {
 export function updateTokensDerivedAvax(
   lbPair: LBPair,
   binId: BigInt | null
-):void{
+): void {
   // update pricing of tokens
 
   const id = binId || lbPair.activeId;
@@ -90,8 +89,15 @@ export function updateTokensDerivedAvax(
   tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
   tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
 
+  const bundle = loadBundle();
+  const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
+  const tokenYPriceUSD = tokenY.derivedAVAX.times(bundle.avaxPriceUSD);
+  lbPair.tokenXPriceUSD = tokenXPriceUSD;
+  lbPair.tokenYPriceUSD = tokenYPriceUSD;
+
   tokenX.save();
   tokenY.save();
+  lbPair.save();
 }
 
 /**
