@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, log } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
@@ -7,9 +7,9 @@ import {
   USDC_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
 } from "../constants";
-import { Token, Bin } from "../../generated/schema";
+import { Token, Bin, LBPair, Bundle } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
-import { loadBundle } from "../entities";
+import { loadBundle, loadToken, loadBin } from "../entities";
 import { safeDiv } from "../utils";
 
 export function getAvaxPriceInUSD(): BigDecimal {
@@ -59,6 +59,39 @@ export function getTokenPriceInAVAX(
 
   // @gaepsuni TODO case 5: rest get from v1 token-AVAX pool
   return BIG_DECIMAL_ZERO;
+}
+
+/**
+ * Updates avaxPriceUSD pricing
+ */
+export function updateAvaxInUsdPricing(): void {
+  const bundle = loadBundle();
+  bundle.avaxPriceUSD = getAvaxPriceInUSD();
+  bundle.save();
+
+}
+
+/**
+ * Updates and tokenX/tokenY derivedAVAX pricing
+ * @param {LBPair} lbPair
+ * @param {BigInt | null} binId
+ */
+export function updateTokensDerivedAvax(
+  lbPair: LBPair,
+  binId: BigInt | null
+):void{
+  // update pricing of tokens
+
+  const id = binId || lbPair.activeId;
+  const bin = loadBin(lbPair, id as BigInt);
+  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
+  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
+
+  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
+  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
+
+  tokenX.save();
+  tokenY.save();
 }
 
 /**

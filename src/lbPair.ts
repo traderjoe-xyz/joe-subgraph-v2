@@ -53,10 +53,10 @@ import {
 } from "./constants";
 import {
   formatTokenAmountByDecimals,
-  getAvaxPriceInUSD,
   getTrackedLiquidityUSD,
   getTrackedVolumeUSD,
-  getTokenPriceInAVAX,
+  updateAvaxInUsdPricing,
+  updateTokensDerivedAvax,
   safeDiv,
   isAccountApproved,
 } from "./utils";
@@ -71,10 +71,12 @@ export function handleSwap(event: SwapEvent): void {
     return;
   }
 
-  // update USD pricing
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, event.params.id);
+
+  // price bundle
   const bundle = loadBundle();
-  bundle.avaxPriceUSD = getAvaxPriceInUSD();
-  bundle.save();
 
   // reset tvl aggregates until new amounts calculated
   const lbFactory = loadLBFactory();
@@ -124,8 +126,6 @@ export function handleSwap(event: SwapEvent): void {
   const bin = trackBin(
     lbPair as LBPair,
     event.params.id,
-    tokenX,
-    tokenY,
     amountXIn,
     amountXOut,
     amountYIn,
@@ -252,8 +252,6 @@ export function handleSwap(event: SwapEvent): void {
     tokenY.feesUSD = tokenY.feesUSD.plus(fees.times(tokenYPriceUSD));
   }
 
-  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
-  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
   tokenX.save();
   tokenY.save();
 
@@ -334,12 +332,18 @@ export function handleSwap(event: SwapEvent): void {
 }
 
 export function handleFlashLoan(event: FlashLoan): void {
-  const bundle = loadBundle();
   const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
     return;
   }
+
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, null);
+
+  // price bundle
+  const bundle = loadBundle();
 
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -439,12 +443,18 @@ export function handleFlashLoan(event: FlashLoan): void {
 }
 
 export function handleCompositionFee(event: CompositionFee): void {
-  const bundle = loadBundle();
   const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
     return;
   }
+
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, event.params.id);
+
+  // price bundle
+  const bundle = loadBundle();
 
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -547,7 +557,6 @@ export function handleCompositionFee(event: CompositionFee): void {
 export function handleLiquidityAdded(event: DepositedToBin): void {
   const lbPair = loadLbPair(event.address);
   const lbFactory = loadLBFactory();
-  const bundle = loadBundle();
 
   if (!lbPair) {
     log.error(
@@ -556,6 +565,13 @@ export function handleLiquidityAdded(event: DepositedToBin): void {
     );
     return;
   }
+
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, event.params.id);
+
+  // price bundle
+  const bundle = loadBundle();
 
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -573,8 +589,6 @@ export function handleLiquidityAdded(event: DepositedToBin): void {
   trackBin(
     lbPair,
     event.params.id,
-    tokenX,
-    tokenY,
     amountX, // amountXIn
     BIG_DECIMAL_ZERO,
     amountY, // amountYIn
@@ -684,11 +698,17 @@ export function handleLiquidityAdded(event: DepositedToBin): void {
 export function handleLiquidityRemoved(event: WithdrawnFromBin): void {
   const lbPair = loadLbPair(event.address);
   const lbFactory = loadLBFactory();
-  const bundle = loadBundle();
 
   if (!lbPair) {
     return;
   }
+
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, event.params.id);
+
+  // price bundle
+  const bundle = loadBundle();
 
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -701,16 +721,11 @@ export function handleLiquidityRemoved(event: WithdrawnFromBin): void {
     event.params.amountY,
     tokenY.decimals
   );
-  const amountUSD = amountX
-    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
 
   // Bin
   trackBin(
     lbPair,
     event.params.id,
-    tokenX,
-    tokenY,
     BIG_DECIMAL_ZERO,
     amountX, // amountXOut
     BIG_DECIMAL_ZERO,
@@ -840,8 +855,15 @@ export function handleFeesCollected(event: FeesCollected): void {
     return;
   }
 
-  const user = loadUser(event.params.recipient);
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, null);
+
+  // price bundle
   const bundle = loadBundle();
+
+  const user = loadUser(event.params.recipient);
+
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
@@ -884,12 +906,18 @@ export function handleProtocolFeesCollected(
   // NOTE: this event will split amount recieved to multiple addresses
   // - sJOE is just one of them so this mapping should be modified in future
 
-  const bundle = loadBundle();
   const lbPair = loadLbPair(event.address);
 
   if (!lbPair) {
     return;
   }
+
+  // update pricing
+  updateAvaxInUsdPricing();
+  updateTokensDerivedAvax(lbPair, null);
+
+  // price bundle
+  const bundle = loadBundle();
 
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
@@ -921,8 +949,6 @@ export function handleTransferSingle(event: TransferSingle): void {
   if (!lbPair) {
     return;
   }
-  const tokenX = loadToken(Address.fromString(lbPair.tokenX));
-  const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
   const lbFactory = loadLBFactory();
   lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
@@ -955,8 +981,6 @@ export function handleTransferSingle(event: TransferSingle): void {
     trackBin(
       lbPair,
       event.params.id,
-      tokenX,
-      tokenY,
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
@@ -971,8 +995,6 @@ export function handleTransferSingle(event: TransferSingle): void {
     trackBin(
       lbPair,
       event.params.id,
-      tokenX,
-      tokenY,
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
