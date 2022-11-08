@@ -79,8 +79,6 @@ export function updateTokensDerivedAvax(
   lbPair: LBPair,
   binId: BigInt | null
 ): void {
-  // update pricing of tokens
-
   const id = binId || lbPair.activeId;
   const bin = loadBin(lbPair, id as BigInt);
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
