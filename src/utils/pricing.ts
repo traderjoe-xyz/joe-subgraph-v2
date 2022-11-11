@@ -3,8 +3,8 @@ import {
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
   BIG_DECIMAL_1E6,
+  BIG_DECIMAL_1E18,
   WAVAX_ADDRESS,
-  USDC_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
 } from "../constants";
 import { Token, Bin, LBPair, Bundle } from "../../generated/schema";
@@ -27,38 +27,26 @@ export function getAvaxPriceInUSD(): BigDecimal {
   return priceUSD;
 }
 
-export function getTokenPriceInAVAX(
-  token: Token,
-  otherToken: Token,
-  bin: Bin,
-  isTokenX: boolean
-): BigDecimal {
-  const bundle = loadBundle();
-  const AVAX_USDC_RATE = safeDiv(BIG_DECIMAL_ONE, bundle.avaxPriceUSD); // rate of AVAX/USDC based on AVAX-USDC-V1 pool
+export function getTokenPriceInAVAX(token: Token): BigDecimal {
+  const dexLens = DexLens.bind(JOE_DEX_LENS_ADDRESS);
 
-  // case 1: token is USDC
-  if (token.id == USDC_ADDRESS.toHexString()) {
-    return AVAX_USDC_RATE;
+  const tokenAddress = Address.fromString(token.id);
+
+  const priceInAvaxResult = dexLens.try_getTokenPriceNative(tokenAddress);
+
+  if (priceInAvaxResult.reverted) {
+    log.warning(
+      "[getTokenPriceInAVAX] dexLens.getTokenPriceNative() reverted for token {}",
+      [token.id]
+    );
+    return BIG_DECIMAL_ZERO;
   }
 
-  // case 2: token is AVAX
-  if (token.id == WAVAX_ADDRESS.toHexString()) {
-    return BIG_DECIMAL_ONE;
-  }
+  const priceInAvax = priceInAvaxResult.value
+    .toBigDecimal()
+    .div(BIG_DECIMAL_1E18);
 
-  // case 3: otherToken is USDC
-  if (otherToken.id == USDC_ADDRESS.toHexString()) {
-    const tokenUSDCRate = isTokenX ? bin.priceY : bin.priceX; // rate of USDC/token
-    return tokenUSDCRate.times(AVAX_USDC_RATE); //  USDC/token * AVAX/USDC
-  }
-
-  // case 4: otherToken is AVAX
-  if (otherToken.id == WAVAX_ADDRESS.toHexString()) {
-    return isTokenX ? bin.priceY : bin.priceX; // rate of AVAX/token
-  }
-
-  // @gaepsuni TODO case 5: rest get from v1 token-AVAX pool
-  return BIG_DECIMAL_ZERO;
+  return priceInAvax;
 }
 
 /**
@@ -80,12 +68,11 @@ export function updateTokensDerivedAvax(
   binId: BigInt | null
 ): void {
   const id = binId || lbPair.activeId;
-  const bin = loadBin(lbPair, id as BigInt);
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
-  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX, tokenY, bin, true);
-  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY, tokenX, bin, false);
+  tokenX.derivedAVAX = getTokenPriceInAVAX(tokenX);
+  tokenY.derivedAVAX = getTokenPriceInAVAX(tokenY);
 
   const bundle = loadBundle();
   const tokenXPriceUSD = tokenX.derivedAVAX.times(bundle.avaxPriceUSD);
