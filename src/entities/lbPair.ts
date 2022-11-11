@@ -97,8 +97,6 @@ export function createLBPair(
   trackBin(
     lbPair, 
     activeId, 
-    tokenX, 
-    tokenY,
     BIG_DECIMAL_ZERO,
     BIG_DECIMAL_ZERO,
     BIG_DECIMAL_ZERO,
