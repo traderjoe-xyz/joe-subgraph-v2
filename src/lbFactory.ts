@@ -4,7 +4,7 @@ import {
   LBPairCreated,
   LBPairIgnoredStateChanged,
 } from "../generated/LBFactory/LBFactory";
-import { loadLBFactory, createLBPair } from "./entities";
+import { loadLBFactory, createLBPair, loadBundle } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
 
 export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
@@ -22,6 +22,7 @@ export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
 }
 
 export function handleLBPairCreated(event: LBPairCreated): void {
+  loadBundle();
   const lbPair = createLBPair(event.params.LBPair, event.block);
 
   if (!lbPair) {

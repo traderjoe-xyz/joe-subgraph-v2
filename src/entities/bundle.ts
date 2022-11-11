@@ -1,12 +1,12 @@
 import { Bundle } from "../../generated/schema";
-import { BIG_DECIMAL_ZERO } from "../constants";
+import { getAvaxPriceInUSD } from "../utils";
 
 export function loadBundle(): Bundle {
   let bundle = Bundle.load("1");
 
   if (bundle === null) {
     bundle = new Bundle("1");
-    bundle.avaxPriceUSD = BIG_DECIMAL_ZERO;
+    bundle.avaxPriceUSD = getAvaxPriceInUSD();
     bundle.save();
   }
 
