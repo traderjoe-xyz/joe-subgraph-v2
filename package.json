@@ -5,8 +5,8 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy-fuji": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-fuji",
-    "deploy-mainnet": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2",
+    "deploy-fuji": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-fuji subgraph.fuji.yaml",
+    "deploy-mainnet": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2 subgraph.avax.yaml",
     "create-local": "graph create --node http://localhost:8020/ traderjoe-xyz/joe-v2-fuji",
     "remove-local": "graph remove --node http://localhost:8020/ traderjoe-xyz/joe-v2-fuji",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 traderjoe-xyz/joe-v2-fuji",
