@@ -7,10 +7,9 @@ import {
   WAVAX_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
 } from "../constants";
-import { Token, Bin, LBPair, Bundle } from "../../generated/schema";
+import { Token, LBPair } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
-import { loadBundle, loadToken, loadBin } from "../entities";
-import { safeDiv } from "../utils";
+import { loadBundle, loadToken, } from "../entities";
 
 export function getAvaxPriceInUSD(): BigDecimal {
   const dexLens = DexLens.bind(JOE_DEX_LENS_ADDRESS);

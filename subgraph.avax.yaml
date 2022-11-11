@@ -19,6 +19,7 @@ dataSources:
         - LBFactory
         - LBPair
         - Token
+        - Bundle
       abis:
         - name: LBFactory
           file: ./abis/LBFactory.json
@@ -30,6 +31,8 @@ dataSources:
           file: ./abis/ERC20SymbolBytes.json
         - name: ERC20NameBytes
           file: ./abis/ERC20NameBytes.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: FlashLoanFeeSet(uint256,uint256)
           handler: handleFlashLoanFeeSet
