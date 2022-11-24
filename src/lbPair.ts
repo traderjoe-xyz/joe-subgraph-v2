@@ -112,7 +112,7 @@ export function handleSwap(event: SwapEvent): void {
   const amountYTotal = swapForY ? amountOut : amountIn;
 
   const fees = formatTokenAmountByDecimals(event.params.fees, tokenIn.decimals);
-  const feesUSD = fees.times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD));
+  const feesUSD = fees.times(tokenIn.derivedAVAX.times(bundle.avaxPriceUSD));
 
   const trackedVolumeUSD = getTrackedVolumeUSD(
     amountXTotal,
@@ -262,7 +262,9 @@ export function handleSwap(event: SwapEvent): void {
   tokenXHourData.volume = tokenXHourData.volume.plus(amountXTotal);
   tokenXHourData.volumeAVAX = tokenXHourData.volumeAVAX.plus(trackedVolumeAVAX);
   tokenXHourData.volumeUSD = tokenXHourData.volumeUSD.plus(trackedVolumeUSD);
-  tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(feesUSD);
+  if (swapForY) {
+    tokenXHourData.feesUSD = tokenXHourData.feesUSD.plus(feesUSD);
+  }
   tokenXHourData.save();
 
   // TokenYHourData
@@ -274,7 +276,9 @@ export function handleSwap(event: SwapEvent): void {
   tokenYHourData.volume = tokenYHourData.volume.plus(amountYTotal);
   tokenYHourData.volumeAVAX = tokenYHourData.volumeAVAX.plus(trackedVolumeAVAX);
   tokenYHourData.volumeUSD = tokenYHourData.volumeUSD.plus(trackedVolumeUSD);
-  tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(feesUSD);
+  if (!swapForY) {
+    tokenYHourData.feesUSD = tokenYHourData.feesUSD.plus(feesUSD);
+  }
   tokenYHourData.save();
 
   // TokenXDayData
@@ -286,7 +290,9 @@ export function handleSwap(event: SwapEvent): void {
   tokenXDayData.volume = tokenXDayData.volume.plus(amountXTotal);
   tokenXDayData.volumeAVAX = tokenXDayData.volumeAVAX.plus(trackedVolumeAVAX);
   tokenXDayData.volumeUSD = tokenXDayData.volumeUSD.plus(trackedVolumeUSD);
-  tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(feesUSD);
+  if (swapForY) {
+    tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(feesUSD);
+  }
   tokenXDayData.save();
 
   // TokenYDayData
@@ -298,7 +304,9 @@ export function handleSwap(event: SwapEvent): void {
   tokenYDayData.volume = tokenYDayData.volume.plus(amountYTotal);
   tokenYDayData.volumeAVAX = tokenYDayData.volumeAVAX.plus(trackedVolumeAVAX);
   tokenYDayData.volumeUSD = tokenYDayData.volumeUSD.plus(trackedVolumeUSD);
-  tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUSD);
+  if (!swapForY) {
+    tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUSD);
+  }
   tokenYDayData.save();
 
   // User
@@ -516,7 +524,7 @@ export function handleCompositionFee(event: CompositionFee): void {
     false
   );
   tokenXDayData.feesUSD = tokenXDayData.feesUSD.plus(
-    feesY.times(tokenYPriceUSD)
+    feesX.times(tokenXPriceUSD)
   );
   tokenXDayData.save();
 
@@ -736,23 +744,6 @@ export function handleLiquidityRemoved(event: WithdrawnFromBin): void {
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
     lbPair.totalValueLockedAVAX
   );
-
-  // debug
-  if (event.params.id === BigInt.fromI32(8376279)) {
-    log.error("addr", [event.address.toHexString()]);
-    log.error("active bin remove liquidity / amountXRaw {} / amountYRaw {}", [
-      event.params.amountX.toString(),
-      event.params.amountY.toString(),
-    ]);
-    log.error("active bin remove liquidity / amountX {} / amountY {}", [
-      amountX.toString(),
-      amountX.toString(),
-    ]);
-    log.error("active bin remove liquidity / X decimals {} / y decimals {}", [
-      tokenX.decimals.toString(),
-      tokenY.decimals.toString(),
-    ]);
-  }
 
   // LBPair
   lbPair.activeId = event.params.id;
