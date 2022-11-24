@@ -745,23 +745,6 @@ export function handleLiquidityRemoved(event: WithdrawnFromBin): void {
     lbPair.totalValueLockedAVAX
   );
 
-  // debug
-  if (event.params.id === BigInt.fromI32(8376279)) {
-    log.error("addr", [event.address.toHexString()]);
-    log.error("active bin remove liquidity / amountXRaw {} / amountYRaw {}", [
-      event.params.amountX.toString(),
-      event.params.amountY.toString(),
-    ]);
-    log.error("active bin remove liquidity / amountX {} / amountY {}", [
-      amountX.toString(),
-      amountX.toString(),
-    ]);
-    log.error("active bin remove liquidity / X decimals {} / y decimals {}", [
-      tokenX.decimals.toString(),
-      tokenY.decimals.toString(),
-    ]);
-  }
-
   // LBPair
   lbPair.activeId = event.params.id;
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
