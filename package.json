@@ -5,10 +5,13 @@
   "scripts": {
     "codegen:avax": "graph codegen subgraph.avax.yaml",
     "codegen:fuji": "graph codegen subgraph.fuji.yaml",
+    "codegen:arbgoerli": "graph codegen subgraph.arbgoerli.yaml",
     "build:avax": "graph build subgraph.avax.yaml",
     "build:fuji": "graph build subgraph.fuji.yaml",
+    "build:arbgoerli": "graph build subgraph.arbgoerli.yaml",
     "deploy:avax": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2 subgraph.avax.yaml",
     "deploy:fuji": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-fuji subgraph.fuji.yaml",
+    "deploy:arbgoerli": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-arb-goerli subgraph.arbgoerli.yaml",
     "create-local": "graph create --node http://localhost:8020/ traderjoe-xyz/joe-v2-fuji",
     "remove-local": "graph remove --node http://localhost:8020/ traderjoe-xyz/joe-v2-fuji",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 traderjoe-xyz/joe-v2-fuji",
