@@ -19,13 +19,13 @@ export const NULL_CALL_RESULT_VALUE =
 
 // TODO @gaepsuni: generate from mustache template via `yarn prepare:avax`
 export const LBFACTORY_ADDRESS = Address.fromString(
-  "0xC8Af41e49e2C03eA14706C7aa9cEE60454bc5c03"
+  "0x1886D09C9Ade0c5DB822D85D21678Db67B6c2982"
 );
 
 export const JOE_DEX_LENS_ADDRESS = Address.fromString(
-  "0x1Be66E6aC1A92f84F6D39E8ED3fc2E0AF8D05747"
+  "0xf450749aeA1c5feF27Ae0237C56FecC43f6bE244"
 );
 
 export const WAVAX_ADDRESS = Address.fromString(
-  "0xaE4EC9901c3076D0DdBe76A520F9E90a6227aCB7"
+  "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
 );
