@@ -6,8 +6,9 @@ import {
   BIG_DECIMAL_1E18,
   WAVAX_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
+  BIG_DECIMAL_1E12,
 } from "../constants";
-import { Token, LBPair } from "../../generated/schema";
+import { Token, LBPair, Bundle } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
 import { loadBundle, loadToken, } from "../entities";
 
@@ -38,7 +39,24 @@ export function getTokenPriceInAVAX(token: Token): BigDecimal {
       "[getTokenPriceInAVAX] dexLens.getTokenPriceNative() reverted for token {}",
       [token.id]
     );
-    return BIG_DECIMAL_ZERO;
+
+    // try to get tokenPriceUSD, this might be the case for e.g. DAI, USDT
+    const priceInUSDResult = dexLens.try_getTokenPriceUSD(tokenAddress);
+    if (priceInUSDResult.reverted) {
+      log.warning(
+        "[getTokenPriceInAVAX] dexLens.getTokenPriceUSD() reverted for token {}",
+        [token.id]
+      );
+      return BIG_DECIMAL_ZERO;
+    }
+
+    // convert to price in native (aka avax)
+    //
+    // NOTE: arbitrum USD collateral is USDC; we know the USD price is in 6 decimals
+    // TODO: add usd-decimal as config for different chains.
+    const avaxPriceInUSD = loadBundle().avaxPriceUSD.times(BIG_DECIMAL_1E18);
+    const priceInAvax = priceInUSDResult.value.toBigDecimal().times(BIG_DECIMAL_1E12).div(avaxPriceInUSD);
+    return priceInAvax
   }
 
   const priceInAvax = priceInAvaxResult.value
