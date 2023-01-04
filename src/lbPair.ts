@@ -988,8 +988,8 @@ export function handleTransferSingle(event: TransferSingle): void {
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
-      event.params.amount,
-      BIG_INT_ZERO // burned
+      BIG_INT_ZERO,
+      event.params.amount, // burned
     );
   }
 
