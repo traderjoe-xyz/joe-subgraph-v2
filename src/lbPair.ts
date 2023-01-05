@@ -966,7 +966,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   );
 
   // mint: increase bin totalSupply
-  if (ADDRESS_ZERO === event.params.from) {
+  if (ADDRESS_ZERO.equals(event.params.from)) {
     trackBin(
       lbPair,
       event.params.id,
@@ -980,7 +980,7 @@ export function handleTransferSingle(event: TransferSingle): void {
   }
 
   // burn: decrease bin totalSupply
-  if (ADDRESS_ZERO.toHexString() === event.params.to.toHexString()) {
+  if (ADDRESS_ZERO.equals(event.params.to)) {
     trackBin(
       lbPair,
       event.params.id,
@@ -1039,7 +1039,7 @@ export function handleTransferBatch(event: TransferBatch): void {
     );
 
     // mint: increase bin totalSupply
-    if (ADDRESS_ZERO === event.params.from) {
+    if (ADDRESS_ZERO.equals(event.params.from)) {
       trackBin(
           lbPair,
           event.params.ids[i],
@@ -1053,7 +1053,7 @@ export function handleTransferBatch(event: TransferBatch): void {
     }
 
     // burn: decrease bin totalSupply
-    if (ADDRESS_ZERO.toHexString() === event.params.to.toHexString()) {
+    if (ADDRESS_ZERO.equals(event.params.to)) {
       trackBin(
           lbPair,
           event.params.ids[i],
