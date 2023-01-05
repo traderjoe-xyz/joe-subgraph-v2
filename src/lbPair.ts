@@ -1037,6 +1037,34 @@ export function handleTransferBatch(event: TransferBatch): void {
       event.params.amounts[i],
       event.block
     );
+
+    // mint: increase bin totalSupply
+    if (ADDRESS_ZERO === event.params.from) {
+      trackBin(
+          lbPair,
+          event.params.ids[i],
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          event.params.amounts[i], // minted
+          BIG_INT_ZERO
+      );
+    }
+
+    // burn: decrease bin totalSupply
+    if (ADDRESS_ZERO.toHexString() === event.params.to.toHexString()) {
+      trackBin(
+          lbPair,
+          event.params.ids[i],
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          BIG_DECIMAL_ZERO,
+          BIG_INT_ZERO,
+          event.params.amounts[i], // burned
+      );
+    }
   }
 
   const lbFactory = loadLBFactory();
