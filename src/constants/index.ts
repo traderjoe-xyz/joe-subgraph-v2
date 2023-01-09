@@ -17,7 +17,6 @@ export const BIG_INT_ZERO = BigInt.fromI32(0);
 export const NULL_CALL_RESULT_VALUE =
   "0x0000000000000000000000000000000000000000000000000000000000000001";
 
-// TODO @gaepsuni: generate from mustache template via `yarn prepare:avax`
 export const LBFACTORY_ADDRESS = Address.fromString('0xC8Af41e49e2C03eA14706C7aa9cEE60454bc5c03');
 
 export const JOE_DEX_LENS_ADDRESS = Address.fromString('0x1Be66E6aC1A92f84F6D39E8ED3fc2E0AF8D05747');
