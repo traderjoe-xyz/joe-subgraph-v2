@@ -18,8 +18,8 @@ export const NULL_CALL_RESULT_VALUE =
   "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 // TODO @gaepsuni: generate from mustache template via `yarn prepare:avax`
-export const LBFACTORY_ADDRESS = Address.fromString('0x6E77932A92582f504FF6c4BdbCef7Da6c198aEEf');
+export const LBFACTORY_ADDRESS = Address.fromString('{{ lbfactory_address }}');
 
-export const JOE_DEX_LENS_ADDRESS = Address.fromString('0x16978e42a9b14A19878161A7EdE255637ce361e0');
+export const JOE_DEX_LENS_ADDRESS = Address.fromString('{{ joe_dex_lens_address }}');
 
-export const WAVAX_ADDRESS = Address.fromString('0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7');
+export const WAVAX_ADDRESS = Address.fromString('{{ wavax_address }}');
