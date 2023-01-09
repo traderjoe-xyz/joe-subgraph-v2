@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "prepare:avax": "mustache config/avax.json src/constants/index.template.ts > src/constants/index.ts && mustache config/avax.json subgraph.template.yaml > subgraph.avax.yaml",
+    "prepare:fuji": "mustache config/fuji.json src/constants/index.template.ts > src/constants/index.ts && mustache config/fuji.json subgraph.template.yaml > subgraph.fuji.yaml",
+    "prepare:arbgoerli": "mustache config/arbgoerli.json src/constants/index.template.ts > src/constants/index.ts && mustache config/arbgoerli.json subgraph.template.yaml > subgraph.arbgoerli.yaml",
+    "prepare:arbitrum": "mustache config/arbitrum.json src/constants/index.template.ts > src/constants/index.ts && mustache config/arbitrum.json subgraph.template.yaml > subgraph.arbitrum.yaml",
     "codegen:avax": "graph codegen subgraph.avax.yaml",
     "codegen:fuji": "graph codegen subgraph.fuji.yaml",
     "codegen:arbgoerli": "graph codegen subgraph.arbgoerli.yaml",
@@ -22,7 +26,8 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.32.0",
-    "@graphprotocol/graph-ts": "0.27.0"
+    "@graphprotocol/graph-ts": "0.27.0",
+    "mustache": "^4.1.0"
   },
   "repository": "https://github.com/traderjoe-xyz/joe-subgraph-v2.git",
   "author": "traderjoexyz",
