@@ -1,4 +1,5 @@
 {
+  "network": "arbitrum-one",
   "lbfactory_address": "0x1886D09C9Ade0c5DB822D85D21678Db67B6c2982",
   "joe_dex_lens_address": "0xf450749aeA1c5feF27Ae0237C56FecC43f6bE244",
   "wavax_address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",

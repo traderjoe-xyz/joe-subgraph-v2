@@ -1,4 +1,5 @@
 {
+  "network": "avalanche",
   "lbfactory_address": "0x6E77932A92582f504FF6c4BdbCef7Da6c198aEEf",
   "joe_dex_lens_address": "0x16978e42a9b14A19878161A7EdE255637ce361e0",
   "wavax_address": "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
