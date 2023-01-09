@@ -11,17 +11,20 @@ Subgraph for Joe-v2 (Liquidity Book) on AVAX C-chain.
 ### Setup & Deploy
 
 ````
+# prepare constants and subgraph.yaml
+$ yarn prepare:{network}
+
 # generate Assembly Script typings
-$ yarn codegen
+$ yarn codegen:{network}
 
 # compile and build files
-$ yarn build
+$ yarn build:{network}
 
 # authenticate api key
 $ graph auth
 
 # deploy subgraph
-$ yarn deploy
+$ yarn deploy:{network}
 ````
 
 ### Setting up local node (for development)
