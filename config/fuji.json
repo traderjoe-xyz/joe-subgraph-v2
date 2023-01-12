@@ -1,0 +1,7 @@
+{
+  "network": "fuji",
+  "lbfactory_address": "0x6B8E020098cd1B3Ec9f811024bc24e51C660F768",
+  "joe_dex_lens_address": "0x8b9e4f329f013320670459bcab01c2b8dc9c32c3",
+  "wavax_address": "0xd00ae08403B9bbb9124bB305C09058E32C39A48c",
+  "start_block": 15428450
+}
