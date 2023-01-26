@@ -4,9 +4,14 @@ Subgraph for Joe-v2 (Liquidity Book) on AVAX C-chain.
 
 ### Subgraph Status
 
-| subgraph |   fuji   | avalanche |
-| -------- | :------: | :-------: |
-| joe-v2   | deployed |    [x]    |
+| network    | subgraph |
+| ---------- | :------: | 
+| avalanche  | https://thegraph.com/hosted-service/subgraph/traderjoe-xyz/joe-v2 |  
+| arbitrum   | https://thegraph.com/hosted-service/subgraph/traderjoe-xyz/joe-v2-arbitrum |  
+| fuji       | https://thegraph.com/hosted-service/subgraph/traderjoe-xyz/joe-v2-fuji |  
+| arb-goerli | https://thegraph.com/hosted-service/subgraph/traderjoe-xyz/joe-v2-arb-goerli |  
+
+
 
 ### Setup & Deploy
 
