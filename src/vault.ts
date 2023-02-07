@@ -1,8 +1,13 @@
 import { Address } from "@graphprotocol/graph-ts";
-import { Deposited, Withdrawn } from "../generated/VaultFactory/Vault";
+import {
+  Deposited,
+  StrategySet,
+  Withdrawn,
+} from "../generated/VaultFactory/Vault";
 import { BIG_INT_ONE } from "./constants";
 import { loadBundle, loadToken } from "./entities";
 import { loadVault } from "./entities/vault";
+import { loadVaultStrategy } from "./entities/vaultStrategy";
 import { formatTokenAmountByDecimals } from "./utils";
 import { updateAvaxInUsdPricing } from "./utils/pricing";
 
@@ -83,5 +88,15 @@ export function handleWithdrawn(event: Withdrawn): void {
     bundle.avaxPriceUSD
   );
 
+  vault.save();
+}
+
+export function handleStrategySet(event: StrategySet) {
+  const vault = loadVault(event.address);
+  if (!vault) {
+    return;
+  }
+  const strategy = loadVaultStrategy(event.params.strategy);
+  vault.strategy = strategy.id;
   vault.save();
 }

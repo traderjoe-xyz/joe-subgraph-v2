@@ -154,4 +154,6 @@ dataSources:
           handler: handleDeposited
         - event: Withdrawn(indexed address,uint256,uint256,uint256)
           handler: handleWithdrawn
+        - event: StrategySet(address)
+          handler: handleStrategySet
       file: ./src/vault.ts
