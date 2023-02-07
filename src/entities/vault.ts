@@ -32,3 +32,11 @@ export function createVault(vaultAddress: Address): Vault | null {
   vault.save();
   return vault;
 }
+
+export function loadVault(id: Address): Vault | null {
+  const vault = Vault.load(id.toHexString());
+  if (!vault) {
+    return createVault(id);
+  }
+  return vault;
+}

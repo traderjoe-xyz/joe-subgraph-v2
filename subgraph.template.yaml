@@ -133,3 +133,23 @@ dataSources:
           handler: handleStrategyCreated
 
       file: ./src/vaultFactory.ts
+
+  - kind: ethereum/contract
+    name: Vault
+    network: {{ network }}
+    source:
+      abi: Vault
+      startBlock: {{ start_block }}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Vault
+      abis:
+        - name: Vault
+          file: ./abis/Vault.json
+      eventHandlers:
+        - event: Deposited(indexed address,uint256,uint256,uint256)
+          handler: handleDeposited
+      file: ./src/vault.ts
