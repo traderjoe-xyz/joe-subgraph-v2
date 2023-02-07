@@ -1,7 +1,10 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { VaultFactory } from "../../generated/schema";
-import { BIG_DECIMAL_ZERO, VAULT_FACTORY_ADDRESS } from "../constants";
-import { BIG_INT_ONE } from "../constants/index.template";
+import {
+  BIG_DECIMAL_ZERO,
+  VAULT_FACTORY_ADDRESS,
+  BIG_INT_ONE,
+} from "../constants";
 
 export function loadVaultFactory(
   id: Address = VAULT_FACTORY_ADDRESS
