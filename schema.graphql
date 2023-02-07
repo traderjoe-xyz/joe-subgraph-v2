@@ -662,3 +662,28 @@ type Transfer @entity {
   origin: Bytes!
   logIndex: BigInt!
 }
+
+type VaultFactory @entity {
+  # Contract address
+  id: ID!
+
+  vaultCount: BigInt!
+}
+
+type Vault @entity {
+  # Contract address
+  id: ID!
+
+  factory: VaultFactory!
+
+  pair: LBPair!
+
+  tokenX: Token!
+  tokenY: Token!
+
+  totalBalanceX: BigDecimal!
+  totalBalanceY: BigDecimal!
+
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedAVAX: BigDecimal!
+}
