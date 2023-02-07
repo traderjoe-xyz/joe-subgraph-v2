@@ -126,6 +126,14 @@ dataSources:
           file: ./abis/Vault.json
         - name: VaultStrategy
           file: ./abis/VaultStrategy.json
+        - name: LBFactory
+          file: ./abis/LBFactory.json
+        - name: LBPair
+          file: ./abis/LBPair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: VaultCreated(indexed address,indexed address,indexed address,uint256,address,address,address,address)
           handler: handleVaultCreated

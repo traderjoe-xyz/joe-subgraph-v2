@@ -17,6 +17,7 @@ export function loadVaultFactory(
     vaultFactory.strategyCount = BIG_INT_ONE;
     vaultFactory.totalValueLockedUSD = BIG_DECIMAL_ZERO;
     vaultFactory.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
+    vaultFactory.txCount = BIG_INT_ONE;
     vaultFactory.save();
   }
 

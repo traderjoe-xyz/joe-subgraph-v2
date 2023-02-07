@@ -1,7 +1,11 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { Vault } from "../../generated/schema";
 import { Vault as VaultABI } from "../../generated/VaultFactory/Vault";
-import { BIG_DECIMAL_ZERO, VAULT_FACTORY_ADDRESS } from "../constants";
+import {
+  BIG_DECIMAL_ZERO,
+  BIG_INT_ZERO,
+  VAULT_FACTORY_ADDRESS,
+} from "../constants";
 import { loadToken } from "./token";
 import { loadVaultStrategy } from "./vaultStrategy";
 
@@ -28,6 +32,8 @@ export function createVault(vaultAddress: Address): Vault | null {
   vault.totalBalanceY = BIG_DECIMAL_ZERO;
   vault.totalValueLockedUSD = BIG_DECIMAL_ZERO;
   vault.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
+
+  vault.txCount = BIG_INT_ZERO;
 
   vault.save();
   return vault;
