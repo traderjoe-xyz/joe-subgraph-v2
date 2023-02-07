@@ -124,7 +124,7 @@ export function handleWithdrawn(event: Withdrawn): void {
   vault.save();
 }
 
-export function handleStrategySet(event: StrategySet) {
+export function handleStrategySet(event: StrategySet): void {
   const vault = loadVault(event.address);
   if (!vault) {
     return;
