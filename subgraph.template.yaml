@@ -152,4 +152,6 @@ dataSources:
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
+        - event: Withdrawn(indexed address,uint256,uint256,uint256)
+          handler: handleWithdrawn
       file: ./src/vault.ts
