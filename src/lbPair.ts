@@ -21,6 +21,7 @@ import {
   Transfer,
   LBPairParameterSet,
   Vault,
+  VaultStrategy,
 } from "../generated/schema";
 import {
   loadBin,
@@ -892,19 +893,26 @@ export function handleFeesCollected(event: FeesCollected): void {
   feeCollected.logIndex = event.logIndex;
 
   // update vault collected fees if the recipient is a vault
-  const vault = Vault.load(user.id);
-  if (vault) {
-    const vaultDayData = loadVaultDayData(event.block.timestamp, vault, false);
-    vaultDayData.collectedFeesUSD = vaultDayData.collectedFeesUSD.plus(
-      amountUSD
-    );
-    vaultDayData.collectedFeesTokenX = vaultDayData.collectedFeesTokenX.plus(
-      amountX
-    );
-    vaultDayData.collectedFeesTokenY = vaultDayData.collectedFeesTokenY.plus(
-      amountY
-    );
-    vaultDayData.save();
+  const vaultStategy = VaultStrategy.load(user.id);
+  if (vaultStategy) {
+    const vault = Vault.load(vaultStategy.vault);
+    if (vault) {
+      const vaultDayData = loadVaultDayData(
+        event.block.timestamp,
+        vault,
+        false
+      );
+      vaultDayData.collectedFeesUSD = vaultDayData.collectedFeesUSD.plus(
+        amountUSD
+      );
+      vaultDayData.collectedFeesTokenX = vaultDayData.collectedFeesTokenX.plus(
+        amountX
+      );
+      vaultDayData.collectedFeesTokenY = vaultDayData.collectedFeesTokenY.plus(
+        amountY
+      );
+      vaultDayData.save();
+    }
   }
 
   feeCollected.save();
