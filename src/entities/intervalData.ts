@@ -9,6 +9,8 @@ import {
   LBPairHourData,
   LBPair,
   SJoeDayData,
+  VaultDayData,
+  Vault,
 } from "../../generated/schema";
 import { loadLBFactory } from "./lbFactory";
 import { loadBundle } from "./bundle";
@@ -303,4 +305,45 @@ export function loadSJoeDayData(timestamp: BigInt): SJoeDayData {
   }
 
   return sJoeDayData as SJoeDayData;
+}
+
+export function loadVaultDayData(
+  timestamp: BigInt,
+  vault: Vault,
+  update: bool
+): VaultDayData {
+  const SECONDS_IN_DAY = BigInt.fromI32(60 * 60 * 24);
+  const dayId = timestamp.div(SECONDS_IN_DAY);
+  const dayStartTimestamp = dayId.times(SECONDS_IN_DAY);
+
+  const id = vault.id.concat("-").concat(dayStartTimestamp.toString());
+
+  let vaultDayData = VaultDayData.load(id);
+  if (!vaultDayData) {
+    vaultDayData = new VaultDayData(id);
+    vaultDayData.date = dayStartTimestamp.toI32();
+    vaultDayData.vault = vault.id;
+    vaultDayData.tokenX = vault.tokenX;
+    vaultDayData.tokenY = vault.tokenY;
+    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalValueLockedUSD = vaultDayData.totalValueLockedUSD;
+    vaultDayData.totalValueLockedAVAX = vaultDayData.totalValueLockedAVAX;
+    vaultDayData.collectedFeesTokenX = BIG_DECIMAL_ZERO;
+    vaultDayData.collectedFeesTokenY = BIG_DECIMAL_ZERO;
+    vaultDayData.collectedFeesUSD = BIG_DECIMAL_ZERO;
+    vaultDayData.txCount = BIG_INT_ZERO;
+    vaultDayData.save();
+  }
+
+  if (update) {
+    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalValueLockedUSD = vaultDayData.totalValueLockedUSD;
+    vaultDayData.totalValueLockedAVAX = vaultDayData.totalValueLockedAVAX;
+    vaultDayData.txCount = vaultDayData.txCount.plus(BIG_INT_ONE);
+    vaultDayData.save();
+  }
+
+  return vaultDayData;
 }

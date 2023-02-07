@@ -712,3 +712,27 @@ type VaultStrategy @entity {
 
   lbPair: LBPair!
 }
+
+type VaultDayData @entity {
+  # Vault address + "-" + timestamp / 86400
+  id: ID!
+
+  date: Int!
+
+  vault: Vault!
+
+  tokenX: Token!
+  tokenY: Token!
+
+  totalBalanceX: BigDecimal!
+  totalBalanceY: BigDecimal!
+
+  totalValueLockedAVAX: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+
+  collectedFeesTokenX: BigDecimal!
+  collectedFeesTokenY: BigDecimal!
+  collectedFeesUSD: BigDecimal!
+
+  txCount: BigInt!
+}

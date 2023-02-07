@@ -5,7 +5,7 @@ import {
   Withdrawn,
 } from "../generated/VaultFactory/Vault";
 import { BIG_INT_ONE } from "./constants";
-import { loadBundle, loadToken } from "./entities";
+import { loadBundle, loadToken, loadVaultDayData } from "./entities";
 import { loadVault } from "./entities/vault";
 import { loadVaultFactory } from "./entities/vaultFactory";
 import { loadVaultStrategy } from "./entities/vaultStrategy";
@@ -43,7 +43,6 @@ export function handleDeposited(event: Deposited): void {
   );
 
   // update vault total balance
-  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.totalBalanceX = vault.totalBalanceX.plus(amountX);
   vault.totalBalanceY = vault.totalBalanceY.plus(amountY);
 
@@ -65,6 +64,9 @@ export function handleDeposited(event: Deposited): void {
   factory.txCount = factory.txCount.plus(BIG_INT_ONE);
   factory.save();
 
+  loadVaultDayData(event.block.timestamp, vault, true);
+
+  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
 }
 
@@ -99,7 +101,6 @@ export function handleWithdrawn(event: Withdrawn): void {
   );
 
   // update vault total balance
-  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.totalBalanceX = vault.totalBalanceX.minus(amountX);
   vault.totalBalanceY = vault.totalBalanceY.minus(amountY);
 
@@ -121,6 +122,9 @@ export function handleWithdrawn(event: Withdrawn): void {
   factory.txCount = factory.txCount.plus(BIG_INT_ONE);
   factory.save();
 
+  loadVaultDayData(event.block.timestamp, vault, true);
+
+  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
 }
 

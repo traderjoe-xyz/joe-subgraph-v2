@@ -110,7 +110,7 @@ dataSources:
     source:
       address: "{{ vault_factory_address }}"
       abi: VaultFactory
-      startBlock: {{ start_block }}
+      startBlock: {{ vault_start_block }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -139,7 +139,7 @@ dataSources:
     network: {{ network }}
     source:
       abi: Vault
-      startBlock: {{ start_block }}
+      startBlock: {{ vault_start_block }}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
