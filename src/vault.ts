@@ -7,6 +7,7 @@ import {
 import { BIG_INT_ONE } from "./constants";
 import { loadBundle, loadToken } from "./entities";
 import { loadVault } from "./entities/vault";
+import { loadVaultFactory } from "./entities/vaultFactory";
 import { loadVaultStrategy } from "./entities/vaultStrategy";
 import { formatTokenAmountByDecimals } from "./utils";
 import { updateAvaxInUsdPricing } from "./utils/pricing";
@@ -16,6 +17,12 @@ export function handleDeposited(event: Deposited): void {
   if (!vault) {
     return;
   }
+
+  // reset tvl aggregates until new amounts calculated
+  const factory = loadVaultFactory(Address.fromString(vault.factory));
+  factory.totalValueLockedAVAX = factory.totalValueLockedAVAX.minus(
+    vault.totalValueLockedAVAX
+  );
 
   // load price bundle
   updateAvaxInUsdPricing();
@@ -48,6 +55,16 @@ export function handleDeposited(event: Deposited): void {
     bundle.avaxPriceUSD
   );
 
+  // update factory
+  factory.totalValueLockedAVAX = factory.totalValueLockedAVAX.plus(
+    vault.totalValueLockedAVAX
+  );
+  factory.totalValueLockedUSD = factory.totalValueLockedAVAX.times(
+    bundle.avaxPriceUSD
+  );
+  factory.txCount = factory.txCount.plus(BIG_INT_ONE);
+  factory.save();
+
   vault.save();
 }
 
@@ -56,6 +73,12 @@ export function handleWithdrawn(event: Withdrawn): void {
   if (!vault) {
     return;
   }
+
+  // reset tvl aggregates until new amounts calculated
+  const factory = loadVaultFactory(Address.fromString(vault.factory));
+  factory.totalValueLockedAVAX = factory.totalValueLockedAVAX.minus(
+    vault.totalValueLockedAVAX
+  );
 
   // load price bundle
   updateAvaxInUsdPricing();
@@ -87,6 +110,16 @@ export function handleWithdrawn(event: Withdrawn): void {
   vault.totalValueLockedUSD = vault.totalValueLockedAVAX.times(
     bundle.avaxPriceUSD
   );
+
+  // update factory
+  factory.totalValueLockedAVAX = factory.totalValueLockedAVAX.plus(
+    vault.totalValueLockedAVAX
+  );
+  factory.totalValueLockedUSD = factory.totalValueLockedAVAX.times(
+    bundle.avaxPriceUSD
+  );
+  factory.txCount = factory.txCount.plus(BIG_INT_ONE);
+  factory.save();
 
   vault.save();
 }

@@ -1,6 +1,6 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { VaultFactory } from "../../generated/schema";
-import { VAULT_FACTORY_ADDRESS } from "../constants";
+import { BIG_DECIMAL_ZERO, VAULT_FACTORY_ADDRESS } from "../constants";
 import { BIG_INT_ONE } from "../constants/index.template";
 
 export function loadVaultFactory(
@@ -12,6 +12,8 @@ export function loadVaultFactory(
     vaultFactory = new VaultFactory(id.toHexString());
     vaultFactory.vaultCount = BIG_INT_ONE;
     vaultFactory.strategyCount = BIG_INT_ONE;
+    vaultFactory.totalValueLockedUSD = BIG_DECIMAL_ZERO;
+    vaultFactory.totalValueLockedAVAX = BIG_DECIMAL_ZERO;
     vaultFactory.save();
   }
 

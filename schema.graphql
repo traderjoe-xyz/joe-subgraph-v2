@@ -668,8 +668,13 @@ type VaultFactory @entity {
   # Contract address
   id: ID!
 
+  txCount: BigInt!
+
   vaultCount: BigInt!
   strategyCount: BigInt!
+
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedAVAX: BigDecimal!
 
   vaults: [Vault!]! @derivedFrom(field: "factory")
   strategies: [VaultStrategy!]! @derivedFrom(field: "factory")
@@ -678,6 +683,8 @@ type VaultFactory @entity {
 type Vault @entity {
   # Contract address
   id: ID!
+
+  txCount: BigInt!
 
   factory: VaultFactory!
 
@@ -693,8 +700,6 @@ type Vault @entity {
 
   totalValueLockedUSD: BigDecimal!
   totalValueLockedAVAX: BigDecimal!
-
-  txCount: BigInt!
 }
 
 type VaultStrategy @entity {
