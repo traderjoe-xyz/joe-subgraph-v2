@@ -301,6 +301,7 @@ type LBPair @entity {
   # used to detect new exchanges
   liquidityProviderCount: BigInt!
 
+  vaults: [Vault!]! @derivedFrom(field: "lbPair")
   bins: [Bin!]! @derivedFrom(field: "lbPair")
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "lbPair")
   dayData: [LBPairDayData!]! @derivedFrom(field: "lbPair")
@@ -668,6 +669,10 @@ type VaultFactory @entity {
   id: ID!
 
   vaultCount: BigInt!
+  strategyCount: BigInt!
+
+  vaults: [Vault!]! @derivedFrom(field: "factory")
+  strategies: [VaultStrategy!]! @derivedFrom(field: "factory")
 }
 
 type Vault @entity {
@@ -676,7 +681,9 @@ type Vault @entity {
 
   factory: VaultFactory!
 
-  pair: LBPair!
+  strategy: VaultStrategy!
+
+  lbPair: LBPair!
 
   tokenX: Token!
   tokenY: Token!
@@ -686,4 +693,15 @@ type Vault @entity {
 
   totalValueLockedUSD: BigDecimal!
   totalValueLockedAVAX: BigDecimal!
+}
+
+type VaultStrategy @entity {
+  # Contract address
+  id: ID!
+
+  factory: VaultFactory!
+
+  vault: Vault!
+
+  lbPair: LBPair!
 }

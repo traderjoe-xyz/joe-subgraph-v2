@@ -118,12 +118,18 @@ dataSources:
       entities:
         - VaultFactory
         - Vault
+        - VaultStrategy
       abis:
         - name: VaultFactory
           file: ./abis/VaultFactory.json
         - name: Vault
           file: ./abis/Vault.json
+        - name: VaultStrategy
+          file: ./abis/VaultStrategy.json
       eventHandlers:
         - event: VaultCreated(indexed address,indexed address,indexed address,uint256,address,address,address,address)
           handler: handleVaultCreated
+        - event: StrategyCreated(indexed address,indexed address,indexed address,uint256)
+          handler: handleStrategyCreated
+
       file: ./src/vaultFactory.ts

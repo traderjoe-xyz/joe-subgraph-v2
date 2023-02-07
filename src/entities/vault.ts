@@ -3,10 +3,15 @@ import { Vault } from "../../generated/schema";
 import { Vault as VaultABI } from "../../generated/VaultFactory/Vault";
 import { BIG_DECIMAL_ZERO, VAULT_FACTORY_ADDRESS } from "../constants";
 import { loadToken } from "./token";
+import { loadVaultStrategy } from "./vaultStrategy";
 
 export function createVault(vaultAddress: Address): Vault | null {
   const vault = new Vault(vaultAddress.toHexString());
   const vaultContract = VaultABI.bind(vaultAddress);
+
+  const vaultStrategy = loadVaultStrategy(
+    vaultContract.try_getStrategy().value
+  );
 
   const tokenXCall = vaultContract.try_getTokenX();
   const tokenYCall = vaultContract.try_getTokenY();
@@ -14,7 +19,8 @@ export function createVault(vaultAddress: Address): Vault | null {
   const tokenY = loadToken(tokenYCall.value);
 
   vault.factory = VAULT_FACTORY_ADDRESS.toHexString();
-  vault.pair = vaultContract.try_getPair().value.toHexString();
+  vault.strategy = vaultStrategy.id;
+  vault.lbPair = vaultContract.try_getPair().value.toHexString();
   vault.tokenX = tokenX.id;
   vault.tokenY = tokenY.id;
 
