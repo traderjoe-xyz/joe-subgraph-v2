@@ -717,10 +717,9 @@ type VaultStrategy @entity {
   id: ID!
 
   factory: VaultFactory!
-
   vault: Vault!
-
   lbPair: LBPair!
+  operator: String!
 }
 
 type VaultDayData @entity {

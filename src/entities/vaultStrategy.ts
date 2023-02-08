@@ -12,6 +12,7 @@ export function createVaultStrategy(
   vaultStrategy.factory = VAULT_FACTORY_ADDRESS.toHexString();
   vaultStrategy.vault = vaultContract.try_getVault().value.toHexString();
   vaultStrategy.lbPair = vaultContract.try_getPair().value.toHexString();
+  vaultStrategy.operator = vaultContract.try_getOperator().value.toHexString();
 
   vaultStrategy.save();
   return vaultStrategy;
