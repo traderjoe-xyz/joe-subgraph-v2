@@ -15,12 +15,15 @@ import { loadVaultFactory } from "./entities/vaultFactory";
 import { loadVaultStrategy } from "./entities/vaultStrategy";
 import { formatTokenAmountByDecimals } from "./utils";
 import { updateAvaxInUsdPricing } from "./utils/pricing";
+import { Vault as VaultABI } from "../generated/VaultFactory/Vault";
 
 export function handleDeposited(event: Deposited): void {
   const vault = loadVault(event.address);
   if (!vault) {
     return;
   }
+
+  const vaultContract = VaultABI.bind(event.address);
 
   // reset tvl aggregates until new amounts calculated
   const factory = loadVaultFactory(Address.fromString(vault.factory));
@@ -47,8 +50,9 @@ export function handleDeposited(event: Deposited): void {
   );
 
   // update vault total balance
-  vault.totalBalanceX = vault.totalBalanceX.plus(amountX);
-  vault.totalBalanceY = vault.totalBalanceY.plus(amountY);
+  const vaultBalances = vaultContract.try_getBalances().value;
+  vault.totalBalanceX = vaultBalances.getAmountX().toBigDecimal();
+  vault.totalBalanceY = vaultBalances.getAmountY().toBigDecimal();
 
   // update vault TVL
   vault.totalValueLockedAVAX = vault.totalBalanceX
@@ -87,6 +91,8 @@ export function handleWithdrawn(event: Withdrawn): void {
     return;
   }
 
+  const vaultContract = VaultABI.bind(event.address);
+
   // reset tvl aggregates until new amounts calculated
   const factory = loadVaultFactory(Address.fromString(vault.factory));
   factory.totalValueLockedAVAX = factory.totalValueLockedAVAX.minus(
@@ -112,8 +118,9 @@ export function handleWithdrawn(event: Withdrawn): void {
   );
 
   // update vault total balance
-  vault.totalBalanceX = vault.totalBalanceX.minus(amountX);
-  vault.totalBalanceY = vault.totalBalanceY.minus(amountY);
+  const vaultBalances = vaultContract.try_getBalances().value;
+  vault.totalBalanceX = vaultBalances.getAmountX().toBigDecimal();
+  vault.totalBalanceY = vaultBalances.getAmountY().toBigDecimal();
 
   // update vault TVL
   vault.totalValueLockedAVAX = vault.totalBalanceX
