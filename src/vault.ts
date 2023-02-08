@@ -10,6 +10,7 @@ import {
   createVaultDeposit,
   createVaultWithdraw,
   loadVault,
+  loadVaultUserPosition,
 } from "./entities/vault";
 import { loadVaultFactory } from "./entities/vaultFactory";
 import { loadVaultStrategy } from "./entities/vaultStrategy";
@@ -76,7 +77,10 @@ export function handleDeposited(event: Deposited): void {
   factory.txCount = factory.txCount.plus(BIG_INT_ONE);
   factory.save();
 
+  // update day data
   loadVaultDayData(event.block.timestamp, vault, true);
+
+  // create deposit entry
   createVaultDeposit(
     event.address,
     event.params.user,
@@ -86,6 +90,23 @@ export function handleDeposited(event: Deposited): void {
     amountUSD
   );
 
+  // update user position
+  const vaultUserPosition = loadVaultUserPosition(
+    event.address,
+    event.params.user
+  );
+  vaultUserPosition.totalAmountDepositedX = vaultUserPosition.totalAmountDepositedX.plus(
+    amountX
+  );
+  vaultUserPosition.totalAmountDepositedY = vaultUserPosition.totalAmountDepositedY.plus(
+    amountY
+  );
+  vaultUserPosition.totalAmountDepositedUSD = vaultUserPosition.totalAmountDepositedUSD.plus(
+    amountUSD
+  );
+  vaultUserPosition.save();
+
+  // save
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
 }
@@ -149,7 +170,10 @@ export function handleWithdrawn(event: Withdrawn): void {
   factory.txCount = factory.txCount.plus(BIG_INT_ONE);
   factory.save();
 
+  // update day data
   loadVaultDayData(event.block.timestamp, vault, true);
+
+  // create withdraw entry
   createVaultWithdraw(
     event.address,
     event.params.user,
@@ -159,6 +183,23 @@ export function handleWithdrawn(event: Withdrawn): void {
     amountUSD
   );
 
+  // update user position
+  const vaultUserPosition = loadVaultUserPosition(
+    event.address,
+    event.params.user
+  );
+  vaultUserPosition.totalAmountWithdrawnX = vaultUserPosition.totalAmountWithdrawnX.plus(
+    amountX
+  );
+  vaultUserPosition.totalAmountWithdrawnY = vaultUserPosition.totalAmountWithdrawnY.plus(
+    amountY
+  );
+  vaultUserPosition.totalAmountWithdrawnUSD = vaultUserPosition.totalAmountWithdrawnUSD.plus(
+    amountUSD
+  );
+  vaultUserPosition.save();
+
+  // save
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
 }

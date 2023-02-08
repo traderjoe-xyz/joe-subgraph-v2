@@ -1,5 +1,10 @@
 import { Address, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
-import { Vault, VaultDeposit, VaultWithdraw } from "../../generated/schema";
+import {
+  Vault,
+  VaultDeposit,
+  VaultUserPosition,
+  VaultWithdraw,
+} from "../../generated/schema";
 import { Vault as VaultABI } from "../../generated/VaultFactory/Vault";
 import {
   BIG_DECIMAL_ZERO,
@@ -101,4 +106,30 @@ export function createVaultWithdraw(
   vaultWithdraw.timestamp = block.timestamp.toI32();
   vaultWithdraw.block = block.number.toI32();
   vaultWithdraw.save();
+}
+
+export function loadVaultUserPosition(
+  vaultAddress: Address,
+  user: Address
+): VaultUserPosition {
+  const id = vaultAddress
+    .toHexString()
+    .concat("-")
+    .concat(user.toHexString());
+  let vaultUserPosition = VaultUserPosition.load(id);
+
+  if (!vaultUserPosition) {
+    vaultUserPosition = new VaultUserPosition(id);
+    vaultUserPosition.vault = vaultAddress.toHexString();
+    vaultUserPosition.user = vaultAddress.toHexString();
+    vaultUserPosition.totalAmountDepositedX = BIG_DECIMAL_ZERO;
+    vaultUserPosition.totalAmountDepositedY = BIG_DECIMAL_ZERO;
+    vaultUserPosition.totalAmountDepositedUSD = BIG_DECIMAL_ZERO;
+    vaultUserPosition.totalAmountWithdrawnX = BIG_DECIMAL_ZERO;
+    vaultUserPosition.totalAmountWithdrawnY = BIG_DECIMAL_ZERO;
+    vaultUserPosition.totalAmountWithdrawnUSD = BIG_DECIMAL_ZERO;
+    vaultUserPosition.save();
+  }
+
+  return vaultUserPosition as VaultUserPosition;
 }

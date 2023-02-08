@@ -364,6 +364,7 @@ type User @entity {
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
 
   # Vault
+  vaultPositions: [VaultUserPosition!]! @derivedFrom(field: "user")
   vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "user")
   vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "user")
 
@@ -706,7 +707,7 @@ type Vault @entity {
   totalValueLockedAVAX: BigDecimal!
 
   dayData: [VaultDayData!]! @derivedFrom(field: "vault")
-
+  vaultUserPositions: [VaultUserPosition!]! @derivedFrom(field: "vault")
   vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "vault")
   vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "vault")
 }
@@ -746,12 +747,32 @@ type VaultDayData @entity {
   txCount: BigInt!
 }
 
+type VaultUserPosition @entity {
+  # vault address + "-" + user address
+  id: ID!
+
+  user: User!
+  vault: Vault!
+
+  totalAmountDepositedX: BigDecimal!
+  totalAmountDepositedY: BigDecimal!
+  totalAmountDepositedUSD: BigDecimal!
+
+  totalAmountWithdrawnX: BigDecimal!
+  totalAmountWithdrawnY: BigDecimal!
+  totalAmountWithdrawnUSD: BigDecimal!
+
+  vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "vaultUserPosition")
+  vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "vaultUserPosition")
+}
+
 type VaultDeposit @entity {
   # vault address + "-" + user address + "-" + timestamp
   id: ID!
 
   user: User!
   vault: Vault!
+  vaultUserPosition: VaultUserPosition!
 
   amountDepositedX: BigDecimal!
   amountDepositedY: BigDecimal!
@@ -767,6 +788,7 @@ type VaultWithdraw @entity {
 
   user: User!
   vault: Vault!
+  vaultUserPosition: VaultUserPosition!
 
   amountWithdrawnX: BigDecimal!
   amountWithdrawnY: BigDecimal!
