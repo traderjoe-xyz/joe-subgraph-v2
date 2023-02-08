@@ -700,6 +700,8 @@ type Vault @entity {
 
   totalValueLockedUSD: BigDecimal!
   totalValueLockedAVAX: BigDecimal!
+
+  dayData: [VaultDayData!]! @derivedFrom(field: "vault")
 }
 
 type VaultStrategy @entity {
