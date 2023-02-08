@@ -48,6 +48,10 @@ export function handleDeposited(event: Deposited): void {
     event.params.amountY,
     tokenY.decimals
   );
+  const amountUSD = amountX
+    .times(tokenX.derivedAVAX)
+    .plus(amountY.times(tokenY.derivedAVAX))
+    .times(bundle.avaxPriceUSD);
 
   // update vault total balance
   const vaultBalances = vaultContract.try_getBalances().value;
@@ -78,7 +82,8 @@ export function handleDeposited(event: Deposited): void {
     event.params.user,
     event.block,
     amountX,
-    amountY
+    amountY,
+    amountUSD
   );
 
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
@@ -116,6 +121,10 @@ export function handleWithdrawn(event: Withdrawn): void {
     event.params.amountY,
     tokenY.decimals
   );
+  const amountUSD = amountX
+    .times(tokenX.derivedAVAX)
+    .plus(amountY.times(tokenY.derivedAVAX))
+    .times(bundle.avaxPriceUSD);
 
   // update vault total balance
   const vaultBalances = vaultContract.try_getBalances().value;
@@ -146,7 +155,8 @@ export function handleWithdrawn(event: Withdrawn): void {
     event.params.user,
     event.block,
     amountX,
-    amountY
+    amountY,
+    amountUSD
   );
 
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);

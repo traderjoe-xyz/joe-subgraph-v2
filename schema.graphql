@@ -755,6 +755,7 @@ type VaultDeposit @entity {
 
   amountDepositedX: BigDecimal!
   amountDepositedY: BigDecimal!
+  amountDepositedUSD: BigDecimal!
 
   block: Int!
   timestamp: Int!
@@ -769,6 +770,7 @@ type VaultWithdraw @entity {
 
   amountWithdrawnX: BigDecimal!
   amountWithdrawnY: BigDecimal!
+  amountWithdrawnUSD: BigDecimal!
 
   block: Int!
   timestamp: Int!

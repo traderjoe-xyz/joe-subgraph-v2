@@ -52,7 +52,8 @@ export function createVaultDeposit(
   user: Address,
   block: ethereum.Block,
   amountX: BigDecimal,
-  amountY: BigDecimal
+  amountY: BigDecimal,
+  amountUSD: BigDecimal
 ): void {
   const id = vaultAddress
     .toHexString()
@@ -67,6 +68,7 @@ export function createVaultDeposit(
   vaultDeposit.vault = vaultAddress.toHexString();
   vaultDeposit.amountDepositedX = amountX;
   vaultDeposit.amountDepositedY = amountY;
+  vaultDeposit.amountDepositedUSD = amountUSD;
 
   vaultDeposit.timestamp = block.timestamp.toI32();
   vaultDeposit.block = block.number.toI32();
@@ -78,7 +80,8 @@ export function createVaultWithdraw(
   user: Address,
   block: ethereum.Block,
   amountX: BigDecimal,
-  amountY: BigDecimal
+  amountY: BigDecimal,
+  amountUSD: BigDecimal
 ): void {
   const id = vaultAddress
     .toHexString()
@@ -93,6 +96,7 @@ export function createVaultWithdraw(
   vaultWithdraw.vault = vaultAddress.toHexString();
   vaultWithdraw.amountWithdrawnX = amountX;
   vaultWithdraw.amountWithdrawnY = amountY;
+  vaultWithdraw.amountWithdrawnUSD = amountUSD;
 
   vaultWithdraw.timestamp = block.timestamp.toI32();
   vaultWithdraw.block = block.number.toI32();
