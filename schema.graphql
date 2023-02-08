@@ -363,6 +363,10 @@ type User @entity {
   # Liquidity Positions
   liquidityPositions: [LiquidityPosition!]! @derivedFrom(field: "user")
 
+  # Vault
+  vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "user")
+  vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "user")
+
   # fees collected by user for providing liquidity
   collects: [Collect!]! @derivedFrom(field: "recipient")
 }
@@ -702,6 +706,9 @@ type Vault @entity {
   totalValueLockedAVAX: BigDecimal!
 
   dayData: [VaultDayData!]! @derivedFrom(field: "vault")
+
+  vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "vault")
+  vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "vault")
 }
 
 type VaultStrategy @entity {
@@ -737,4 +744,32 @@ type VaultDayData @entity {
   collectedFeesUSD: BigDecimal!
 
   txCount: BigInt!
+}
+
+type VaultDeposit @entity {
+  # vault address + "-" + user address + "-" + timestamp
+  id: ID!
+
+  user: User!
+  vault: Vault!
+
+  amountDepositedX: BigDecimal!
+  amountDepositedY: BigDecimal!
+
+  block: Int!
+  timestamp: Int!
+}
+
+type VaultWithdraw @entity {
+  # vault address + "-" + user address + "-" + timestamp
+  id: ID!
+
+  user: User!
+  vault: Vault!
+
+  amountWithdrawnX: BigDecimal!
+  amountWithdrawnY: BigDecimal!
+
+  block: Int!
+  timestamp: Int!
 }

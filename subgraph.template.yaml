@@ -154,6 +154,8 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Vault
+        - VaultDeposit
+        - VaultWithdraw
       abis:
         - name: Vault
           file: ./abis/Vault.json

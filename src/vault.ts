@@ -6,7 +6,11 @@ import {
 } from "../generated/VaultFactory/Vault";
 import { BIG_INT_ONE } from "./constants";
 import { loadBundle, loadToken, loadVaultDayData } from "./entities";
-import { loadVault } from "./entities/vault";
+import {
+  createVaultDeposit,
+  createVaultWithdraw,
+  loadVault,
+} from "./entities/vault";
 import { loadVaultFactory } from "./entities/vaultFactory";
 import { loadVaultStrategy } from "./entities/vaultStrategy";
 import { formatTokenAmountByDecimals } from "./utils";
@@ -65,6 +69,13 @@ export function handleDeposited(event: Deposited): void {
   factory.save();
 
   loadVaultDayData(event.block.timestamp, vault, true);
+  createVaultDeposit(
+    event.address,
+    event.params.user,
+    event.block,
+    amountX,
+    amountY
+  );
 
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
@@ -123,6 +134,13 @@ export function handleWithdrawn(event: Withdrawn): void {
   factory.save();
 
   loadVaultDayData(event.block.timestamp, vault, true);
+  createVaultWithdraw(
+    event.address,
+    event.params.user,
+    event.block,
+    amountX,
+    amountY
+  );
 
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
