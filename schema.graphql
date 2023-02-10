@@ -332,7 +332,7 @@ type Bin @entity {
   reserveY: BigDecimal!
 
   accTokenXPerShare: BigInt!
-  accTokenYPerShare: BinInt!
+  accTokenYPerShare: BigInt!
 
   binId: BigInt!
 }

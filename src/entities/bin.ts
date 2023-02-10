@@ -1,5 +1,5 @@
 import { BigInt, BigDecimal, Address } from "@graphprotocol/graph-ts";
-import { Bin, LBPair, Token } from "../../generated/schema";
+import { Bin, LBPair } from "../../generated/schema";
 import { BIG_DECIMAL_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
 import { loadToken } from "../entities";
 import { getPriceYOfBin } from "../utils";
@@ -18,6 +18,8 @@ export function loadBin(lbPair: LBPair, binId: BigInt): Bin {
     bin.reserveX = BIG_DECIMAL_ZERO;
     bin.reserveY = BIG_DECIMAL_ZERO;
     bin.totalSupply = BIG_INT_ZERO;
+    bin.accTokenXPerShare = BIG_INT_ZERO;
+    bin.accTokenYPerShare = BIG_INT_ZERO;
     bin.priceY = getPriceYOfBin(binId, lbPair.binStep, tokenX, tokenY); // each bin has a determined price
     bin.priceX = BIG_DECIMAL_ONE.div(bin.priceY);
   }
