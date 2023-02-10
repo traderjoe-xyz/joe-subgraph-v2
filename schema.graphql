@@ -319,6 +319,22 @@ type LBPair @entity {
   block: BigInt!
 }
 
+type LBPairParameterSet @entity {
+  # LBPair address
+  id: ID!
+  sender: Bytes!
+  lbPair: LBPair!
+  binStep: BigInt!
+  baseFactor: BigInt!
+  filterPeriod: BigInt!
+  decayPeriod: BigInt!
+  reductionFactor: BigInt!
+  variableFeeControl: BigInt!
+  protocolShare: BigInt!
+  protocolSharePct: BigDecimal!
+  maxVolatilityAccumulated: BigInt!
+}
+
 type Bin @entity {
   id: ID! # lbPair address + # + binId
   lbPair: LBPair!
