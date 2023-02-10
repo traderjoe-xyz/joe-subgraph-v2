@@ -322,11 +322,18 @@ type LBPair @entity {
 type Bin @entity {
   id: ID! # lbPair address + # + binId
   lbPair: LBPair!
+  
   priceX: BigDecimal!
   priceY: BigDecimal!
+
   totalSupply: BigInt! 
+  
   reserveX: BigDecimal!
   reserveY: BigDecimal!
+
+  accTokenXPerShare: BigInt!
+  accTokenYPerShare: BinInt!
+
   binId: BigInt!
 }
 
@@ -438,6 +445,12 @@ type UserBinLiquidity @entity {
   liquidityPosition: LiquidityPosition!
 
   liquidity: BigInt!
+
+  debtX: BigInt!
+  debtY: BigInt!
+
+  rewardX: BigInt!
+  rewardY: BigInt!
 
   block: Int!
   timestamp: Int!
