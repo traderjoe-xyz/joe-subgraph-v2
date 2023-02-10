@@ -1,4 +1,4 @@
-import { BigInt, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum, store } from "@graphprotocol/graph-ts";
 import { UserBinLiquidity } from "../../generated/schema";
 import { BIG_INT_ZERO } from "../constants";
 
@@ -18,8 +18,12 @@ export function getUserBinLiquidity(
     userBinLiquidity.liquidity = BIG_INT_ZERO;
     userBinLiquidity.block = block.number.toI32();
     userBinLiquidity.timestamp = block.timestamp.toI32();
-    userBinLiquidity.save()
+    userBinLiquidity.save();
   }
 
   return userBinLiquidity as UserBinLiquidity;
+}
+
+export function removeUserBinLiquidity(id: string): void {
+  store.remove("UserBinLiquidity", id);
 }
