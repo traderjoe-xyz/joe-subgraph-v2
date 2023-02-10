@@ -3,7 +3,10 @@ import {
   FlashLoanFeeSet,
   LBPairCreated,
   LBPairIgnoredStateChanged,
+  FeeParametersSet,
 } from "../generated/LBFactory/LBFactory";
+import { BigDecimal } from "@graphprotocol/graph-ts";
+import { LBPairParameterSet } from "../generated/schema";
 import { loadLBFactory, createLBPair, loadBundle } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
 
@@ -32,6 +35,26 @@ export function handleLBPairCreated(event: LBPairCreated): void {
   const lbFactory = loadLBFactory();
   lbFactory.pairCount = lbFactory.pairCount.plus(BIG_INT_ONE);
   lbFactory.save();
+}
+
+export function handleFeeParametersSet(event: FeeParametersSet): void {
+  const id = event.params.LBPair.toHexString();
+  const lbPairParameter = new LBPairParameterSet(id);
+
+  lbPairParameter.sender = event.params.sender;
+  lbPairParameter.lbPair = event.params.LBPair.toHexString();
+  lbPairParameter.binStep = event.params.binStep;
+  lbPairParameter.baseFactor = event.params.baseFactor;
+  lbPairParameter.filterPeriod = event.params.filterPeriod;
+  lbPairParameter.decayPeriod = event.params.decayPeriod;
+  lbPairParameter.reductionFactor = event.params.reductionFactor;
+  lbPairParameter.variableFeeControl = event.params.variableFeeControl;
+  lbPairParameter.protocolShare = event.params.protocolShare;
+  lbPairParameter.protocolSharePct = event.params.protocolShare
+    .toBigDecimal()
+    .div(BigDecimal.fromString("1e4"));
+  lbPairParameter.maxVolatilityAccumulated =
+    event.params.maxVolatilityAccumulated;
 }
 
 export function handleLBPairIgnoredStateChanged(
