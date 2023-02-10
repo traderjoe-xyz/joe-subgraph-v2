@@ -16,10 +16,6 @@ export function getUserBinLiquidity(
     userBinLiquidity.binId = binId;
     userBinLiquidity.liquidityPosition = liquidityPositionsId;
     userBinLiquidity.liquidity = BIG_INT_ZERO;
-    userBinLiquidity.debtX = BIG_INT_ZERO;
-    userBinLiquidity.debtY = BIG_INT_ZERO;
-    userBinLiquidity.rewardX = BIG_INT_ZERO;
-    userBinLiquidity.rewardY = BIG_INT_ZERO;
     userBinLiquidity.block = block.number.toI32();
     userBinLiquidity.timestamp = block.timestamp.toI32();
     userBinLiquidity.save()
