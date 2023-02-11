@@ -40,6 +40,7 @@ export function loadUserFeesHourData(
   const id = lbPair.id
     .concat("-")
     .concat(user.id)
+    .concat("-")
     .concat(hourStartTimestamp.toString());
 
   let userFeesHourData = UserFeesHourData.load(id);
