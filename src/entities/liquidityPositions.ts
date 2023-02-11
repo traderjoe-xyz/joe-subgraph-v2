@@ -148,9 +148,9 @@ export function removeLiquidityPosition(
       bin.liquidityProviderCount = bin.liquidityProviderCount.minus(
         BIG_INT_ONE
       );
+      bin.liquidityProviders = liquidityProviders;
+      bin.save();
     }
-    bin.liquidityProviders = liquidityProviders;
-    bin.save();
 
     // decrease count of bins with user's liquidityPosition
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
