@@ -33,7 +33,7 @@ export function addLiquidityPosition(
   liquidity: BigInt,
   block: ethereum.Block
 ): LiquidityPosition | null {
-  // skip if 'userAddr' is zero address (burn transaction)
+  // skip if 'userAddr' is zero address (mint transaction)
   if (userAddr.equals(ADDRESS_ZERO)) {
     return null;
   }
@@ -66,9 +66,7 @@ export function addLiquidityPosition(
     let liquidityProviders = bin.liquidityProviders;
     liquidityProviders.push(user.id);
     bin.liquidityProviders = liquidityProviders;
-    bin.liquidityProviderCount = bin.liquidityProviderCount.plus(
-      BIG_INT_ONE
-    );
+    bin.liquidityProviderCount = bin.liquidityProviderCount.plus(BIG_INT_ONE);
     bin.save();
 
     // increase count of bins user has liquidity
@@ -154,7 +152,7 @@ export function removeLiquidityPosition(
     bin.liquidityProviders = liquidityProviders;
     bin.save();
 
-    // decrease count of bins if there is no liquidity remaining
+    // decrease count of bins with user's liquidityPosition
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
       BIG_INT_ONE
     );
