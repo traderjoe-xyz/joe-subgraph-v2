@@ -46,6 +46,7 @@ export function loadUserFeesHourData(
 
   if (!userFeesHourData) {
     userFeesHourData = new UserFeesHourData(id);
+    userFeesHourData.date = hourStartTimestamp.toI32();
     userFeesHourData.user = user.id;
     userFeesHourData.lbPair = lbPair.id;
     userFeesHourData.accruedFeesX = BIG_DECIMAL_ZERO;
