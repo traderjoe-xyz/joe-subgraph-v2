@@ -94,8 +94,8 @@ export function updateUserAccruedFeesData(
     }
 
     const providerFee = userLiquidity
-      .div(totalSupply)
       .toBigDecimal()
+      .div(totalSupply.toBigDecimal())
       .times(fees)
       .times(BIG_DECIMAL_ONE.minus(protocolSharePct));
 
