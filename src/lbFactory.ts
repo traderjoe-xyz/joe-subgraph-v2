@@ -39,10 +39,14 @@ export function handleLBPairCreated(event: LBPairCreated): void {
 
 export function handleFeeParametersSet(event: FeeParametersSet): void {
   const id = event.params.LBPair.toHexString();
-  const lbPairParameter = new LBPairParameterSet(id);
+  let lbPairParameter = LBPairParameterSet.load(id);
+
+  if (!lbPairParameter) {
+    lbPairParameter = new LBPairParameterSet(id);
+    lbPairParameter.lbPair = event.params.LBPair.toHexString();
+  }
 
   lbPairParameter.sender = event.params.sender;
-  lbPairParameter.lbPair = event.params.LBPair.toHexString();
   lbPairParameter.binStep = event.params.binStep;
   lbPairParameter.baseFactor = event.params.baseFactor;
   lbPairParameter.filterPeriod = event.params.filterPeriod;
@@ -55,6 +59,8 @@ export function handleFeeParametersSet(event: FeeParametersSet): void {
     .div(BigDecimal.fromString("1e4"));
   lbPairParameter.maxVolatilityAccumulated =
     event.params.maxVolatilityAccumulated;
+
+  lbPairParameter.save();
 }
 
 export function handleLBPairIgnoredStateChanged(
