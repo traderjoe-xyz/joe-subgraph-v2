@@ -1,11 +1,8 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityPosition, LBPair, User } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_INT_ONE, ADDRESS_ZERO } from "../constants";
-import {
-  getUserBinLiquidity,
-  removeUserBinLiquidity,
-} from "./userBinLiquidity";
-import { loadUser } from "./user";
+import { getUserBinLiquidity } from "./userBinLiquidity";
+import { loadUser, loadBin } from "../entities";
 
 function getLiquidityPosition(
   lbPair: LBPair,
@@ -53,6 +50,7 @@ export function addLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
+  const bin = loadBin(lbPair, binId)
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
@@ -63,8 +61,15 @@ export function addLiquidityPosition(
     block
   );
 
-  // increase count of bins user has liquidity
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
+
+    // add user to list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders
+    liquidityProviders.push(user.id)
+    bin.liquidityProviders = liquidityProviders
+    bin.save()
+
+    // increase count of bins user has liquidity
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
 
     // increase LBPair liquidityProviderCount if user now has one bin with liquidity
@@ -114,6 +119,7 @@ export function removeLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
+  const bin = loadBin(lbPair, binId)
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
@@ -127,8 +133,24 @@ export function removeLiquidityPosition(
   // update liquidity
   userBinLiquidity.liquidity = userBinLiquidity.liquidity.minus(liquidity);
 
-  // decrease count of bins if there is no liquidity remaining
+  
   if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
+    // remove user from list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders
+    let index = -1;
+    for (let i = 0; i < liquidityProviders.length; i++) {
+      if (liquidityProviders[i] === user.id) {
+        index = i;
+        break;
+      }
+    }
+    if (index !== -1){
+      liquidityProviders.splice(index, 1);
+    }
+    bin.liquidityProviders = liquidityProviders
+    bin.save()
+
+    // decrease count of bins if there is no liquidity remaining
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
       BIG_INT_ONE
     );
@@ -140,11 +162,6 @@ export function removeLiquidityPosition(
       );
       lbPair.save();
     }
-  }
-
-  // remove the user bin liquidity entity is liquidity is now zero
-  if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
-    removeUserBinLiquidity(userBinLiquidity.id);
   }
 
   // update block and timestamp
