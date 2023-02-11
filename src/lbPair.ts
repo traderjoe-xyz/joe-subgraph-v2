@@ -11,7 +11,6 @@ import {
   ProtocolFeesCollected,
   TransferSingle,
   TransferBatch,
-  ApprovalForAll,
 } from "../generated/LBPair/LBPair";
 import {
   Token,
@@ -55,7 +54,6 @@ import {
   updateAvaxInUsdPricing,
   updateTokensDerivedAvax,
   safeDiv,
-  isAccountApproved,
 } from "./utils";
 
 export function handleSwap(event: SwapEvent): void {
@@ -1100,26 +1098,4 @@ export function handleTransferBatch(event: TransferBatch): void {
   lbPair.save();
 
   // TODO @gaepsuni: create appropriate batch transfer transaction entity.
-}
-
-export function handleApprovalForAll(event: ApprovalForAll): void {
-  const user = loadUser(event.params.account);
-  const lbTokenApprovals = user.lbTokenApprovals;
-
-  if (event.params.approved) {
-    if (!isAccountApproved(lbTokenApprovals, event.params.account)) {
-      lbTokenApprovals.push(event.params.sender);
-      user.lbTokenApprovals = lbTokenApprovals;
-    }
-  } else {
-    const newLbTokenApprovals: Bytes[] = [];
-    for (let i = 0; i < lbTokenApprovals.length; i++) {
-      if (lbTokenApprovals[i].notEqual(event.params.sender)) {
-        newLbTokenApprovals.push(lbTokenApprovals[i]);
-      }
-    }
-    user.lbTokenApprovals = newLbTokenApprovals;
-  }
-
-  user.save();
 }
