@@ -333,6 +333,7 @@ type Bin @entity {
   binId: BigInt!
 
   liquidityProviders: [String!]!
+  liquidityProviderCount: BigInt!
 }
 
 type User @entity {

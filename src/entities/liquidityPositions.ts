@@ -66,6 +66,9 @@ export function addLiquidityPosition(
     let liquidityProviders = bin.liquidityProviders;
     liquidityProviders.push(user.id);
     bin.liquidityProviders = liquidityProviders;
+    bin.liquidityProviderCount = bin.liquidityProviderCount.plus(
+      BIG_INT_ONE
+    );
     bin.save();
 
     // increase count of bins user has liquidity
@@ -144,6 +147,9 @@ export function removeLiquidityPosition(
     }
     if (index !== -1) {
       liquidityProviders.splice(index, 1);
+      bin.liquidityProviderCount = bin.liquidityProviderCount.minus(
+        BIG_INT_ONE
+      );
     }
     bin.liquidityProviders = liquidityProviders;
     bin.save();
