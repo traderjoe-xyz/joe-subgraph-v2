@@ -1,4 +1,4 @@
-import { Address, BigInt, ethereum, store } from "@graphprotocol/graph-ts";
+import { BigInt, ethereum, store } from "@graphprotocol/graph-ts";
 import { UserBinLiquidity, LBPair, User } from "../../generated/schema";
 import { BIG_INT_ZERO } from "../constants";
 

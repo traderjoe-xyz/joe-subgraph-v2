@@ -50,7 +50,7 @@ export function addLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
-  const bin = loadBin(lbPair, binId)
+  const bin = loadBin(lbPair, binId);
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
@@ -62,12 +62,11 @@ export function addLiquidityPosition(
   );
 
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
-
     // add user to list of bin's liquidity providers
-    let liquidityProviders = bin.liquidityProviders
-    liquidityProviders.push(user.id)
-    bin.liquidityProviders = liquidityProviders
-    bin.save()
+    let liquidityProviders = bin.liquidityProviders;
+    liquidityProviders.push(user.id);
+    bin.liquidityProviders = liquidityProviders;
+    bin.save();
 
     // increase count of bins user has liquidity
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
@@ -119,7 +118,7 @@ export function removeLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
-  const bin = loadBin(lbPair, binId)
+  const bin = loadBin(lbPair, binId);
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
@@ -133,10 +132,9 @@ export function removeLiquidityPosition(
   // update liquidity
   userBinLiquidity.liquidity = userBinLiquidity.liquidity.minus(liquidity);
 
-  
   if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
     // remove user from list of bin's liquidity providers
-    let liquidityProviders = bin.liquidityProviders
+    let liquidityProviders = bin.liquidityProviders;
     let index = -1;
     for (let i = 0; i < liquidityProviders.length; i++) {
       if (liquidityProviders[i] === user.id) {
@@ -144,11 +142,11 @@ export function removeLiquidityPosition(
         break;
       }
     }
-    if (index !== -1){
+    if (index !== -1) {
       liquidityProviders.splice(index, 1);
     }
-    bin.liquidityProviders = liquidityProviders
-    bin.save()
+    bin.liquidityProviders = liquidityProviders;
+    bin.save();
 
     // decrease count of bins if there is no liquidity remaining
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
