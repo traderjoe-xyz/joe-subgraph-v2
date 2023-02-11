@@ -136,19 +136,13 @@ export function removeLiquidityPosition(
   if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
     // remove user from list of bin's liquidity providers
     let liquidityProviders = bin.liquidityProviders;
-    let index = -1;
-    for (let i = 0; i < liquidityProviders.length; i++) {
-      if (liquidityProviders[i] === user.id) {
-        index = i;
-        break;
-      }
-    }
-    if (index !== -1) {
-      liquidityProviders.splice(index, 1);
+    let idxToRemove = liquidityProviders.indexOf(user.id);
+    if (idxToRemove > -1) {
+      liquidityProviders.splice(idxToRemove, 1);
+      bin.liquidityProviders = liquidityProviders;
       bin.liquidityProviderCount = bin.liquidityProviderCount.minus(
         BIG_INT_ONE
       );
-      bin.liquidityProviders = liquidityProviders;
       bin.save();
     }
 
