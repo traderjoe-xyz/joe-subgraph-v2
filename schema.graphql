@@ -471,6 +471,36 @@ type UserBinLiquidity @entity {
   timestamp: Int!
 }
 
+type UserFeesData @entity {
+  # {lbPairAddress}-{userAddress}
+  id: ID!
+
+  user: User!
+  lbPair: LBPair!
+
+  accruedFeesX: BigDecimal!
+  accruedFeesY: BigDecimal!
+
+  collectedFeesX: BigDecimal!
+  collectedFeesY: BigDecimal!
+}
+
+type UserFeesHourData @entity {
+  # {lbPairAddress}-{userAddress}-{hourId}
+  id: ID!
+  # hour start timestamp
+  date: Int!
+
+  user: User!
+  lbPair: LBPair!
+
+  accruedFeesX: BigDecimal!
+  accruedFeesY: BigDecimal!
+
+  collectedFeesX: BigDecimal!
+  collectedFeesY: BigDecimal!
+}
+
 type Transaction @entity {
   # transaction hash
   id: ID!

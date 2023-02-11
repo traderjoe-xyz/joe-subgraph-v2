@@ -1,12 +1,6 @@
 // Tick field is yet to be added
 
-import {
-  Address,
-  BigDecimal,
-  BigInt,
-  Bytes,
-  log,
-} from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   Swap as SwapEvent,
   FlashLoan,
@@ -26,6 +20,7 @@ import {
   Flash,
   Collect,
   Transfer,
+  LBPairParameterSet,
 } from "../generated/schema";
 import {
   loadLbPair,
@@ -44,6 +39,8 @@ import {
   removeLiquidityPosition,
   loadTransaction,
   trackBin,
+  updateUserAccruedFeesData,
+  updateUserClaimedFeesData,
 } from "./entities";
 import {
   BIG_INT_ONE,
@@ -308,6 +305,20 @@ export function handleSwap(event: SwapEvent): void {
     tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUSD);
   }
   tokenYDayData.save();
+
+  // update users accrued fees
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesData(
+      lbPair,
+      bin,
+      fees,
+      protocolSharePct,
+      swapForY,
+      event.block.timestamp
+    );
+  }
 
   // User
   loadUser(event.params.recipient);
@@ -868,6 +879,15 @@ export function handleFeesCollected(event: FeesCollected): void {
   const amountUSD = amountX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  // update users claimed fees
+  updateUserClaimedFeesData(
+    lbPair,
+    user,
+    amountX,
+    amountY,
+    event.block.timestamp
+  );
 
   const transaction = loadTransaction(event);
   const feeCollected = new Collect(
