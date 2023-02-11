@@ -40,6 +40,8 @@ dataSources:
           handler: handleLBPairCreated
         - event: LBPairIgnoredStateChanged(indexed address,bool)
           handler: handleLBPairIgnoredStateChanged
+        - event: FeeParametersSet(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleFeeParametersSet
       file: ./src/lbFactory.ts
 
   - kind: ethereum/contract

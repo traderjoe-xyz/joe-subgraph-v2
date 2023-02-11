@@ -12,18 +12,12 @@ import { loadToken } from "./token";
 import { trackBin } from "./bin";
 import { LBPair as LBPairABI } from "../../generated/LBFactory/LBPair";
 
-export function loadLbPair(
-  id: Address,
-  block: ethereum.Block | null = null
-): LBPair | null {
+export function loadLbPair(id: Address): LBPair | null {
   const lbPair = LBPair.load(id.toHexString());
-  if (lbPair === null && block !== null) {
-    return createLBPair(id, block);
-  }
   return lbPair;
 }
 
-// should be used if loadLBPair() evaluates to null
+// should only be used when LBPairCreated event is detected
 export function createLBPair(
   lbPairAddr: Address,
   block: ethereum.Block
@@ -95,15 +89,15 @@ export function createLBPair(
 
   // generate Bin
   trackBin(
-    lbPair, 
-    activeId, 
+    lbPair,
+    activeId,
     BIG_DECIMAL_ZERO,
     BIG_DECIMAL_ZERO,
     BIG_DECIMAL_ZERO,
     BIG_DECIMAL_ZERO,
     BIG_INT_ZERO,
     BIG_INT_ZERO
-    );
+  );
 
   lbPair.save();
 
