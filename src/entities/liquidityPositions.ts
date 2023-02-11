@@ -2,7 +2,7 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { LiquidityPosition, LBPair, User } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_INT_ONE, ADDRESS_ZERO } from "../constants";
 import { getUserBinLiquidity } from "./userBinLiquidity";
-import { loadUser, loadBin, removeUserBinLiquidity } from "../entities";
+import { loadUser, loadBin } from "../entities";
 
 function getLiquidityPosition(
   lbPair: LBPair,
@@ -62,6 +62,10 @@ export function addLiquidityPosition(
   );
 
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
+    // add user to list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders;
+    liquidityProviders.push(user.id);
+    bin.liquidityProviders = liquidityProviders;
     bin.liquidityProviderCount = bin.liquidityProviderCount.plus(BIG_INT_ONE);
     bin.save();
 
@@ -130,8 +134,22 @@ export function removeLiquidityPosition(
   userBinLiquidity.liquidity = userBinLiquidity.liquidity.minus(liquidity);
 
   if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
-    removeUserBinLiquidity(userBinLiquidity.id);
-    bin.liquidityProviderCount = bin.liquidityProviderCount.minus(BIG_INT_ONE);
+    // remove user from list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders;
+    let index = -1;
+    for (let i = 0; i < liquidityProviders.length; i++) {
+      if (liquidityProviders[i] === user.id) {
+        index = i;
+        break;
+      }
+    }
+    if (index !== -1) {
+      liquidityProviders.splice(index, 1);
+      bin.liquidityProviderCount = bin.liquidityProviderCount.minus(
+        BIG_INT_ONE
+      );
+    }
+    bin.liquidityProviders = liquidityProviders;
     bin.save();
 
     // decrease count of bins with user's liquidityPosition

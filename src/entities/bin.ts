@@ -20,6 +20,7 @@ export function loadBin(lbPair: LBPair, binId: BigInt): Bin {
     bin.totalSupply = BIG_INT_ZERO;
     bin.priceY = getPriceYOfBin(binId, lbPair.binStep, tokenX, tokenY); // each bin has a determined price
     bin.priceX = BIG_DECIMAL_ONE.div(bin.priceY);
+    bin.liquidityProviders = [];
     bin.liquidityProviderCount = BIG_INT_ZERO;
   }
 
