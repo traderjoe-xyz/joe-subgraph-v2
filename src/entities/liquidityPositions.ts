@@ -1,27 +1,25 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { LiquidityPosition, LBPair } from "../../generated/schema";
+import { LiquidityPosition, LBPair, User } from "../../generated/schema";
 import { BIG_INT_ZERO, BIG_INT_ONE, ADDRESS_ZERO } from "../constants";
 import {
   getUserBinLiquidity,
   removeUserBinLiquidity,
 } from "./userBinLiquidity";
+import { loadUser } from "./user";
 
 function getLiquidityPosition(
-  lbPairAddr: Address,
-  user: Address,
+  lbPair: LBPair,
+  user: User,
   block: ethereum.Block
 ): LiquidityPosition {
-  const id = lbPairAddr
-    .toHexString()
-    .concat("-")
-    .concat(user.toHexString());
+  const id = lbPair.id.concat("-").concat(user.id);
 
   let liquidityPosition = LiquidityPosition.load(id);
 
   if (!liquidityPosition) {
     liquidityPosition = new LiquidityPosition(id);
-    liquidityPosition.user = user.toHexString();
-    liquidityPosition.lbPair = lbPairAddr.toHexString();
+    liquidityPosition.user = user.id;
+    liquidityPosition.lbPair = lbPair.id;
     liquidityPosition.binsCount = BIG_INT_ZERO;
     liquidityPosition.block = block.number.toI32();
     liquidityPosition.timestamp = block.timestamp.toI32();
@@ -33,25 +31,34 @@ function getLiquidityPosition(
 
 export function addLiquidityPosition(
   lbPairAddr: Address,
-  user: Address,
+  userAddr: Address,
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
 ): LiquidityPosition | null {
-  // skip if 'user' is zero address (burn transaction)
-  if (user.equals(ADDRESS_ZERO)) {
+  // skip if 'userAddr' is zero address (burn transaction)
+  if (userAddr.equals(ADDRESS_ZERO)) {
     return null;
   }
 
-  // skip if 'user' is an LBPair address
-  const tryLBPair = LBPair.load(user.toHexString());
+  // skip if 'userAddr' is an LBPair address
+  const tryLBPair = LBPair.load(userAddr.toHexString());
   if (tryLBPair) {
     return null;
   }
 
-  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
+  const lbPair = LBPair.load(lbPairAddr.toHexString());
+  if (!lbPair) {
+    return null;
+  }
+
+  const user = loadUser(userAddr);
+
+  let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
+    lbPair,
+    user,
     binId,
     block
   );
@@ -61,8 +68,7 @@ export function addLiquidityPosition(
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
 
     // increase LBPair liquidityProviderCount if user now has one bin with liquidity
-    const lbPair = LBPair.load(lbPairAddr.toHexString());
-    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ONE)) {
+    if (liquidityPosition.binsCount.equals(BIG_INT_ONE)) {
       lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
         BIG_INT_ONE
       );
@@ -86,25 +92,34 @@ export function addLiquidityPosition(
 
 export function removeLiquidityPosition(
   lbPairAddr: Address,
-  user: Address,
+  userAddr: Address,
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
 ): LiquidityPosition | null {
-  // skip if 'user' is zero address (burn transaction)
-  if (user.equals(ADDRESS_ZERO)) {
+  // skip if 'userAddr' is zero address (burn transaction)
+  if (userAddr.equals(ADDRESS_ZERO)) {
     return null;
   }
 
-  // skip if 'user' is an LBPair address
-  const tryLBPair = LBPair.load(user.toHexString());
+  // skip if 'userAddr' is an LBPair address
+  const tryLBPair = LBPair.load(userAddr.toHexString());
   if (tryLBPair) {
     return null;
   }
 
-  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
+  const lbPair = LBPair.load(lbPairAddr.toHexString());
+  if (!lbPair) {
+    return null;
+  }
+
+  const user = loadUser(userAddr);
+
+  let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
+    lbPair,
+    user,
     binId,
     block
   );
@@ -119,8 +134,7 @@ export function removeLiquidityPosition(
     );
 
     // decrease LBPair liquidityProviderCount if user no longer has bins with liquidity
-    const lbPair = LBPair.load(lbPairAddr.toHexString());
-    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ZERO)) {
+    if (liquidityPosition.binsCount.equals(BIG_INT_ZERO)) {
       lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
         BIG_INT_ONE
       );

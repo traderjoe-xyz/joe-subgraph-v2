@@ -944,9 +944,6 @@ export function handleTransferSingle(event: TransferSingle): void {
   lbFactory.txCount = lbFactory.txCount.plus(BIG_INT_ONE);
   lbFactory.save();
 
-  const sender = loadUser(event.params.from);
-  const recipient = loadUser(event.params.to);
-
   loadTraderJoeHourData(event.block.timestamp, true);
   loadTraderJoeDayData(event.block.timestamp, true);
 
@@ -990,7 +987,7 @@ export function handleTransferSingle(event: TransferSingle): void {
       BIG_DECIMAL_ZERO,
       BIG_DECIMAL_ZERO,
       BIG_INT_ZERO,
-      event.params.amount, // burned
+      event.params.amount // burned
     );
   }
 
@@ -1008,9 +1005,11 @@ export function handleTransferSingle(event: TransferSingle): void {
   transfer.transaction = transaction.id;
   transfer.timestamp = event.block.timestamp.toI32();
   transfer.lbPair = lbPair.id;
-  transfer.lbTokenAmount = event.params.amount;
-  transfer.sender = sender.id;
-  transfer.recipient = recipient.id;
+  transfer.binId = event.params.id;
+  transfer.amount = event.params.amount;
+  transfer.sender = event.params.sender;
+  transfer.from = event.params.from;
+  transfer.to = event.params.to;
   transfer.origin = event.transaction.from;
   transfer.logIndex = event.logIndex;
 
@@ -1042,28 +1041,28 @@ export function handleTransferBatch(event: TransferBatch): void {
     // mint: increase bin totalSupply
     if (ADDRESS_ZERO.equals(event.params.from)) {
       trackBin(
-          lbPair,
-          event.params.ids[i],
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          event.params.amounts[i], // minted
-          BIG_INT_ZERO
+        lbPair,
+        event.params.ids[i],
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        event.params.amounts[i], // minted
+        BIG_INT_ZERO
       );
     }
 
     // burn: decrease bin totalSupply
     if (ADDRESS_ZERO.equals(event.params.to)) {
       trackBin(
-          lbPair,
-          event.params.ids[i],
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          BIG_DECIMAL_ZERO,
-          BIG_INT_ZERO,
-          event.params.amounts[i], // burned
+        lbPair,
+        event.params.ids[i],
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        BIG_DECIMAL_ZERO,
+        BIG_INT_ZERO,
+        event.params.amounts[i] // burned
       );
     }
   }
