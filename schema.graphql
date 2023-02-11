@@ -332,7 +332,7 @@ type Bin @entity {
 
   binId: BigInt!
 
-  liquidityProviders: [String!]!
+  liquidityProviders: [UserBinLiquidity!]! @derivedFrom(field: "lbPairBinId")
   liquidityProviderCount: BigInt!
 }
 
