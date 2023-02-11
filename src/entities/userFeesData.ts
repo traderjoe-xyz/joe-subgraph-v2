@@ -76,7 +76,7 @@ export function updateUserAccruedFeesData(
       .concat("-")
       .concat(userId)
       .concat("-")
-      .concat(bin.id);
+      .concat(bin.binId.toString());
     const userBinLiquidity = UserBinLiquidity.load(userBinLiquidityId);
 
     if (!userBinLiquidity) {
