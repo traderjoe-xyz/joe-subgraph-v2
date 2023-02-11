@@ -338,12 +338,18 @@ type LBPairParameterSet @entity {
 type Bin @entity {
   id: ID! # lbPair address + # + binId
   lbPair: LBPair!
+
   priceX: BigDecimal!
   priceY: BigDecimal!
-  totalSupply: BigInt! 
+
+  totalSupply: BigInt!
   reserveX: BigDecimal!
   reserveY: BigDecimal!
+
   binId: BigInt!
+
+  liquidityProviders: [String!]!
+  liquidityProviderCount: BigInt!
 }
 
 type User @entity {
@@ -450,9 +456,15 @@ type UserBinLiquidity @entity {
   # lbPair address + user + binId
   id: ID!
 
-  binId: BigInt!
+  # lbPair address + user address
   liquidityPosition: LiquidityPosition!
 
+  # lbPair address + binId
+  lbPairBinId: Bin!
+
+  lbPair: LBPair!
+  user: User!
+  binId: BigInt!
   liquidity: BigInt!
 
   block: Int!
@@ -602,11 +614,13 @@ type Transfer @entity {
 
   lbPair: LBPair!
 
-  lbTokenAmount: BigInt!
+  binId: BigInt!
+  amount: BigInt!
 
-  sender: User!
-  recipient: User!
+  sender: Bytes!
+  from: Bytes!
+  to: Bytes!
+
   origin: Bytes!
-
   logIndex: BigInt!
 }

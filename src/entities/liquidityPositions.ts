@@ -1,28 +1,26 @@
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
-import { LiquidityPosition, LBPair } from "../../generated/schema";
-import { BIG_INT_ZERO, BIG_INT_ONE } from "../constants";
+import { LiquidityPosition, LBPair, User } from "../../generated/schema";
+import { BIG_INT_ZERO, BIG_INT_ONE, ADDRESS_ZERO } from "../constants";
 import { getUserBinLiquidity } from "./userBinLiquidity";
+import { loadUser, loadBin } from "../entities";
 
 function getLiquidityPosition(
-  lbPairAddr: Address,
-  user: Address,
+  lbPair: LBPair,
+  user: User,
   block: ethereum.Block
 ): LiquidityPosition {
-  const id = lbPairAddr
-    .toHexString()
-    .concat("-")
-    .concat(user.toHexString());
+  const id = lbPair.id.concat("-").concat(user.id);
 
   let liquidityPosition = LiquidityPosition.load(id);
 
   if (!liquidityPosition) {
     liquidityPosition = new LiquidityPosition(id);
-    liquidityPosition.user = user.toHexString();
-    liquidityPosition.lbPair = lbPairAddr.toHexString();
+    liquidityPosition.user = user.id;
+    liquidityPosition.lbPair = lbPair.id;
     liquidityPosition.binsCount = BIG_INT_ZERO;
     liquidityPosition.block = block.number.toI32();
     liquidityPosition.timestamp = block.timestamp.toI32();
-    liquidityPosition.save()
+    liquidityPosition.save();
   }
 
   return liquidityPosition as LiquidityPosition;
@@ -30,26 +28,52 @@ function getLiquidityPosition(
 
 export function addLiquidityPosition(
   lbPairAddr: Address,
-  user: Address,
+  userAddr: Address,
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
-): LiquidityPosition {
-  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
+): LiquidityPosition | null {
+  // skip if 'userAddr' is zero address (mint transaction)
+  if (userAddr.equals(ADDRESS_ZERO)) {
+    return null;
+  }
+
+  // skip if 'userAddr' is an LBPair address
+  const tryLBPair = LBPair.load(userAddr.toHexString());
+  if (tryLBPair) {
+    return null;
+  }
+
+  const lbPair = LBPair.load(lbPairAddr.toHexString());
+  if (!lbPair) {
+    return null;
+  }
+
+  const user = loadUser(userAddr);
+  const bin = loadBin(lbPair, binId);
+
+  let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
+    lbPair,
+    user,
     binId,
     block
   );
 
-  // increase count of bins user has liquidity
   if (userBinLiquidity.liquidity.equals(BIG_INT_ZERO)) {
+    // add user to list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders;
+    liquidityProviders.push(user.id);
+    bin.liquidityProviders = liquidityProviders;
+    bin.liquidityProviderCount = bin.liquidityProviderCount.plus(BIG_INT_ONE);
+    bin.save();
+
+    // increase count of bins user has liquidity
     liquidityPosition.binsCount = liquidityPosition.binsCount.plus(BIG_INT_ONE);
 
     // increase LBPair liquidityProviderCount if user now has one bin with liquidity
-    // TODO @gaepsuni: investigate if there could be race conditions
-    const lbPair = LBPair.load(lbPairAddr.toHexString());
-    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ONE)) {
+    if (liquidityPosition.binsCount.equals(BIG_INT_ONE)) {
       lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.plus(
         BIG_INT_ONE
       );
@@ -73,14 +97,35 @@ export function addLiquidityPosition(
 
 export function removeLiquidityPosition(
   lbPairAddr: Address,
-  user: Address,
+  userAddr: Address,
   binId: BigInt,
   liquidity: BigInt,
   block: ethereum.Block
-): LiquidityPosition {
-  let liquidityPosition = getLiquidityPosition(lbPairAddr, user, block);
+): LiquidityPosition | null {
+  // skip if 'userAddr' is zero address (burn transaction)
+  if (userAddr.equals(ADDRESS_ZERO)) {
+    return null;
+  }
+
+  // skip if 'userAddr' is an LBPair address
+  const tryLBPair = LBPair.load(userAddr.toHexString());
+  if (tryLBPair) {
+    return null;
+  }
+
+  const lbPair = LBPair.load(lbPairAddr.toHexString());
+  if (!lbPair) {
+    return null;
+  }
+
+  const user = loadUser(userAddr);
+  const bin = loadBin(lbPair, binId);
+
+  let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
     liquidityPosition.id,
+    lbPair,
+    user,
     binId,
     block
   );
@@ -88,16 +133,26 @@ export function removeLiquidityPosition(
   // update liquidity
   userBinLiquidity.liquidity = userBinLiquidity.liquidity.minus(liquidity);
 
-  // decrease count of bins if there is no liquidity remaining
   if (userBinLiquidity.liquidity.le(BIG_INT_ZERO)) {
+    // remove user from list of bin's liquidity providers
+    let liquidityProviders = bin.liquidityProviders;
+    let idxToRemove = liquidityProviders.indexOf(user.id);
+    if (idxToRemove > -1) {
+      liquidityProviders.splice(idxToRemove, 1);
+      bin.liquidityProviders = liquidityProviders;
+      bin.liquidityProviderCount = bin.liquidityProviderCount.minus(
+        BIG_INT_ONE
+      );
+      bin.save();
+    }
+
+    // decrease count of bins with user's liquidityPosition
     liquidityPosition.binsCount = liquidityPosition.binsCount.minus(
       BIG_INT_ONE
     );
 
     // decrease LBPair liquidityProviderCount if user no longer has bins with liquidity
-    // TODO @gaepsuni: investigate if there could be race conditions
-    const lbPair = LBPair.load(lbPairAddr.toHexString());
-    if (lbPair && liquidityPosition.binsCount.equals(BIG_INT_ZERO)) {
+    if (liquidityPosition.binsCount.equals(BIG_INT_ZERO)) {
       lbPair.liquidityProviderCount = lbPair.liquidityProviderCount.minus(
         BIG_INT_ONE
       );
