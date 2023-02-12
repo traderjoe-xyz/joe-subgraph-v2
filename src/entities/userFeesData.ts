@@ -60,12 +60,12 @@ export function loadUserFeesHourData(
   return userFeesHourData;
 }
 
-export function updateUserAccruedFeesData(
+export function updateUserAccruedFeesDataSingleToken(
   lbPair: LBPair,
   bin: Bin,
   fees: BigDecimal,
   protocolSharePct: BigDecimal,
-  swapForY: boolean,
+  isTokenX: boolean,
   timestamp: BigInt
 ): void {
   const totalSupply = bin.totalSupply;
@@ -103,7 +103,7 @@ export function updateUserAccruedFeesData(
     const userFeesData = loadUserFeesData(lbPair, user);
     const userFeesHourData = loadUserFeesHourData(lbPair, user, timestamp);
 
-    if (swapForY) {
+    if (isTokenX) {
       userFeesData.accruedFeesX = userFeesData.accruedFeesX.plus(providerFee);
       userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
         providerFee
@@ -114,6 +114,69 @@ export function updateUserAccruedFeesData(
         providerFee
       );
     }
+
+    userFeesData.save();
+    userFeesHourData.save();
+  }
+}
+
+export function updateUserAccruedFeesDataBothTokens(
+  lbPair: LBPair,
+  bin: Bin,
+  feesX: BigDecimal,
+  feesY: BigDecimal,
+  protocolSharePct: BigDecimal,
+  timestamp: BigInt
+): void {
+  const totalSupply = bin.totalSupply;
+  const liquidityProviders = bin.liquidityProviders;
+
+  for (let i = 0; i < liquidityProviders.length; i++) {
+    const userId = liquidityProviders[i];
+    const userBinLiquidityId = lbPair.id
+      .concat("-")
+      .concat(userId)
+      .concat("-")
+      .concat(bin.binId.toString());
+    const userBinLiquidity = UserBinLiquidity.load(userBinLiquidityId);
+
+    if (!userBinLiquidity) {
+      continue;
+    }
+
+    const user = User.load(userBinLiquidity.user);
+    if (!user) {
+      continue;
+    }
+
+    const userLiquidity = userBinLiquidity.liquidity;
+    if (userLiquidity.equals(BIG_INT_ZERO)) {
+      continue;
+    }
+
+    const providerFeeX = userLiquidity
+      .toBigDecimal()
+      .div(totalSupply.toBigDecimal())
+      .times(feesX)
+      .times(BIG_DECIMAL_ONE.minus(protocolSharePct));
+
+    const providerFeeY = userLiquidity
+      .toBigDecimal()
+      .div(totalSupply.toBigDecimal())
+      .times(feesY)
+      .times(BIG_DECIMAL_ONE.minus(protocolSharePct));
+
+    const userFeesData = loadUserFeesData(lbPair, user);
+    const userFeesHourData = loadUserFeesHourData(lbPair, user, timestamp);
+
+    userFeesData.accruedFeesX = userFeesData.accruedFeesX.plus(providerFeeX);
+    userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
+      providerFeeX
+    );
+    userFeesData.accruedFeesY = userFeesData.accruedFeesY.plus(providerFeeY);
+    userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
+      providerFeeY
+    );
 
     userFeesData.save();
     userFeesHourData.save();

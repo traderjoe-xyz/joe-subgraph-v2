@@ -22,6 +22,7 @@ import {
   LBPairParameterSet,
 } from "../generated/schema";
 import {
+  loadBin,
   loadLbPair,
   loadToken,
   loadBundle,
@@ -38,8 +39,9 @@ import {
   removeLiquidityPosition,
   loadTransaction,
   trackBin,
-  updateUserAccruedFeesData,
   updateUserClaimedFeesData,
+  updateUserAccruedFeesDataSingleToken,
+  updateUserAccruedFeesDataBothTokens,
 } from "./entities";
 import {
   BIG_INT_ONE,
@@ -308,7 +310,7 @@ export function handleSwap(event: SwapEvent): void {
   const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
   if (lbPairFeeParams) {
     const protocolSharePct = lbPairFeeParams.protocolSharePct;
-    updateUserAccruedFeesData(
+    updateUserAccruedFeesDataSingleToken(
       lbPair,
       bin,
       fees,
@@ -364,7 +366,7 @@ export function handleFlashLoan(event: FlashLoan): void {
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
-  const isTokenX = Address.fromString(lbPair.tokenX) === event.params.token;
+  const isTokenX = Address.fromString(lbPair.tokenX).equals(event.params.token);
   const token = isTokenX ? tokenX : tokenY;
 
   const amount = formatTokenAmountByDecimals(
@@ -435,6 +437,21 @@ export function handleFlashLoan(event: FlashLoan): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
+
+  // update users accrued fees
+  const bin = loadBin(lbPair, lbPair.activeId);
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesDataSingleToken(
+      lbPair,
+      bin,
+      fees,
+      protocolSharePct,
+      isTokenX,
+      event.block.timestamp
+    );
+  }
 
   const transaction = loadTransaction(event);
 
@@ -568,6 +585,21 @@ export function handleCompositionFee(event: CompositionFee): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
+
+  // update users accrued fees
+  const bin = loadBin(lbPair, event.params.id);
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesDataBothTokens(
+      lbPair,
+      bin,
+      feesX,
+      feesY,
+      protocolSharePct,
+      event.block.timestamp
+    );
+  }
 }
 
 export function handleLiquidityAdded(event: DepositedToBin): void {
