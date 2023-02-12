@@ -636,11 +636,17 @@ type Collect @entity {
   logIndex: BigInt!
 }
 
+# indexes both TransferSingle and TransferBatch events
 type Transfer @entity {
-  # transaction hash + "#" + index in transfer Transaction array
+  # transaction hash + "#" + index in transfer Transaction array + "#" + (optional: TransferBatch index)
   id: ID!
   transaction: Transaction!
   timestamp: Int!
+
+  isBatch: Boolean!
+  batchIndex: Int # optional only for TransferBatch event
+  isMint: Boolean!
+  isBurn: Boolean!
 
   lbPair: LBPair!
 
