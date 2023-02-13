@@ -8,3 +8,4 @@ export * from "./liquidityPositions";
 export * from "./userBinLiquidity";
 export * from "./transaction";
 export * from "./bin";
+export * from "./userFeesData";

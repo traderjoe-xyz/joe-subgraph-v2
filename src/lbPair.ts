@@ -1,12 +1,6 @@
 // Tick field is yet to be added
 
-import {
-  Address,
-  BigDecimal,
-  BigInt,
-  Bytes,
-  log,
-} from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import {
   Swap as SwapEvent,
   FlashLoan,
@@ -17,7 +11,6 @@ import {
   ProtocolFeesCollected,
   TransferSingle,
   TransferBatch,
-  ApprovalForAll,
 } from "../generated/LBPair/LBPair";
 import {
   Token,
@@ -26,8 +19,10 @@ import {
   Flash,
   Collect,
   Transfer,
+  LBPairParameterSet,
 } from "../generated/schema";
 import {
+  loadBin,
   loadLbPair,
   loadToken,
   loadBundle,
@@ -44,6 +39,9 @@ import {
   removeLiquidityPosition,
   loadTransaction,
   trackBin,
+  updateUserClaimedFeesData,
+  updateUserAccruedFeesDataSingleToken,
+  updateUserAccruedFeesDataBothTokens,
 } from "./entities";
 import {
   BIG_INT_ONE,
@@ -58,7 +56,6 @@ import {
   updateAvaxInUsdPricing,
   updateTokensDerivedAvax,
   safeDiv,
-  isAccountApproved,
 } from "./utils";
 
 export function handleSwap(event: SwapEvent): void {
@@ -309,6 +306,20 @@ export function handleSwap(event: SwapEvent): void {
   }
   tokenYDayData.save();
 
+  // update users accrued fees
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesDataSingleToken(
+      lbPair,
+      bin,
+      fees,
+      protocolSharePct,
+      swapForY,
+      event.block.timestamp
+    );
+  }
+
   // User
   loadUser(event.params.recipient);
 
@@ -355,7 +366,7 @@ export function handleFlashLoan(event: FlashLoan): void {
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
-  const isTokenX = Address.fromString(lbPair.tokenX) === event.params.token;
+  const isTokenX = Address.fromString(lbPair.tokenX).equals(event.params.token);
   const token = isTokenX ? tokenX : tokenY;
 
   const amount = formatTokenAmountByDecimals(
@@ -426,6 +437,21 @@ export function handleFlashLoan(event: FlashLoan): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
+
+  // update users accrued fees
+  const bin = loadBin(lbPair, lbPair.activeId);
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesDataSingleToken(
+      lbPair,
+      bin,
+      fees,
+      protocolSharePct,
+      isTokenX,
+      event.block.timestamp
+    );
+  }
 
   const transaction = loadTransaction(event);
 
@@ -559,6 +585,21 @@ export function handleCompositionFee(event: CompositionFee): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
+
+  // update users accrued fees
+  const bin = loadBin(lbPair, event.params.id);
+  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
+  if (lbPairFeeParams) {
+    const protocolSharePct = lbPairFeeParams.protocolSharePct;
+    updateUserAccruedFeesDataBothTokens(
+      lbPair,
+      bin,
+      feesX,
+      feesY,
+      protocolSharePct,
+      event.block.timestamp
+    );
+  }
 }
 
 export function handleLiquidityAdded(event: DepositedToBin): void {
@@ -823,6 +864,15 @@ export function handleFeesCollected(event: FeesCollected): void {
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
     .plus(amountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
 
+  // update users claimed fees
+  updateUserClaimedFeesData(
+    lbPair,
+    user,
+    amountX,
+    amountY,
+    event.block.timestamp
+  );
+
   const transaction = loadTransaction(event);
   const feeCollected = new Collect(
     transaction.id.concat("#").concat(lbPair.txCount.toString())
@@ -1067,26 +1117,4 @@ export function handleTransferBatch(event: TransferBatch): void {
 
     transfer.save();
   }
-}
-
-export function handleApprovalForAll(event: ApprovalForAll): void {
-  const user = loadUser(event.params.account);
-  const lbTokenApprovals = user.lbTokenApprovals;
-
-  if (event.params.approved) {
-    if (!isAccountApproved(lbTokenApprovals, event.params.account)) {
-      lbTokenApprovals.push(event.params.sender);
-      user.lbTokenApprovals = lbTokenApprovals;
-    }
-  } else {
-    const newLbTokenApprovals: Bytes[] = [];
-    for (let i = 0; i < lbTokenApprovals.length; i++) {
-      if (lbTokenApprovals[i].notEqual(event.params.sender)) {
-        newLbTokenApprovals.push(lbTokenApprovals[i]);
-      }
-    }
-    user.lbTokenApprovals = newLbTokenApprovals;
-  }
-
-  user.save();
 }
