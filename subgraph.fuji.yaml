@@ -102,6 +102,4 @@ dataSources:
           handler: handleTransferSingle
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
       file: ./src/lbPair.ts

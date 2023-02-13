@@ -1,6 +1,6 @@
 // Tick field is yet to be added
 
-import { Address, BigDecimal, Bytes, log } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, log } from "@graphprotocol/graph-ts";
 import {
   Swap as SwapEvent,
   FlashLoan,
