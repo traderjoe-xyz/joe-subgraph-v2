@@ -20,8 +20,6 @@ import {
   Collect,
   Transfer,
   LBPairParameterSet,
-  Vault,
-  VaultStrategy,
 } from "../generated/schema";
 import {
   loadBin,
@@ -44,7 +42,6 @@ import {
   updateUserClaimedFeesData,
   updateUserAccruedFeesDataSingleToken,
   updateUserAccruedFeesDataBothTokens,
-  loadVaultDayData,
 } from "./entities";
 import {
   BIG_INT_ONE,
@@ -60,7 +57,6 @@ import {
   updateTokensDerivedAvax,
   safeDiv,
 } from "./utils";
-import { loadVault } from "./entities/vault";
 
 export function handleSwap(event: SwapEvent): void {
   const lbPair = loadLbPair(event.address);
@@ -891,29 +887,6 @@ export function handleFeesCollected(event: FeesCollected): void {
   feeCollected.collectedUSD = amountUSD;
   feeCollected.collectedAVAX = safeDiv(amountUSD, bundle.avaxPriceUSD);
   feeCollected.logIndex = event.logIndex;
-
-  // update vault collected fees if the recipient is a vault
-  const vaultStategy = VaultStrategy.load(user.id);
-  if (vaultStategy) {
-    const vault = Vault.load(vaultStategy.vault);
-    if (vault) {
-      const vaultDayData = loadVaultDayData(
-        event.block.timestamp,
-        vault,
-        false
-      );
-      vaultDayData.collectedFeesUSD = vaultDayData.collectedFeesUSD.plus(
-        amountUSD
-      );
-      vaultDayData.collectedFeesTokenX = vaultDayData.collectedFeesTokenX.plus(
-        amountX
-      );
-      vaultDayData.collectedFeesTokenY = vaultDayData.collectedFeesTokenY.plus(
-        amountY
-      );
-      vaultDayData.save();
-    }
-  }
 
   feeCollected.save();
 }

@@ -18,6 +18,9 @@
     "name": "Math512Bits__MulDivOverflow",
     "type": "error"
   },
+  { "inputs": [], "name": "Range__InvalidAddedRange", "type": "error" },
+  { "inputs": [], "name": "Range__InvalidRange", "type": "error" },
+  { "inputs": [], "name": "Range__InvalidRemovedRange", "type": "error" },
   {
     "inputs": [{ "internalType": "uint256", "name": "x", "type": "uint256" }],
     "name": "SafeCast__Exceeds24Bits",
@@ -27,14 +30,72 @@
   { "inputs": [], "name": "Strategy__InvalidData", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidDistribution", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidDstToken", "type": "error" },
+  { "inputs": [], "name": "Strategy__InvalidFee", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidPrice", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidRange", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidReceiver", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidRemovedRange", "type": "error" },
-  { "inputs": [], "name": "Strategy__InvalidSrcToken", "type": "error" },
   { "inputs": [], "name": "Strategy__OnlyFactory", "type": "error" },
+  { "inputs": [], "name": "Strategy__OnlyOperators", "type": "error" },
+  { "inputs": [], "name": "Strategy__OnlyVault", "type": "error" },
   { "inputs": [], "name": "Strategy__SwapFailed", "type": "error" },
-  { "inputs": [], "name": "Strategy__Unhautorized", "type": "error" },
+  { "inputs": [], "name": "Strategy__ZeroAmounts", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "feeRecipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "vaultX",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "vaultY",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "feeX",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "feeY",
+        "type": "uint256"
+      }
+    ],
+    "name": "FeesCollected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -49,6 +110,19 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "StrategistFeeSet",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "collectFees",
     "outputs": [],
@@ -57,7 +131,7 @@
   },
   {
     "inputs": [
-      { "internalType": "uint24", "name": "addedLow", "type": "uint24" },
+      { "internalType": "uint24", "name": "addedLower", "type": "uint24" },
       { "internalType": "uint24", "name": "addedUpper", "type": "uint24" },
       {
         "internalType": "uint256[]",
@@ -69,10 +143,18 @@
         "name": "distributionY",
         "type": "uint256[]"
       },
-      { "internalType": "uint256", "name": "amountX", "type": "uint256" },
-      { "internalType": "uint256", "name": "amountY", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "percentageToAddX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "percentageToAddY",
+        "type": "uint256"
+      }
     ],
-    "name": "expandRange",
+    "name": "depositToLB",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -83,6 +165,19 @@
     "outputs": [
       { "internalType": "uint256", "name": "amountX", "type": "uint256" },
       { "internalType": "uint256", "name": "amountY", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFactory",
+    "outputs": [
+      {
+        "internalType": "contract IVaultFactory",
+        "name": "",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -119,9 +214,16 @@
     "inputs": [],
     "name": "getRange",
     "outputs": [
-      { "internalType": "uint24", "name": "low", "type": "uint24" },
+      { "internalType": "uint24", "name": "lower", "type": "uint24" },
       { "internalType": "uint24", "name": "upper", "type": "uint24" }
     ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStrategistFee",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -159,6 +261,50 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint24", "name": "removedLower", "type": "uint24" },
+      { "internalType": "uint24", "name": "removedUpper", "type": "uint24" },
+      {
+        "internalType": "uint256",
+        "name": "percentageToRemove",
+        "type": "uint256"
+      },
+      { "internalType": "uint24", "name": "addedLower", "type": "uint24" },
+      { "internalType": "uint24", "name": "addedUpper", "type": "uint24" },
+      {
+        "internalType": "uint256[]",
+        "name": "distributionX",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "distributionY",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "percentageToAddX",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "percentageToAddY",
+        "type": "uint256"
+      }
+    ],
+    "name": "rebalanceFromLB",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       { "internalType": "address", "name": "operator", "type": "address" }
     ],
@@ -168,16 +314,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint24", "name": "removedLow", "type": "uint24" },
-      { "internalType": "uint24", "name": "removedUpper", "type": "uint24" },
-      {
-        "internalType": "uint256",
-        "name": "percentageToRemove",
-        "type": "uint256"
-      }
-    ],
-    "name": "shrinkRange",
+    "inputs": [{ "internalType": "uint256", "name": "fee", "type": "uint256" }],
+    "name": "setStrategistFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -200,6 +338,21 @@
       { "internalType": "uint256", "name": "amountX", "type": "uint256" },
       { "internalType": "uint256", "name": "amountY", "type": "uint256" }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint24", "name": "removedLower", "type": "uint24" },
+      { "internalType": "uint24", "name": "removedUpper", "type": "uint24" },
+      {
+        "internalType": "uint256",
+        "name": "percentageToRemove",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawFromLB",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   }

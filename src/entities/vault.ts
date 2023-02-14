@@ -14,7 +14,7 @@ import {
 import { loadToken } from "./token";
 import { loadVaultStrategy } from "./vaultStrategy";
 
-export function createVault(vaultAddress: Address): Vault | null {
+export function createVault(vaultAddress: Address): Vault {
   const vault = new Vault(vaultAddress.toHexString());
   const vaultContract = VaultABI.bind(vaultAddress);
 
@@ -44,7 +44,7 @@ export function createVault(vaultAddress: Address): Vault | null {
   return vault;
 }
 
-export function loadVault(id: Address): Vault | null {
+export function loadVault(id: Address): Vault {
   const vault = Vault.load(id.toHexString());
   if (!vault) {
     return createVault(id);

@@ -10,6 +10,17 @@
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
+  { "inputs": [], "name": "BaseVault__BurnMinShares", "type": "error" },
+  { "inputs": [], "name": "BaseVault__InvalidNativeAmount", "type": "error" },
+  { "inputs": [], "name": "BaseVault__InvalidShares", "type": "error" },
+  { "inputs": [], "name": "BaseVault__InvalidStrategy", "type": "error" },
+  { "inputs": [], "name": "BaseVault__InvalidToken", "type": "error" },
+  { "inputs": [], "name": "BaseVault__NativeTransferFailed", "type": "error" },
+  { "inputs": [], "name": "BaseVault__NoNativeToken", "type": "error" },
+  { "inputs": [], "name": "BaseVault__OnlyFactory", "type": "error" },
+  { "inputs": [], "name": "BaseVault__SameStrategy", "type": "error" },
+  { "inputs": [], "name": "BaseVault__ZeroAmount", "type": "error" },
+  { "inputs": [], "name": "BaseVault__ZeroShares", "type": "error" },
   {
     "inputs": [
       { "internalType": "uint256", "name": "prod1", "type": "uint256" },
@@ -18,12 +29,8 @@
     "name": "Math512Bits__MulDivOverflow",
     "type": "error"
   },
-  { "inputs": [], "name": "Vault__InvalidPrice", "type": "error" },
-  { "inputs": [], "name": "Vault__InvalidStrategy", "type": "error" },
-  { "inputs": [], "name": "Vault__InvalidToken", "type": "error" },
-  { "inputs": [], "name": "Vault__OnlyFactory", "type": "error" },
-  { "inputs": [], "name": "Vault__SameStrategy", "type": "error" },
-  { "inputs": [], "name": "Vault__ZeroAmount", "type": "error" },
+  { "inputs": [], "name": "SimpleVault__AmountsOverflow", "type": "error" },
+  { "inputs": [], "name": "SimpleVault__ZeroCross", "type": "error" },
   {
     "anonymous": false,
     "inputs": [
@@ -47,6 +54,19 @@
       }
     ],
     "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "DepositFeeSet",
     "type": "event"
   },
   {
@@ -129,6 +149,19 @@
       }
     ],
     "name": "Transfer",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "WithdrawalFeeSet",
     "type": "event"
   },
   {
@@ -227,11 +260,38 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "amountX", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountY", "type": "uint256" }
+    ],
+    "name": "depositNative",
+    "outputs": [
+      { "internalType": "uint256", "name": "shares", "type": "uint256" },
+      { "internalType": "uint256", "name": "effectiveX", "type": "uint256" },
+      { "internalType": "uint256", "name": "effectiveY", "type": "uint256" }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getBalances",
     "outputs": [
       { "internalType": "uint256", "name": "amountX", "type": "uint256" },
       { "internalType": "uint256", "name": "amountY", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFactory",
+    "outputs": [
+      {
+        "internalType": "contract IVaultFactory",
+        "name": "",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -275,6 +335,15 @@
     "outputs": [
       { "internalType": "uint24", "name": "low", "type": "uint24" },
       { "internalType": "uint24", "name": "upper", "type": "uint24" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStrategistFee",
+    "outputs": [
+      { "internalType": "uint256", "name": "strategistFee", "type": "uint256" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -350,6 +419,18 @@
   },
   {
     "inputs": [
+      { "internalType": "uint256", "name": "shares", "type": "uint256" }
+    ],
+    "name": "previewAmounts",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountX", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountY", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       { "internalType": "uint256", "name": "amountX", "type": "uint256" },
       { "internalType": "uint256", "name": "amountY", "type": "uint256" }
     ],
@@ -364,19 +445,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" }
-    ],
-    "name": "previewWithdraw",
-    "outputs": [
-      { "internalType": "uint256", "name": "amountX", "type": "uint256" },
-      { "internalType": "uint256", "name": "amountY", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "token", "type": "address" },
+      {
+        "internalType": "contract IERC20Upgradeable",
+        "name": "token",
+        "type": "address"
+      },
       { "internalType": "address", "name": "recipient", "type": "address" },
       { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
@@ -389,7 +462,7 @@
     "inputs": [
       {
         "internalType": "contract IStrategy",
-        "name": "strategy",
+        "name": "newStrategy",
         "type": "address"
       }
     ],
