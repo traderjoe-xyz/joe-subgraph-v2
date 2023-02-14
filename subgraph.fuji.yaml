@@ -108,9 +108,9 @@ dataSources:
     name: VaultFactory
     network: fuji
     source:
-      address: "0xbe71be995B1a67EfcebfB1F0E8B89b57c603F9C8"
+      address: "0xECe167a8623D5ab7f8568842d0fC7dAa422467d6"
       abi: VaultFactory
-      startBlock: 18713029
+      startBlock: 18932225
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -149,7 +149,7 @@ dataSources:
     network: fuji
     source:
       abi: Vault
-      startBlock: 18713029
+      startBlock: 18932225
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -161,6 +161,10 @@ dataSources:
       abis:
         - name: Vault
           file: ./abis/Vault.json
+        - name: VaultStrategy
+          file: ./abis/VaultStrategy.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
@@ -175,7 +179,7 @@ dataSources:
     network: fuji
     source:
       abi: VaultStrategy
-      startBlock: 18713029
+      startBlock: 18932225
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -185,6 +189,8 @@ dataSources:
       abis:
         - name: VaultStrategy
           file: ./abis/VaultStrategy.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: FeesCollected(indexed address,indexed address,uint256,uint256,uint256,uint256)
           handler: handleFeesCollected
