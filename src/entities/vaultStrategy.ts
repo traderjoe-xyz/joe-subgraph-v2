@@ -13,6 +13,7 @@ export function createVaultStrategy(
   vaultStrategy.vault = vaultContract.try_getVault().value.toHexString();
   vaultStrategy.lbPair = vaultContract.try_getPair().value.toHexString();
   vaultStrategy.operator = vaultContract.try_getOperator().value.toHexString();
+  vaultStrategy.strategistFee = vaultContract.try_getStrategistFee().value;
 
   vaultStrategy.save();
   return vaultStrategy;

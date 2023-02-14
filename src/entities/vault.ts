@@ -56,6 +56,7 @@ export function createVaultDeposit(
   vaultAddress: Address,
   user: Address,
   block: ethereum.Block,
+  vaultUserPositionId: string,
   amountX: BigDecimal,
   amountY: BigDecimal,
   amountUSD: BigDecimal
@@ -71,6 +72,7 @@ export function createVaultDeposit(
 
   vaultDeposit.user = user.toHexString();
   vaultDeposit.vault = vaultAddress.toHexString();
+  vaultDeposit.vaultUserPosition = vaultUserPositionId;
   vaultDeposit.amountDepositedX = amountX;
   vaultDeposit.amountDepositedY = amountY;
   vaultDeposit.amountDepositedUSD = amountUSD;
@@ -84,6 +86,7 @@ export function createVaultWithdraw(
   vaultAddress: Address,
   user: Address,
   block: ethereum.Block,
+  vaultUserPositionId: string,
   amountX: BigDecimal,
   amountY: BigDecimal,
   amountUSD: BigDecimal
@@ -99,6 +102,7 @@ export function createVaultWithdraw(
 
   vaultWithdraw.user = user.toHexString();
   vaultWithdraw.vault = vaultAddress.toHexString();
+  vaultWithdraw.vaultUserPosition = vaultUserPositionId;
   vaultWithdraw.amountWithdrawnX = amountX;
   vaultWithdraw.amountWithdrawnY = amountY;
   vaultWithdraw.amountWithdrawnUSD = amountUSD;
@@ -121,7 +125,7 @@ export function loadVaultUserPosition(
   if (!vaultUserPosition) {
     vaultUserPosition = new VaultUserPosition(id);
     vaultUserPosition.vault = vaultAddress.toHexString();
-    vaultUserPosition.user = vaultAddress.toHexString();
+    vaultUserPosition.user = user.toHexString();
     vaultUserPosition.totalAmountDepositedX = BIG_DECIMAL_ZERO;
     vaultUserPosition.totalAmountDepositedY = BIG_DECIMAL_ZERO;
     vaultUserPosition.totalAmountDepositedUSD = BIG_DECIMAL_ZERO;

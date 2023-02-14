@@ -5,7 +5,7 @@ import {
   Withdrawn,
 } from "../generated/VaultFactory/Vault";
 import { BIG_INT_ONE } from "./constants";
-import { loadBundle, loadToken, loadVaultDayData } from "./entities";
+import { loadBundle, loadToken, loadUser, loadVaultDayData } from "./entities";
 import {
   createVaultDeposit,
   createVaultWithdraw,
@@ -35,6 +35,9 @@ export function handleDeposited(event: Deposited): void {
   // load price bundle
   updateAvaxInUsdPricing();
   const bundle = loadBundle();
+
+  // load user
+  loadUser(event.params.user);
 
   // get tokens
   const tokenX = loadToken(Address.fromString(vault.tokenX));
@@ -80,16 +83,6 @@ export function handleDeposited(event: Deposited): void {
   // update day data
   loadVaultDayData(event.block.timestamp, vault, true);
 
-  // create deposit entry
-  createVaultDeposit(
-    event.address,
-    event.params.user,
-    event.block,
-    amountX,
-    amountY,
-    amountUSD
-  );
-
   // update user position
   const vaultUserPosition = loadVaultUserPosition(
     event.address,
@@ -105,6 +98,17 @@ export function handleDeposited(event: Deposited): void {
     amountUSD
   );
   vaultUserPosition.save();
+
+  // create deposit entry
+  createVaultDeposit(
+    event.address,
+    event.params.user,
+    event.block,
+    vaultUserPosition.id,
+    amountX,
+    amountY,
+    amountUSD
+  );
 
   // save
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
@@ -128,6 +132,9 @@ export function handleWithdrawn(event: Withdrawn): void {
   // load price bundle
   updateAvaxInUsdPricing();
   const bundle = loadBundle();
+
+  // load user
+  loadUser(event.params.user);
 
   // get tokens
   const tokenX = loadToken(Address.fromString(vault.tokenX));
@@ -173,16 +180,6 @@ export function handleWithdrawn(event: Withdrawn): void {
   // update day data
   loadVaultDayData(event.block.timestamp, vault, true);
 
-  // create withdraw entry
-  createVaultWithdraw(
-    event.address,
-    event.params.user,
-    event.block,
-    amountX,
-    amountY,
-    amountUSD
-  );
-
   // update user position
   const vaultUserPosition = loadVaultUserPosition(
     event.address,
@@ -198,6 +195,17 @@ export function handleWithdrawn(event: Withdrawn): void {
     amountUSD
   );
   vaultUserPosition.save();
+
+  // create withdraw entry
+  createVaultWithdraw(
+    event.address,
+    event.params.user,
+    event.block,
+    vaultUserPosition.id,
+    amountX,
+    amountY,
+    amountUSD
+  );
 
   // save
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);

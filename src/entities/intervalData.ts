@@ -326,7 +326,7 @@ export function loadVaultDayData(
     vaultDayData.tokenX = vault.tokenX;
     vaultDayData.tokenY = vault.tokenY;
     vaultDayData.totalBalanceX = vault.totalBalanceX;
-    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalBalanceY = vault.totalBalanceY;
     vaultDayData.totalValueLockedUSD = vault.totalValueLockedUSD;
     vaultDayData.totalValueLockedAVAX = vault.totalValueLockedAVAX;
     vaultDayData.collectedFeesTokenX = BIG_DECIMAL_ZERO;
@@ -338,7 +338,7 @@ export function loadVaultDayData(
 
   if (update) {
     vaultDayData.totalBalanceX = vault.totalBalanceX;
-    vaultDayData.totalBalanceX = vault.totalBalanceX;
+    vaultDayData.totalBalanceY = vault.totalBalanceY;
     vaultDayData.totalValueLockedUSD = vault.totalValueLockedUSD;
     vaultDayData.totalValueLockedAVAX = vault.totalValueLockedAVAX;
     vaultDayData.txCount = vaultDayData.txCount.plus(BIG_INT_ONE);

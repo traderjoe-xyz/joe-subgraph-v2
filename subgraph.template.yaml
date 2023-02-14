@@ -161,6 +161,10 @@ dataSources:
       abis:
         - name: Vault
           file: ./abis/Vault.json
+        - name: VaultStrategy
+          file: ./abis/VaultStrategy.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
@@ -185,6 +189,8 @@ dataSources:
       abis:
         - name: VaultStrategy
           file: ./abis/VaultStrategy.json
+        - name: DexLens
+          file: ./abis/DexLens.json
       eventHandlers:
         - event: FeesCollected(indexed address,indexed address,uint256,uint256,uint256,uint256)
           handler: handleFeesCollected
