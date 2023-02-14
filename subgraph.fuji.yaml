@@ -165,6 +165,8 @@ dataSources:
           file: ./abis/VaultStrategy.json
         - name: DexLens
           file: ./abis/DexLens.json
+        - name: LBFactory
+          file: ./abis/LBFactory.json
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
