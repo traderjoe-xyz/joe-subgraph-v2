@@ -720,6 +720,8 @@ type VaultStrategy @entity {
   vault: Vault!
   lbPair: LBPair!
   operator: String!
+
+  strategistFee: BigInt!
 }
 
 type VaultDayData @entity {

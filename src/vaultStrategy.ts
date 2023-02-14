@@ -2,6 +2,7 @@ import { Address } from "@graphprotocol/graph-ts";
 import {
   FeesCollected,
   OperatorSet,
+  StrategistFeeSet,
 } from "../generated/VaultFactory/VaultStrategy";
 import {
   loadBundle,
@@ -20,6 +21,12 @@ import {
 export function handleOperatorSet(event: OperatorSet): void {
   const vaultStrategy = loadVaultStrategy(event.address);
   vaultStrategy.operator = event.params.operator.toHexString();
+  vaultStrategy.save();
+}
+
+export function handleStrategistFeeSet(event: StrategistFeeSet): void {
+  const vaultStrategy = loadVaultStrategy(event.address);
+  vaultStrategy.strategistFee = event.params.fee;
   vaultStrategy.save();
 }
 

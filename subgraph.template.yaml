@@ -188,4 +188,6 @@ dataSources:
           handler: handleFeesCollected
         - event: OperatorSet(address)
           handler: handleOperatorSet
+        - event: StrategistFeeSet(uint256)
+          handler: handleStrategistFeeSet
       file: ./src/vaultStrategy.ts
