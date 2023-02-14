@@ -32,5 +32,5 @@ export const WAVAX_ADDRESS = Address.fromString(
 );
 
 export const VAULT_FACTORY_ADDRESS = Address.fromString(
-  "0x6E794697E5eF1bCEd4A356C8d1F327b8Ed4c0799"
+  "0xbe71be995B1a67EfcebfB1F0E8B89b57c603F9C8"
 );
