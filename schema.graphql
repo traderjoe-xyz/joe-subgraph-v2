@@ -674,6 +674,7 @@ type VaultFactory @entity {
   id: ID!
 
   txCount: BigInt!
+  feeRecipient: String!
 
   vaultCount: BigInt!
   strategyCount: BigInt!

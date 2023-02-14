@@ -1,4 +1,5 @@
 import {
+  FeeRecipientSet,
   StrategyCreated,
   VaultCreated,
 } from "../generated/VaultFactory/VaultFactory";
@@ -28,5 +29,11 @@ export function handleStrategyCreated(event: StrategyCreated): void {
 
   const factory = loadVaultFactory();
   factory.strategyCount = factory.strategyCount.plus(BIG_INT_ONE);
+  factory.save();
+}
+
+export function handleFeeRecipientSet(event: FeeRecipientSet): void {
+  const factory = loadVaultFactory();
+  factory.feeRecipient = event.params.feeRecipient.toHexString();
   factory.save();
 }
