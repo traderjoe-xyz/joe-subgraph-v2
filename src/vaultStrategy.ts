@@ -50,31 +50,55 @@ export function handleFeesCollected(event: FeesCollected): void {
   const tokenX = loadToken(Address.fromString(vault.tokenX));
   const tokenY = loadToken(Address.fromString(vault.tokenY));
 
-  // get fee amounts
-  const feeAmountX = formatTokenAmountByDecimals(
+  // get vault fee amounts
+  const vaultFeeAmountX = formatTokenAmountByDecimals(
+    event.params.vaultX,
+    tokenX.decimals
+  );
+  const vaultFeeAmountY = formatTokenAmountByDecimals(
+    event.params.vaultY,
+    tokenY.decimals
+  );
+
+  // get strategist fee amounts
+  const strategistFeeAmountX = formatTokenAmountByDecimals(
     event.params.feeX,
     tokenX.decimals
   );
-  const feeAmountY = formatTokenAmountByDecimals(
+  const strategistFeeAmountY = formatTokenAmountByDecimals(
     event.params.feeY,
     tokenY.decimals
   );
 
-  // get fee amount USD
-  const feeAmountUSD = feeAmountX
+  // get vault fee amount USD
+  const vaultFeeAmountUSD = vaultFeeAmountX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(feeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+    .plus(vaultFeeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
+
+  // get strategist fee amount USD
+  const strategistFeeAmountUSD = strategistFeeAmountX
+    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
+    .plus(
+      strategistFeeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD))
+    );
 
   // update day data
   const vaultDayData = loadVaultDayData(event.block.timestamp, vault, false);
-  vaultDayData.collectedFeesUSD = vaultDayData.collectedFeesUSD.plus(
-    feeAmountUSD
+  vaultDayData.vaultFeesUSD = vaultDayData.vaultFeesUSD.plus(vaultFeeAmountUSD);
+  vaultDayData.vaultFeesTokenX = vaultDayData.vaultFeesTokenX.plus(
+    vaultFeeAmountX
   );
-  vaultDayData.collectedFeesTokenX = vaultDayData.collectedFeesTokenX.plus(
-    feeAmountX
+  vaultDayData.vaultFeesTokenY = vaultDayData.vaultFeesTokenY.plus(
+    vaultFeeAmountY
   );
-  vaultDayData.collectedFeesTokenY = vaultDayData.collectedFeesTokenY.plus(
-    feeAmountY
+  vaultDayData.strategistFeesUSD = vaultDayData.strategistFeesUSD.plus(
+    strategistFeeAmountUSD
+  );
+  vaultDayData.strategistFeesTokenX = vaultDayData.strategistFeesTokenX.plus(
+    strategistFeeAmountX
+  );
+  vaultDayData.strategistFeesTokenY = vaultDayData.strategistFeesTokenY.plus(
+    strategistFeeAmountY
   );
 
   vaultDayData.save();
