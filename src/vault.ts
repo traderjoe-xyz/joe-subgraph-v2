@@ -59,8 +59,14 @@ export function handleDeposited(event: Deposited): void {
 
   // update vault total balance
   const vaultBalances = vaultContract.try_getBalances().value;
-  vault.totalBalanceX = vaultBalances.getAmountX().toBigDecimal();
-  vault.totalBalanceY = vaultBalances.getAmountY().toBigDecimal();
+  vault.totalBalanceX = formatTokenAmountByDecimals(
+    vaultBalances.getAmountX(),
+    tokenX.decimals
+  );
+  vault.totalBalanceY = formatTokenAmountByDecimals(
+    vaultBalances.getAmountY(),
+    tokenY.decimals
+  );
 
   // update vault TVL
   vault.totalValueLockedAVAX = vault.totalBalanceX
@@ -156,8 +162,14 @@ export function handleWithdrawn(event: Withdrawn): void {
 
   // update vault total balance
   const vaultBalances = vaultContract.try_getBalances().value;
-  vault.totalBalanceX = vaultBalances.getAmountX().toBigDecimal();
-  vault.totalBalanceY = vaultBalances.getAmountY().toBigDecimal();
+  vault.totalBalanceX = formatTokenAmountByDecimals(
+    vaultBalances.getAmountX(),
+    tokenX.decimals
+  );
+  vault.totalBalanceY = formatTokenAmountByDecimals(
+    vaultBalances.getAmountY(),
+    tokenY.decimals
+  );
 
   // update vault TVL
   vault.totalValueLockedAVAX = vault.totalBalanceX
