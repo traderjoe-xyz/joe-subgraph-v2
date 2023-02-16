@@ -5,15 +5,35 @@ import { VAULT_FACTORY_ADDRESS } from "../constants";
 
 export function createVaultStrategy(
   vaultStrategyAddress: Address
-): VaultStrategy {
+): VaultStrategy | null {
   const vaultStrategy = new VaultStrategy(vaultStrategyAddress.toHexString());
-  const vaultContract = VaultStrategyABI.bind(vaultStrategyAddress);
+  const vaultStrategyContract = VaultStrategyABI.bind(vaultStrategyAddress);
+
+  const vault = vaultStrategyContract.try_getVault();
+  if (vault.reverted) {
+    return null;
+  }
+
+  const lbPair = vaultStrategyContract.try_getPair();
+  if (lbPair.reverted) {
+    return null;
+  }
+
+  const operator = vaultStrategyContract.try_getOperator();
+  if (operator.reverted) {
+    return null;
+  }
+
+  const strategistFee = vaultStrategyContract.try_getStrategistFee();
+  if (strategistFee.reverted) {
+    return null;
+  }
 
   vaultStrategy.factory = VAULT_FACTORY_ADDRESS.toHexString();
-  vaultStrategy.vault = vaultContract.try_getVault().value.toHexString();
-  vaultStrategy.lbPair = vaultContract.try_getPair().value.toHexString();
-  vaultStrategy.operator = vaultContract.try_getOperator().value.toHexString();
-  vaultStrategy.strategistFee = vaultContract.try_getStrategistFee().value;
+  vaultStrategy.vault = vault.value.toHexString();
+  vaultStrategy.lbPair = lbPair.value.toHexString();
+  vaultStrategy.operator = operator.value.toHexString();
+  vaultStrategy.strategistFee = strategistFee.value;
 
   vaultStrategy.save();
   return vaultStrategy;
