@@ -7,6 +7,7 @@ import {
 } from "../../generated/schema";
 import { Vault as VaultABI } from "../../generated/VaultFactory/Vault";
 import {
+  ADDRESS_ZERO,
   BIG_DECIMAL_ZERO,
   BIG_INT_ZERO,
   VAULT_FACTORY_ADDRESS,
@@ -28,7 +29,9 @@ export function createVault(vaultAddress: Address): Vault {
   const tokenY = loadToken(tokenYCall.value);
 
   vault.factory = VAULT_FACTORY_ADDRESS.toHexString();
-  vault.strategy = vaultStrategy.id;
+  vault.strategy = vaultStrategy
+    ? vaultStrategy.id
+    : ADDRESS_ZERO.toHexString();
   vault.lbPair = vaultContract.try_getPair().value.toHexString();
   vault.tokenX = tokenX.id;
   vault.tokenY = tokenY.id;

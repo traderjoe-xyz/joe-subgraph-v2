@@ -20,18 +20,27 @@ import {
 
 export function handleOperatorSet(event: OperatorSet): void {
   const vaultStrategy = loadVaultStrategy(event.address);
+  if (!vaultStrategy) {
+    return;
+  }
   vaultStrategy.operator = event.params.operator.toHexString();
   vaultStrategy.save();
 }
 
 export function handleStrategistFeeSet(event: StrategistFeeSet): void {
   const vaultStrategy = loadVaultStrategy(event.address);
+  if (!vaultStrategy) {
+    return;
+  }
   vaultStrategy.strategistFee = event.params.fee;
   vaultStrategy.save();
 }
 
 export function handleFeesCollected(event: FeesCollected): void {
   const vaultStrategy = loadVaultStrategy(event.address);
+  if (!vaultStrategy) {
+    return;
+  }
 
   const vault = loadVault(Address.fromString(vaultStrategy.vault));
   if (!vault) {

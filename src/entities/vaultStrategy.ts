@@ -19,10 +19,6 @@ export function createVaultStrategy(
   return vaultStrategy;
 }
 
-export function loadVaultStrategy(id: Address): VaultStrategy {
-  const vaultStrategy = VaultStrategy.load(id.toHexString());
-  if (!vaultStrategy) {
-    return createVaultStrategy(id);
-  }
-  return vaultStrategy as VaultStrategy;
+export function loadVaultStrategy(id: Address): VaultStrategy | null {
+  return VaultStrategy.load(id.toHexString());
 }

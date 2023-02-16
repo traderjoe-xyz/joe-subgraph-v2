@@ -4,7 +4,7 @@ import {
   StrategySet,
   Withdrawn,
 } from "../generated/VaultFactory/Vault";
-import { BIG_INT_ONE } from "./constants";
+import { ADDRESS_ZERO, BIG_INT_ONE } from "./constants";
 import { loadBundle, loadToken, loadUser, loadVaultDayData } from "./entities";
 import {
   createVaultDeposit,
@@ -230,6 +230,6 @@ export function handleStrategySet(event: StrategySet): void {
     return;
   }
   const strategy = loadVaultStrategy(event.params.strategy);
-  vault.strategy = strategy.id;
+  vault.strategy = strategy ? strategy.id : ADDRESS_ZERO.toHexString();
   vault.save();
 }
