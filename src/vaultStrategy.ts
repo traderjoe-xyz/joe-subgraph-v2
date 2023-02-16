@@ -32,9 +32,13 @@ export function handleStrategistFeeSet(event: StrategistFeeSet): void {
 
 export function handleFeesCollected(event: FeesCollected): void {
   const vaultStrategy = loadVaultStrategy(event.address);
-  const vault = loadVault(Address.fromString(vaultStrategy.vault));
-  const lbPair = loadLbPair(Address.fromString(vault.lbPair));
 
+  const vault = loadVault(Address.fromString(vaultStrategy.vault));
+  if (!vault) {
+    return;
+  }
+
+  const lbPair = loadLbPair(Address.fromString(vault.lbPair));
   if (!lbPair) {
     return;
   }
