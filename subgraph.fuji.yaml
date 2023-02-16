@@ -141,6 +141,8 @@ dataSources:
           handler: handleStrategyCreated
         - event: FeeRecipientSet(indexed address,indexed address)
           handler: handleFeeRecipientSet
+        - event: DefaultOperatorSet(indexed address,indexed address)
+          handler: handleDefaultOperatorSet
 
       file: ./src/vaultFactory.ts
 

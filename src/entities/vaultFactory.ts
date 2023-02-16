@@ -22,6 +22,12 @@ export function loadVaultFactory(
     } else {
       vaultFactory.feeRecipient = feeRecipient.value.toHexString();
     }
+    const defaultOperator = vaultFactoryContract.try_getDefaultOperator();
+    if (defaultOperator.reverted) {
+      vaultFactory.defaultOperator = ADDRESS_ZERO.toHexString();
+    } else {
+      vaultFactory.defaultOperator = defaultOperator.value.toHexString();
+    }
     vaultFactory.vaultCount = BIG_INT_ONE;
     vaultFactory.strategyCount = BIG_INT_ONE;
     vaultFactory.totalValueLockedUSD = BIG_DECIMAL_ZERO;

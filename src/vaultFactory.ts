@@ -1,4 +1,5 @@
 import {
+  DefaultOperatorSet,
   FeeRecipientSet,
   StrategyCreated,
   VaultCreated,
@@ -35,5 +36,11 @@ export function handleStrategyCreated(event: StrategyCreated): void {
 export function handleFeeRecipientSet(event: FeeRecipientSet): void {
   const factory = loadVaultFactory();
   factory.feeRecipient = event.params.feeRecipient.toHexString();
+  factory.save();
+}
+
+export function handleDefaultOperatorSet(event: DefaultOperatorSet): void {
+  const factory = loadVaultFactory();
+  factory.defaultOperator = event.params.defaultOperator.toHexString();
   factory.save();
 }
