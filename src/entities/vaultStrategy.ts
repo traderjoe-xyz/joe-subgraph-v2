@@ -29,7 +29,15 @@ export function createVaultStrategy(
     return null;
   }
 
-  vaultStrategy.factory = VAULT_FACTORY_ADDRESS.toHexString();
+  const factoryAddress = vaultStrategyContract.try_getFactory();
+  if (
+    factoryAddress.reverted ||
+    !factoryAddress.value.equals(VAULT_FACTORY_ADDRESS)
+  ) {
+    return null;
+  }
+
+  vaultStrategy.factory = factoryAddress.value.toHexString();
   vaultStrategy.vault = vault.value.toHexString();
   vaultStrategy.lbPair = lbPair.value.toHexString();
   vaultStrategy.operator = operator.value.toHexString();
