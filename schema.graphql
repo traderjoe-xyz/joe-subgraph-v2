@@ -690,7 +690,7 @@ type VaultFactory @entity {
 type Vault @entity {
   # Contract address
   id: ID!
-
+  name: String!
   txCount: BigInt!
 
   factory: VaultFactory!

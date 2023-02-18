@@ -28,6 +28,7 @@ export function createVault(vaultAddress: Address): Vault {
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);
 
+  vault.name = vaultContract.try_name().value;
   vault.factory = VAULT_FACTORY_ADDRESS.toHexString();
   vault.strategy = vaultStrategy
     ? vaultStrategy.id
