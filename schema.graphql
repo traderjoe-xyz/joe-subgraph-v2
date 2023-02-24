@@ -484,7 +484,6 @@ type UserFeesData @entity {
 
   collectedFeesX: BigDecimal!
   collectedFeesY: BigDecimal!
-  collectedFeesL: BigDecimal!
 }
 
 type UserFeesHourData @entity {
@@ -502,7 +501,6 @@ type UserFeesHourData @entity {
 
   collectedFeesX: BigDecimal!
   collectedFeesY: BigDecimal!
-  collectedFeesL: BigDecimal!
 }
 
 type Transaction @entity {
