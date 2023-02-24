@@ -480,6 +480,7 @@ type UserFeesData @entity {
 
   accruedFeesX: BigDecimal!
   accruedFeesY: BigDecimal!
+  accruedFeesL: BigDecimal!
 
   collectedFeesX: BigDecimal!
   collectedFeesY: BigDecimal!
@@ -496,6 +497,7 @@ type UserFeesHourData @entity {
 
   accruedFeesX: BigDecimal!
   accruedFeesY: BigDecimal!
+  accruedFeesL: BigDecimal!
 
   collectedFeesX: BigDecimal!
   collectedFeesY: BigDecimal!

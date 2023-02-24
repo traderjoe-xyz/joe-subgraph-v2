@@ -20,6 +20,7 @@ export function loadUserFeesData(lbPair: LBPair, user: User): UserFeesData {
     userFeesData.lbPair = lbPair.id;
     userFeesData.accruedFeesX = BIG_DECIMAL_ZERO;
     userFeesData.accruedFeesY = BIG_DECIMAL_ZERO;
+    userFeesData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesY = BIG_DECIMAL_ZERO;
     userFeesData.save();
@@ -52,6 +53,7 @@ export function loadUserFeesHourData(
     userFeesHourData.lbPair = lbPair.id;
     userFeesHourData.accruedFeesX = BIG_DECIMAL_ZERO;
     userFeesHourData.accruedFeesY = BIG_DECIMAL_ZERO;
+    userFeesHourData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesY = BIG_DECIMAL_ZERO;
     userFeesHourData.save();
@@ -108,9 +110,21 @@ export function updateUserAccruedFeesDataSingleToken(
       userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
         providerFee
       );
+
+      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(
+        providerFee.times(bin.priceY)
+      );
+      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
+        providerFee.times(bin.priceY)
+      );
     } else {
       userFeesData.accruedFeesY = userFeesData.accruedFeesY.plus(providerFee);
       userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
+        providerFee
+      );
+
+      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(providerFee);
+      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
         providerFee
       );
     }
@@ -177,6 +191,13 @@ export function updateUserAccruedFeesDataBothTokens(
     userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
       providerFeeY
     );
+
+    userFeesData.accruedFeesL = userFeesData.accruedFeesL
+      .plus(providerFeeY)
+      .plus(providerFeeX.times(bin.priceY));
+    userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL
+      .plus(providerFeeY)
+      .plus(providerFeeX.times(bin.priceY));
 
     userFeesData.save();
     userFeesHourData.save();
