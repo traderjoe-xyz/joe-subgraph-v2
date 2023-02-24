@@ -23,7 +23,6 @@ export function loadUserFeesData(lbPair: LBPair, user: User): UserFeesData {
     userFeesData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesY = BIG_DECIMAL_ZERO;
-    userFeesData.collectedFeesL = BIG_DECIMAL_ZERO;
     userFeesData.save();
   }
 
@@ -57,7 +56,6 @@ export function loadUserFeesHourData(
     userFeesHourData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesY = BIG_DECIMAL_ZERO;
-    userFeesHourData.collectedFeesL = BIG_DECIMAL_ZERO;
     userFeesHourData.save();
   }
 
