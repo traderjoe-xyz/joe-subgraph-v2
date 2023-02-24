@@ -112,9 +112,21 @@ export function updateUserAccruedFeesDataSingleToken(
       userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
         providerFee
       );
+
+      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(
+        providerFee.times(bin.priceY)
+      );
+      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
+        providerFee.times(bin.priceY)
+      );
     } else {
       userFeesData.accruedFeesY = userFeesData.accruedFeesY.plus(providerFee);
       userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
+        providerFee
+      );
+
+      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(providerFee);
+      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
         providerFee
       );
     }
@@ -181,6 +193,13 @@ export function updateUserAccruedFeesDataBothTokens(
     userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
       providerFeeY
     );
+
+    userFeesData.accruedFeesL = userFeesData.accruedFeesL
+      .plus(providerFeeY)
+      .plus(providerFeeX.times(bin.priceY));
+    userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL
+      .plus(providerFeeY)
+      .plus(providerFeeX.times(bin.priceY));
 
     userFeesData.save();
     userFeesHourData.save();
