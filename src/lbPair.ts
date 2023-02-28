@@ -868,6 +868,7 @@ export function handleFeesCollected(event: FeesCollected): void {
     user,
     amountX,
     amountY,
+    amountUSD,
     event.block.timestamp
   );
 

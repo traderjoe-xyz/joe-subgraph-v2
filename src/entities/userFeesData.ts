@@ -23,6 +23,7 @@ export function loadUserFeesData(lbPair: LBPair, user: User): UserFeesData {
     userFeesData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesData.collectedFeesY = BIG_DECIMAL_ZERO;
+    userFeesData.collectedFeesUSD = BIG_DECIMAL_ZERO;
     userFeesData.save();
   }
 
@@ -56,6 +57,7 @@ export function loadUserFeesHourData(
     userFeesHourData.accruedFeesL = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesX = BIG_DECIMAL_ZERO;
     userFeesHourData.collectedFeesY = BIG_DECIMAL_ZERO;
+    userFeesHourData.collectedFeesUSD = BIG_DECIMAL_ZERO;
     userFeesHourData.save();
   }
 
@@ -209,6 +211,7 @@ export function updateUserClaimedFeesData(
   user: User,
   feesX: BigDecimal,
   feesY: BigDecimal,
+  feesUSD: BigDecimal,
   timestamp: BigInt
 ): void {
   const userFeesData = loadUserFeesData(lbPair, user);
@@ -219,6 +222,11 @@ export function updateUserClaimedFeesData(
 
   userFeesData.collectedFeesY = userFeesData.collectedFeesY.plus(feesY);
   userFeesHourData.collectedFeesY = userFeesHourData.collectedFeesY.plus(feesY);
+
+  userFeesData.collectedFeesUSD = userFeesData.collectedFeesUSD.plus(feesUSD);
+  userFeesHourData.collectedFeesUSD = userFeesHourData.collectedFeesUSD.plus(
+    feesUSD
+  );
 
   userFeesData.save();
   userFeesHourData.save();
