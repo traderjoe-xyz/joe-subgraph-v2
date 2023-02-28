@@ -109,5 +109,13 @@ export function handleAumFeeCollected(event: AumFeeCollected): void {
   vaultDayData.aumFeesTokenX = vaultDayData.aumFeesTokenX.plus(aumFeeAmountX);
   vaultDayData.aumFeesTokenY = vaultDayData.aumFeesTokenY.plus(aumFeeAmountY);
 
+  // update total balance
+  vault.totalBalanceX = event.params.totalBalanceX.toBigDecimal();
+  vault.totalBalanceY = event.params.totalBalanceY.toBigDecimal();
+  vaultDayData.totalBalanceX = event.params.totalBalanceX.toBigDecimal();
+  vaultDayData.totalBalanceY = event.params.totalBalanceY.toBigDecimal();
+
+  // save
+  vault.save();
   vaultDayData.save();
 }
