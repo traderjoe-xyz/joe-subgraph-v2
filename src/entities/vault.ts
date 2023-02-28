@@ -1,7 +1,8 @@
-import { Address, BigDecimal, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   Vault,
   VaultDeposit,
+  VaultQueuedWithdrawal,
   VaultUserPosition,
   VaultWithdraw,
 } from "../../generated/schema";
@@ -135,5 +136,29 @@ export function loadVaultUserPosition(
     vaultUserPosition.save();
   }
 
-  return vaultUserPosition as VaultUserPosition;
+  return vaultUserPosition;
+}
+
+export function loadVaultQueuedWithdrawal(
+  vaultAddress: Address,
+  user: Address,
+  round: BigInt
+): VaultQueuedWithdrawal {
+  const vaultUserPositionId = vaultAddress
+    .toHexString()
+    .concat("-")
+    .concat(user.toHexString());
+  const id = vaultUserPositionId.concat("-").concat(round.toString());
+  let vaultQueuedWithdrawal = VaultQueuedWithdrawal.load(id);
+
+  if (!vaultQueuedWithdrawal) {
+    vaultQueuedWithdrawal = new VaultQueuedWithdrawal(id);
+    vaultQueuedWithdrawal.vault = vaultAddress.toHexString();
+    vaultQueuedWithdrawal.user = user.toHexString();
+    vaultQueuedWithdrawal.vaultUserPosition = vaultUserPositionId;
+    vaultQueuedWithdrawal.round = round;
+    vaultQueuedWithdrawal.shares = BIG_INT_ZERO;
+  }
+
+  return vaultQueuedWithdrawal;
 }

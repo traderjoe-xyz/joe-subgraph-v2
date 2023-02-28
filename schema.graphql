@@ -367,6 +367,7 @@ type User @entity {
   vaultPositions: [VaultUserPosition!]! @derivedFrom(field: "user")
   vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "user")
   vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "user")
+  vaultQueuedWithdrawals: [VaultQueuedWithdrawal!]! @derivedFrom(field: "user")
 
   # fees collected by user for providing liquidity
   collects: [Collect!]! @derivedFrom(field: "recipient")
@@ -712,6 +713,7 @@ type Vault @entity {
   vaultUserPositions: [VaultUserPosition!]! @derivedFrom(field: "vault")
   vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "vault")
   vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "vault")
+  vaultQueuedWithdrawals: [VaultQueuedWithdrawal!]! @derivedFrom(field: "vault")
 }
 
 type VaultStrategy @entity {
@@ -768,6 +770,8 @@ type VaultUserPosition @entity {
 
   vaultDeposits: [VaultDeposit!]! @derivedFrom(field: "vaultUserPosition")
   vaultWithdraws: [VaultWithdraw!]! @derivedFrom(field: "vaultUserPosition")
+  vaultQueuedWithdrawals: [VaultQueuedWithdrawal!]!
+    @derivedFrom(field: "vaultUserPosition")
 }
 
 type VaultDeposit @entity {
@@ -800,4 +804,16 @@ type VaultWithdraw @entity {
 
   block: Int!
   timestamp: Int!
+}
+
+type VaultQueuedWithdrawal @entity {
+  # vault address + "-" + user address + "-" + round
+  id: ID!
+
+  user: User!
+  vault: Vault!
+  vaultUserPosition: VaultUserPosition!
+
+  round: BigInt!
+  shares: BigInt!
 }

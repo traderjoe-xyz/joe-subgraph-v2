@@ -2,14 +2,17 @@ import { Address } from "@graphprotocol/graph-ts";
 import {
   Deposited,
   StrategySet,
+  WithdrawalCancelled,
+  WithdrawalQueued,
   WithdrawalRedeemed,
 } from "../generated/VaultFactory/Vault";
-import { ADDRESS_ZERO, BIG_INT_ONE } from "./constants";
+import { ADDRESS_ZERO, BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
 import { loadBundle, loadToken, loadUser, loadVaultDayData } from "./entities";
 import {
   createVaultDeposit,
   createVaultWithdraw,
   loadVault,
+  loadVaultQueuedWithdrawal,
   loadVaultUserPosition,
 } from "./entities/vault";
 import { loadVaultFactory } from "./entities/vaultFactory";
@@ -219,6 +222,15 @@ export function handleWithdrawalRedeemed(event: WithdrawalRedeemed): void {
     amountUSD
   );
 
+  // update vault queued withdrawal
+  const vaultQueuedWithdrawal = loadVaultQueuedWithdrawal(
+    event.address,
+    event.params.recipient,
+    event.params.round
+  );
+  vaultQueuedWithdrawal.shares = BIG_INT_ZERO;
+  vaultQueuedWithdrawal.save();
+
   // save
   vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
@@ -231,5 +243,59 @@ export function handleStrategySet(event: StrategySet): void {
   }
   const strategy = loadVaultStrategy(event.params.strategy);
   vault.strategy = strategy ? strategy.id : ADDRESS_ZERO.toHexString();
+  vault.save();
+}
+
+export function handleWithdrawalQueued(event: WithdrawalQueued): void {
+  const vault = loadVault(event.address);
+  if (!vault) {
+    return;
+  }
+
+  // load user
+  loadUser(event.params.user);
+
+  // load vault queued withdrawal
+  const vaultQueuedWithdrawal = loadVaultQueuedWithdrawal(
+    event.address,
+    event.params.user,
+    event.params.round
+  );
+
+  // update shares
+  vaultQueuedWithdrawal.shares = vaultQueuedWithdrawal.shares.plus(
+    event.params.shares
+  );
+  vaultQueuedWithdrawal.save();
+
+  // save
+  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
+  vault.save();
+}
+
+export function handleWithdrawalCancelled(event: WithdrawalCancelled): void {
+  const vault = loadVault(event.address);
+  if (!vault) {
+    return;
+  }
+
+  // load user
+  loadUser(event.params.recipient);
+
+  // load vault queued withdrawal
+  const vaultQueuedWithdrawal = loadVaultQueuedWithdrawal(
+    event.address,
+    event.params.recipient,
+    event.params.round
+  );
+
+  // update shares
+  vaultQueuedWithdrawal.shares = vaultQueuedWithdrawal.shares.minus(
+    event.params.shares
+  );
+  vaultQueuedWithdrawal.save();
+
+  // save
+  vault.txCount = vault.txCount.plus(BIG_INT_ONE);
   vault.save();
 }
