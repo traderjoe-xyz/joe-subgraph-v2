@@ -108,9 +108,9 @@ dataSources:
     name: VaultFactory
     network: fuji
     source:
-      address: "0xECe167a8623D5ab7f8568842d0fC7dAa422467d6"
+      address: "0x30372AFeB1DE02d2055aA7FD3ba30Ca711b44De8"
       abi: VaultFactory
-      startBlock: 18932225
+      startBlock: 19346046
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -151,7 +151,7 @@ dataSources:
     network: fuji
     source:
       abi: Vault
-      startBlock: 18932225
+      startBlock: 19346046
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -172,8 +172,8 @@ dataSources:
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
-        - event: Withdrawn(indexed address,uint256,uint256,uint256)
-          handler: handleWithdrawn
+        - event: WithdrawalRedeemed(indexed address,indexed address,indexed uint256,uint256,uint256,uint256)
+          handler: handleWithdrawalRedeemed
         - event: StrategySet(address)
           handler: handleStrategySet
       file: ./src/vault.ts
@@ -183,7 +183,7 @@ dataSources:
     network: fuji
     source:
       abi: VaultStrategy
-      startBlock: 18932225
+      startBlock: 19346046
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -196,10 +196,10 @@ dataSources:
         - name: DexLens
           file: ./abis/DexLens.json
       eventHandlers:
-        - event: FeesCollected(indexed address,indexed address,uint256,uint256,uint256,uint256)
-          handler: handleFeesCollected
+        - event: AumFeeCollected(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleAumFeeCollected
         - event: OperatorSet(address)
           handler: handleOperatorSet
-        - event: StrategistFeeSet(uint256)
-          handler: handleStrategistFeeSet
+        - event: AumAnnualFeeSet(uint256)
+          handler: handleAumAnnualFeeSet
       file: ./src/vaultStrategy.ts

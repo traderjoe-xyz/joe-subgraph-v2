@@ -2,7 +2,7 @@ import { Address } from "@graphprotocol/graph-ts";
 import {
   Deposited,
   StrategySet,
-  Withdrawn,
+  WithdrawalRedeemed,
 } from "../generated/VaultFactory/Vault";
 import { ADDRESS_ZERO, BIG_INT_ONE } from "./constants";
 import { loadBundle, loadToken, loadUser, loadVaultDayData } from "./entities";
@@ -121,7 +121,7 @@ export function handleDeposited(event: Deposited): void {
   vault.save();
 }
 
-export function handleWithdrawn(event: Withdrawn): void {
+export function handleWithdrawalRedeemed(event: WithdrawalRedeemed): void {
   const vault = loadVault(event.address);
   if (!vault) {
     return;
@@ -140,7 +140,7 @@ export function handleWithdrawn(event: Withdrawn): void {
   const bundle = loadBundle();
 
   // load user
-  loadUser(event.params.user);
+  loadUser(event.params.recipient);
 
   // get tokens
   const tokenX = loadToken(Address.fromString(vault.tokenX));
@@ -195,7 +195,7 @@ export function handleWithdrawn(event: Withdrawn): void {
   // update user position
   const vaultUserPosition = loadVaultUserPosition(
     event.address,
-    event.params.user
+    event.params.recipient
   );
   vaultUserPosition.totalAmountWithdrawnX = vaultUserPosition.totalAmountWithdrawnX.plus(
     amountX
@@ -211,7 +211,7 @@ export function handleWithdrawn(event: Withdrawn): void {
   // create withdraw entry
   createVaultWithdraw(
     event.address,
-    event.params.user,
+    event.params.recipient,
     event.block,
     vaultUserPosition.id,
     amountX,

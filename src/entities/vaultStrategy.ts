@@ -24,8 +24,8 @@ export function createVaultStrategy(
     return null;
   }
 
-  const strategistFee = vaultStrategyContract.try_getStrategistFee();
-  if (strategistFee.reverted) {
+  const aumAnnualFee = vaultStrategyContract.try_getAumAnnualFee();
+  if (aumAnnualFee.reverted) {
     return null;
   }
 
@@ -41,7 +41,7 @@ export function createVaultStrategy(
   vaultStrategy.vault = vault.value.toHexString();
   vaultStrategy.lbPair = lbPair.value.toHexString();
   vaultStrategy.operator = operator.value.toHexString();
-  vaultStrategy.strategistFee = strategistFee.value;
+  vaultStrategy.aumAnnualFee = aumAnnualFee.value;
 
   vaultStrategy.save();
   return vaultStrategy;

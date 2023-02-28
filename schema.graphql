@@ -723,7 +723,7 @@ type VaultStrategy @entity {
   lbPair: LBPair!
   operator: String!
 
-  strategistFee: BigInt!
+  aumAnnualFee: BigInt!
 }
 
 type VaultDayData @entity {
@@ -743,13 +743,9 @@ type VaultDayData @entity {
   totalValueLockedAVAX: BigDecimal!
   totalValueLockedUSD: BigDecimal!
 
-  vaultFeesTokenX: BigDecimal!
-  vaultFeesTokenY: BigDecimal!
-  vaultFeesUSD: BigDecimal!
-
-  strategistFeesTokenX: BigDecimal!
-  strategistFeesTokenY: BigDecimal!
-  strategistFeesUSD: BigDecimal!
+  aumFeesTokenX: BigDecimal!
+  aumFeesTokenY: BigDecimal!
+  aumFeesUSD: BigDecimal!
 
   txCount: BigInt!
 }

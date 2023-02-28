@@ -172,8 +172,8 @@ dataSources:
       eventHandlers:
         - event: Deposited(indexed address,uint256,uint256,uint256)
           handler: handleDeposited
-        - event: Withdrawn(indexed address,uint256,uint256,uint256)
-          handler: handleWithdrawn
+        - event: WithdrawalRedeemed(indexed address,indexed address,indexed uint256,uint256,uint256,uint256)
+          handler: handleWithdrawalRedeemed
         - event: StrategySet(address)
           handler: handleStrategySet
       file: ./src/vault.ts
@@ -196,10 +196,10 @@ dataSources:
         - name: DexLens
           file: ./abis/DexLens.json
       eventHandlers:
-        - event: FeesCollected(indexed address,indexed address,uint256,uint256,uint256,uint256)
-          handler: handleFeesCollected
+        - event: AumFeeCollected(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleAumFeeCollected
         - event: OperatorSet(address)
           handler: handleOperatorSet
-        - event: StrategistFeeSet(uint256)
-          handler: handleStrategistFeeSet
+        - event: AumAnnualFeeSet(uint256)
+          handler: handleAumAnnualFeeSet
       file: ./src/vaultStrategy.ts

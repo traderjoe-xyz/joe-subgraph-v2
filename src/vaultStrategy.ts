@@ -1,8 +1,8 @@
 import { Address } from "@graphprotocol/graph-ts";
 import {
-  FeesCollected,
+  AumAnnualFeeSet,
+  AumFeeCollected,
   OperatorSet,
-  StrategistFeeSet,
 } from "../generated/VaultFactory/VaultStrategy";
 import {
   loadBundle,
@@ -27,16 +27,16 @@ export function handleOperatorSet(event: OperatorSet): void {
   vaultStrategy.save();
 }
 
-export function handleStrategistFeeSet(event: StrategistFeeSet): void {
+export function handleAumAnnualFeeSet(event: AumAnnualFeeSet): void {
   const vaultStrategy = loadVaultStrategy(event.address);
   if (!vaultStrategy) {
     return;
   }
-  vaultStrategy.strategistFee = event.params.fee;
+  vaultStrategy.aumAnnualFee = event.params.fee;
   vaultStrategy.save();
 }
 
-export function handleFeesCollected(event: FeesCollected): void {
+export function handleAumFeeCollected(event: AumFeeCollected): void {
   const vaultStrategy = loadVaultStrategy(event.address);
   if (!vaultStrategy) {
     return;
@@ -63,56 +63,26 @@ export function handleFeesCollected(event: FeesCollected): void {
   const tokenX = loadToken(Address.fromString(vault.tokenX));
   const tokenY = loadToken(Address.fromString(vault.tokenY));
 
-  // get vault fee amounts
-  const vaultFeeAmountX = formatTokenAmountByDecimals(
-    event.params.vaultX,
-    tokenX.decimals
-  );
-  const vaultFeeAmountY = formatTokenAmountByDecimals(
-    event.params.vaultY,
-    tokenY.decimals
-  );
-
-  // get strategist fee amounts
-  const strategistFeeAmountX = formatTokenAmountByDecimals(
+  // get aum fee amounts
+  const aumFeeAmountX = formatTokenAmountByDecimals(
     event.params.feeX,
     tokenX.decimals
   );
-  const strategistFeeAmountY = formatTokenAmountByDecimals(
+  const aumFeeAmountY = formatTokenAmountByDecimals(
     event.params.feeY,
     tokenY.decimals
   );
 
-  // get vault fee amount USD
-  const vaultFeeAmountUSD = vaultFeeAmountX
+  // get aum fee amount USD
+  const aumFeeAmountUSD = aumFeeAmountX
     .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(vaultFeeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
-
-  // get strategist fee amount USD
-  const strategistFeeAmountUSD = strategistFeeAmountX
-    .times(tokenX.derivedAVAX.times(bundle.avaxPriceUSD))
-    .plus(
-      strategistFeeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD))
-    );
+    .plus(aumFeeAmountY.times(tokenY.derivedAVAX.times(bundle.avaxPriceUSD)));
 
   // update day data
   const vaultDayData = loadVaultDayData(event.block.timestamp, vault, false);
-  vaultDayData.vaultFeesUSD = vaultDayData.vaultFeesUSD.plus(vaultFeeAmountUSD);
-  vaultDayData.vaultFeesTokenX = vaultDayData.vaultFeesTokenX.plus(
-    vaultFeeAmountX
-  );
-  vaultDayData.vaultFeesTokenY = vaultDayData.vaultFeesTokenY.plus(
-    vaultFeeAmountY
-  );
-  vaultDayData.strategistFeesUSD = vaultDayData.strategistFeesUSD.plus(
-    strategistFeeAmountUSD
-  );
-  vaultDayData.strategistFeesTokenX = vaultDayData.strategistFeesTokenX.plus(
-    strategistFeeAmountX
-  );
-  vaultDayData.strategistFeesTokenY = vaultDayData.strategistFeesTokenY.plus(
-    strategistFeeAmountY
-  );
+  vaultDayData.aumFeesUSD = vaultDayData.aumFeesUSD.plus(aumFeeAmountUSD);
+  vaultDayData.aumFeesTokenX = vaultDayData.aumFeesTokenX.plus(aumFeeAmountX);
+  vaultDayData.aumFeesTokenY = vaultDayData.aumFeesTokenY.plus(aumFeeAmountY);
 
   vaultDayData.save();
 }

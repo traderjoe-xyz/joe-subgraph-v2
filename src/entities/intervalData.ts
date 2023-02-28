@@ -329,12 +329,9 @@ export function loadVaultDayData(
     vaultDayData.totalBalanceY = vault.totalBalanceY;
     vaultDayData.totalValueLockedUSD = vault.totalValueLockedUSD;
     vaultDayData.totalValueLockedAVAX = vault.totalValueLockedAVAX;
-    vaultDayData.vaultFeesTokenX = BIG_DECIMAL_ZERO;
-    vaultDayData.vaultFeesTokenY = BIG_DECIMAL_ZERO;
-    vaultDayData.vaultFeesUSD = BIG_DECIMAL_ZERO;
-    vaultDayData.strategistFeesTokenX = BIG_DECIMAL_ZERO;
-    vaultDayData.strategistFeesTokenY = BIG_DECIMAL_ZERO;
-    vaultDayData.strategistFeesUSD = BIG_DECIMAL_ZERO;
+    vaultDayData.aumFeesTokenX = BIG_DECIMAL_ZERO;
+    vaultDayData.aumFeesTokenY = BIG_DECIMAL_ZERO;
+    vaultDayData.aumFeesUSD = BIG_DECIMAL_ZERO;
     vaultDayData.txCount = BIG_INT_ZERO;
     vaultDayData.save();
   }
