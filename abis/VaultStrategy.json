@@ -11,6 +11,27 @@
     "type": "constructor"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "bp", "type": "uint256" }],
+    "name": "BinHelper__BinStepOverflows",
+    "type": "error"
+  },
+  { "inputs": [], "name": "BinHelper__IdOverflows", "type": "error" },
+  { "inputs": [], "name": "Distribution__AmountTooHigh", "type": "error" },
+  {
+    "inputs": [],
+    "name": "Distribution__CompositionFactorTooHigh",
+    "type": "error"
+  },
+  { "inputs": [], "name": "Distribution__PriceTooLow", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "x", "type": "uint256" },
+      { "internalType": "int256", "name": "y", "type": "int256" }
+    ],
+    "name": "Math128x128__PowerUnderflow",
+    "type": "error"
+  },
+  {
     "inputs": [
       { "internalType": "uint256", "name": "prod1", "type": "uint256" },
       { "internalType": "uint256", "name": "denominator", "type": "uint256" }
@@ -18,15 +39,39 @@
     "name": "Math512Bits__MulDivOverflow",
     "type": "error"
   },
-  { "inputs": [], "name": "Range__InvalidAddedRange", "type": "error" },
-  { "inputs": [], "name": "Range__InvalidRange", "type": "error" },
-  { "inputs": [], "name": "Range__InvalidRemovedRange", "type": "error" },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "prod1", "type": "uint256" },
+      { "internalType": "uint256", "name": "offset", "type": "uint256" }
+    ],
+    "name": "Math512Bits__MulShiftOverflow",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "offset", "type": "uint256" }
+    ],
+    "name": "Math512Bits__OffsetOverflows",
+    "type": "error"
+  },
   {
     "inputs": [{ "internalType": "uint256", "name": "x", "type": "uint256" }],
     "name": "SafeCast__Exceeds24Bits",
     "type": "error"
   },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "x", "type": "uint256" }],
+    "name": "SafeCast__Exceeds64Bits",
+    "type": "error"
+  },
+  { "inputs": [], "name": "Strategy__ActiveIdSlippage", "type": "error" },
+  {
+    "inputs": [],
+    "name": "Strategy__ActiveIdSlippageExceeded",
+    "type": "error"
+  },
   { "inputs": [], "name": "Strategy__InvalidAddedRange", "type": "error" },
+  { "inputs": [], "name": "Strategy__InvalidAmountsLength", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidData", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidDistribution", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidDstToken", "type": "error" },
@@ -35,11 +80,27 @@
   { "inputs": [], "name": "Strategy__InvalidRange", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidReceiver", "type": "error" },
   { "inputs": [], "name": "Strategy__InvalidRemovedRange", "type": "error" },
+  { "inputs": [], "name": "Strategy__MaxAmountExceeded", "type": "error" },
   { "inputs": [], "name": "Strategy__OnlyFactory", "type": "error" },
   { "inputs": [], "name": "Strategy__OnlyOperators", "type": "error" },
   { "inputs": [], "name": "Strategy__OnlyVault", "type": "error" },
+  { "inputs": [], "name": "Strategy__RangeAlreadySet", "type": "error" },
+  { "inputs": [], "name": "Strategy__RangeTooWide", "type": "error" },
   { "inputs": [], "name": "Strategy__SwapFailed", "type": "error" },
   { "inputs": [], "name": "Strategy__ZeroAmounts", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "AumAnnualFeeSet",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -50,21 +111,15 @@
         "type": "address"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "feeRecipient",
-        "type": "address"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "vaultX",
+        "name": "totalBalanceX",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "vaultY",
+        "name": "totalBalanceY",
         "type": "uint256"
       },
       {
@@ -80,7 +135,7 @@
         "type": "uint256"
       }
     ],
-    "name": "FeesCollected",
+    "name": "AumFeeCollected",
     "type": "event"
   },
   {
@@ -111,6 +166,44 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "PendingAumAnnualFeeReset",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "PendingAumAnnualFeeSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint24",
+        "name": "low",
+        "type": "uint24"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint24",
+        "name": "upper",
+        "type": "uint24"
+      }
+    ],
+    "name": "RangeSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -130,33 +223,12 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint24", "name": "addedLower", "type": "uint24" },
-      { "internalType": "uint24", "name": "addedUpper", "type": "uint24" },
-      {
-        "internalType": "uint256[]",
-        "name": "distributionX",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "distributionY",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "percentageToAddX",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "percentageToAddY",
-        "type": "uint256"
-      }
+    "inputs": [],
+    "name": "getAumAnnualFee",
+    "outputs": [
+      { "internalType": "uint256", "name": "aumAnnualFee", "type": "uint256" }
     ],
-    "name": "depositToLB",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -202,6 +274,20 @@
   },
   {
     "inputs": [],
+    "name": "getPendingAumAnnualFee",
+    "outputs": [
+      { "internalType": "bool", "name": "isSet", "type": "bool" },
+      {
+        "internalType": "uint256",
+        "name": "pendingAumAnnualFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getPendingFees",
     "outputs": [
       { "internalType": "uint256", "name": "amountX", "type": "uint256" },
@@ -217,13 +303,6 @@
       { "internalType": "uint24", "name": "lower", "type": "uint24" },
       { "internalType": "uint24", "name": "upper", "type": "uint24" }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getStrategistFee",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -269,37 +348,34 @@
   },
   {
     "inputs": [
-      { "internalType": "uint24", "name": "removedLower", "type": "uint24" },
-      { "internalType": "uint24", "name": "removedUpper", "type": "uint24" },
+      { "internalType": "uint24", "name": "newLower", "type": "uint24" },
+      { "internalType": "uint24", "name": "newUpper", "type": "uint24" },
+      { "internalType": "uint24", "name": "desiredActiveId", "type": "uint24" },
+      {
+        "internalType": "uint24",
+        "name": "slippageActiveId",
+        "type": "uint24"
+      },
+      { "internalType": "uint256[]", "name": "desiredL", "type": "uint256[]" },
       {
         "internalType": "uint256",
-        "name": "percentageToRemove",
-        "type": "uint256"
-      },
-      { "internalType": "uint24", "name": "addedLower", "type": "uint24" },
-      { "internalType": "uint24", "name": "addedUpper", "type": "uint24" },
-      {
-        "internalType": "uint256[]",
-        "name": "distributionX",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "distributionY",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256",
-        "name": "percentageToAddX",
+        "name": "maxPercentageToAddX",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "percentageToAddY",
+        "name": "maxPercentageToAddY",
         "type": "uint256"
       }
     ],
-    "name": "rebalanceFromLB",
+    "name": "rebalance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "resetPendingAumAnnualFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -314,8 +390,14 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "fee", "type": "uint256" }],
-    "name": "setStrategistFee",
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "pendingAumAnnualFee",
+        "type": "uint16"
+      }
+    ],
+    "name": "setPendingAumAnnualFee",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -328,30 +410,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "shares", "type": "uint256" },
-      { "internalType": "uint256", "name": "totalShares", "type": "uint256" },
-      { "internalType": "address", "name": "to", "type": "address" }
-    ],
-    "name": "withdraw",
-    "outputs": [
-      { "internalType": "uint256", "name": "amountX", "type": "uint256" },
-      { "internalType": "uint256", "name": "amountY", "type": "uint256" }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint24", "name": "removedLower", "type": "uint24" },
-      { "internalType": "uint24", "name": "removedUpper", "type": "uint24" },
-      {
-        "internalType": "uint256",
-        "name": "percentageToRemove",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawFromLB",
+    "inputs": [],
+    "name": "withdrawAll",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
