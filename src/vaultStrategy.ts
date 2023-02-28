@@ -3,7 +3,10 @@ import {
   AumAnnualFeeSet,
   AumFeeCollected,
   OperatorSet,
+  PendingAumAnnualFeeReset,
+  PendingAumAnnualFeeSet,
 } from "../generated/VaultFactory/VaultStrategy";
+import { BIG_INT_ZERO } from "./constants";
 import {
   loadBundle,
   loadLbPair,
@@ -33,6 +36,28 @@ export function handleAumAnnualFeeSet(event: AumAnnualFeeSet): void {
     return;
   }
   vaultStrategy.aumAnnualFee = event.params.fee;
+  vaultStrategy.save();
+}
+
+export function handlePendingAumAnnualFeeSet(
+  event: PendingAumAnnualFeeSet
+): void {
+  const vaultStrategy = loadVaultStrategy(event.address);
+  if (!vaultStrategy) {
+    return;
+  }
+  vaultStrategy.pendingAumAnnualFee = event.params.fee;
+  vaultStrategy.save();
+}
+
+export function handlePendingAumAnnualFeeReset(
+  event: PendingAumAnnualFeeReset
+): void {
+  const vaultStrategy = loadVaultStrategy(event.address);
+  if (!vaultStrategy) {
+    return;
+  }
+  vaultStrategy.pendingAumAnnualFee = BIG_INT_ZERO;
   vaultStrategy.save();
 }
 

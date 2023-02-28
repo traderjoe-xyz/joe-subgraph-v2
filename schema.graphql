@@ -724,6 +724,7 @@ type VaultStrategy @entity {
   operator: String!
 
   aumAnnualFee: BigInt!
+  pendingAumAnnualFee: BigInt!
 }
 
 type VaultDayData @entity {

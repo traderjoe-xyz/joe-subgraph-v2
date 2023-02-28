@@ -1,7 +1,7 @@
 import { Address } from "@graphprotocol/graph-ts";
 import { VaultStrategy } from "../../generated/schema";
 import { VaultStrategy as VaultStrategyABI } from "../../generated/VaultFactory/VaultStrategy";
-import { VAULT_FACTORY_ADDRESS } from "../constants";
+import { BIG_INT_ZERO, VAULT_FACTORY_ADDRESS } from "../constants";
 
 export function createVaultStrategy(
   vaultStrategyAddress: Address
@@ -42,6 +42,7 @@ export function createVaultStrategy(
   vaultStrategy.lbPair = lbPair.value.toHexString();
   vaultStrategy.operator = operator.value.toHexString();
   vaultStrategy.aumAnnualFee = aumAnnualFee.value;
+  vaultStrategy.pendingAumAnnualFee = BIG_INT_ZERO;
 
   vaultStrategy.save();
   return vaultStrategy;
