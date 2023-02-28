@@ -204,6 +204,6 @@ dataSources:
           handler: handleAumAnnualFeeSet
         - event: PendingAumAnnualFeeSet(uint256)
           handler: handlePendingAumAnnualFeeSet
-        - event: PendingAumAnnualFeeReset
-          handler handlePendingAumAnnualFeeReset
+        - event: PendingAumAnnualFeeReset()
+          handler: handlePendingAumAnnualFeeReset
       file: ./src/vaultStrategy.ts
