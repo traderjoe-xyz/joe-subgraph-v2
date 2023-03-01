@@ -651,7 +651,6 @@ export function handleLiquidityAdded(event: DepositedToBin): void {
   );
 
   // LBPair
-  lbPair.activeId = event.params.id;
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.plus(amountX);
   lbPair.reserveY = lbPair.reserveY.plus(amountY);
@@ -765,7 +764,6 @@ export function handleLiquidityRemoved(event: WithdrawnFromBin): void {
   );
 
   // LBPair
-  lbPair.activeId = event.params.id;
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.reserveX = lbPair.reserveX.minus(amountX);
   lbPair.reserveY = lbPair.reserveY.minus(amountY);
