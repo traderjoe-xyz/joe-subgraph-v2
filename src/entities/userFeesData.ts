@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 import {
   LBPair,
   User,
@@ -8,6 +8,9 @@ import {
   UserBinLiquidity,
 } from "../../generated/schema";
 import { BIG_DECIMAL_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
+import { loadVaultDayData } from "./intervalData";
+import { loadVault } from "./vault";
+import { loadVaultStrategy } from "./vaultStrategy";
 
 export function loadUserFeesData(lbPair: LBPair, user: User): UserFeesData {
   const id = lbPair.id.concat("-").concat(user.id);

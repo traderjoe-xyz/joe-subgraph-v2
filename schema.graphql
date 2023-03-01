@@ -748,6 +748,10 @@ type VaultDayData @entity {
   totalValueLockedAVAX: BigDecimal!
   totalValueLockedUSD: BigDecimal!
 
+  collectedFeesX: BigDecimal!
+  collectedFeesY: BigDecimal!
+  collectedFeesUSD: BigDecimal!
+
   aumFeesTokenX: BigDecimal!
   aumFeesTokenY: BigDecimal!
   aumFeesUSD: BigDecimal!

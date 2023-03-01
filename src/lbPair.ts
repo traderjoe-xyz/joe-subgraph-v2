@@ -57,6 +57,7 @@ import {
   updateTokensDerivedAvax,
   safeDiv,
 } from "./utils";
+import { updateVaultClaimedFeesData } from "./vaultStrategy";
 
 export function handleSwap(event: SwapEvent): void {
   const lbPair = loadLbPair(event.address);
@@ -865,6 +866,15 @@ export function handleFeesCollected(event: FeesCollected): void {
   // update users claimed fees
   updateUserClaimedFeesData(
     lbPair,
+    user,
+    amountX,
+    amountY,
+    amountUSD,
+    event.block.timestamp
+  );
+
+  // update vault claimed fees if user is a vault strategy
+  updateVaultClaimedFeesData(
     user,
     amountX,
     amountY,

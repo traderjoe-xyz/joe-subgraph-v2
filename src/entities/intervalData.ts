@@ -332,6 +332,9 @@ export function loadVaultDayData(
     vaultDayData.aumFeesTokenX = BIG_DECIMAL_ZERO;
     vaultDayData.aumFeesTokenY = BIG_DECIMAL_ZERO;
     vaultDayData.aumFeesUSD = BIG_DECIMAL_ZERO;
+    vaultDayData.collectedFeesX = BIG_DECIMAL_ZERO;
+    vaultDayData.collectedFeesY = BIG_DECIMAL_ZERO;
+    vaultDayData.collectedFeesUSD = BIG_DECIMAL_ZERO;
     vaultDayData.txCount = BIG_INT_ZERO;
     vaultDayData.save();
   }

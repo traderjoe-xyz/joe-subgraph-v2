@@ -1,4 +1,5 @@
-import { Address } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { User } from "../generated/schema";
 import {
   AumAnnualFeeSet,
   AumFeeCollected,
@@ -117,5 +118,29 @@ export function handleAumFeeCollected(event: AumFeeCollected): void {
 
   // save
   vault.save();
+  vaultDayData.save();
+}
+
+export function updateVaultClaimedFeesData(
+  user: User,
+  feesX: BigDecimal,
+  feesY: BigDecimal,
+  feesUSD: BigDecimal,
+  timestamp: BigInt
+): void {
+  const vaultStrategy = loadVaultStrategy(Address.fromString(user.id));
+  if (!vaultStrategy) {
+    return;
+  }
+
+  const vault = loadVault(Address.fromString(vaultStrategy.vault));
+  if (!vault) {
+    return;
+  }
+
+  const vaultDayData = loadVaultDayData(timestamp, vault, false);
+  vaultDayData.collectedFeesX = vaultDayData.collectedFeesX.plus(feesX);
+  vaultDayData.collectedFeesY = vaultDayData.collectedFeesY.plus(feesY);
+  vaultDayData.collectedFeesUSD = vaultDayData.collectedFeesUSD.plus(feesUSD);
   vaultDayData.save();
 }
