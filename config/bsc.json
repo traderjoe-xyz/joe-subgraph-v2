@@ -1,0 +1,7 @@
+{
+    "network": "bsc",
+    "lbfactory_address": "0x43646A8e839B2f2766392C1BF8f60F6e587B6960",
+    "joe_dex_lens_address": "0x0A5077D8dc51e27Ad536847b0CF558165BA9AD1b",
+    "wavax_address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+    "start_block": 26153438
+}
