@@ -21,4 +21,6 @@ export const LBFACTORY_ADDRESS = Address.fromString('{{ lbfactory_address }}');
 
 export const JOE_DEX_LENS_ADDRESS = Address.fromString('{{ joe_dex_lens_address }}');
 
+export const JOE_DEX_LENS_USD_DECIMALS = BigDecimal.fromString("1e{{ joe_dex_lens_usd_decimals }}");
+
 export const WAVAX_ADDRESS = Address.fromString('{{ wavax_address }}');
