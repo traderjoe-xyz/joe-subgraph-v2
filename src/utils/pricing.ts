@@ -2,10 +2,10 @@ import { BigDecimal, BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   BIG_DECIMAL_ONE,
   BIG_DECIMAL_ZERO,
-  BIG_DECIMAL_1E6,
   BIG_DECIMAL_1E18,
   WAVAX_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
+  JOE_DEX_LENS_USD_DECIMALS
 } from "../constants";
 import { Token, LBPair } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
@@ -21,7 +21,7 @@ export function getAvaxPriceInUSD(): BigDecimal {
     return BIG_DECIMAL_ZERO;
   }
 
-  const priceUSD = priceUsdResult.value.toBigDecimal().div(BIG_DECIMAL_1E6);
+  const priceUSD = priceUsdResult.value.toBigDecimal().div(JOE_DEX_LENS_USD_DECIMALS);
 
   return priceUSD;
 }

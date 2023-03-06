@@ -2,6 +2,7 @@
     "network": "chapel",
     "lbfactory_address": "0xE082a032Fa1cE68b24594bee0fC57DfE819D107c",
     "joe_dex_lens_address": "0xdE2135eCb6b0d4472C976190a3bEd3cE2aA80a86",
+    "joe_dex_lens_usd_decimals": 18,
     "wavax_address": "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
     "start_block": 27676436
 }
