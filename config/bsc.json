@@ -1,8 +1,10 @@
 {
-    "network": "bsc",
-    "lbfactory_address": "0x43646A8e839B2f2766392C1BF8f60F6e587B6960",
-    "joe_dex_lens_address": "0x0A5077D8dc51e27Ad536847b0CF558165BA9AD1b",
-    "joe_dex_lens_usd_decimals": 18,
-    "wavax_address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-    "start_block": 26153438
+  "network": "bsc",
+  "lbfactory_address": "0x43646A8e839B2f2766392C1BF8f60F6e587B6960",
+  "joe_dex_lens_address": "0x0A5077D8dc51e27Ad536847b0CF558165BA9AD1b",
+  "joe_dex_lens_usd_decimals": 18,
+  "wavax_address": "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+  "vault_factory_address": "0xBAF3af45a51b89667066917350F504ae9B8d8Ad5",
+  "start_block": 26153438,
+  "vault_start_block": 26357485
 }

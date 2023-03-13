@@ -4,5 +4,7 @@
   "joe_dex_lens_address": "0xf450749aeA1c5feF27Ae0237C56FecC43f6bE244",
   "joe_dex_lens_usd_decimals": 6,
   "wavax_address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-  "start_block": 47891979
+  "vault_factory_address": "0xBAF3af45a51b89667066917350F504ae9B8d8Ad5",
+  "start_block": 47891979,
+  "vault_start_block": 68680303
 }
