@@ -37,9 +37,6 @@ import {
   removeLiquidityPosition,
   loadTransaction,
   trackBin,
-  updateUserClaimedFeesData,
-  updateUserAccruedFeesDataSingleToken,
-  updateUserAccruedFeesDataBothTokens,
 } from "./entities";
 import {
   BIG_INT_ONE,
@@ -55,7 +52,6 @@ import {
   updateTokensDerivedAvax,
   safeDiv,
   decodeAmounts,
-  decodeFees,
 } from "./utils";
 import { StaticFeeParametersSet } from "../generated/LBFactory/LBPair";
 
@@ -95,10 +91,7 @@ export function handleSwap(event: SwapEvent): void {
   const amountXIn = amountsIn[0];
   const amountYIn = amountsIn[1];
 
-  const fmtAmountXIn = formatTokenAmountByDecimals(
-    amountsIn[0],
-    tokenIn.decimals
-  );
+  const fmtAmountXIn = formatTokenAmountByDecimals(amountXIn, tokenIn.decimals);
   const fmtAmountYIn = formatTokenAmountByDecimals(amountYIn, tokenIn.decimals);
 
   const amountsOut = decodeAmounts(event.params.amountsOut);
@@ -316,18 +309,6 @@ export function handleSwap(event: SwapEvent): void {
   tokenYDayData.feesUSD = tokenYDayData.feesUSD.plus(feesUsdY);
   tokenYDayData.save();
 
-  // update users accrued fees
-  const protocolFees = decodeAmounts(event.params.protocolFees);
-  updateUserAccruedFeesDataSingleToken(
-    lbPair,
-    bin,
-    totalFeesX,
-    totalFeesY,
-    protocolFees[0].toBigDecimal(),
-    protocolFees[1].toBigDecimal(),
-    event.block.timestamp
-  );
-
   // User
   loadUser(event.params.to);
 
@@ -441,24 +422,6 @@ export function handleFlashLoan(event: FlashLoan): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
-
-  // update users accrued fees
-  const bin = loadBin(lbPair, lbPair.activeId);
-  // const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
-  // if (lbPairFeeParams) {
-  // const protocolSharePct = lbPairFeeParams.protocolSharePct;
-  const protocolFees = decodeAmounts(event.params.protocolFees);
-
-  updateUserAccruedFeesDataSingleToken(
-    lbPair,
-    bin,
-    feesX,
-    feesY,
-    protocolFees[0].toBigDecimal(),
-    protocolFees[1].toBigDecimal(),
-    event.block.timestamp
-  );
-  // }
 
   const transaction = loadTransaction(event);
 
@@ -588,23 +551,6 @@ export function handleCompositionFee(event: CompositionFees): void {
   );
   lbPairDayData.feesUSD = lbPairDayData.feesUSD.plus(feesUSD);
   lbPairDayData.save();
-
-  // update users accrued fees
-  const bin = loadBin(lbPair, event.params.id);
-  const lbPairFeeParams = LBPairParameterSet.load(lbPair.id);
-  if (lbPairFeeParams) {
-    const protocolSharePct = BigDecimal.fromString(
-      lbPairFeeParams.protocolSharePct.toString()
-    );
-    updateUserAccruedFeesDataBothTokens(
-      lbPair,
-      bin,
-      feesX,
-      feesY,
-      protocolSharePct,
-      event.block.timestamp
-    );
-  }
 }
 
 export function handleLiquidityAdded(event: DepositedToBins): void {
@@ -629,27 +575,29 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
-  const amounts = decodeAmounts(event.params.amounts);
-  const amountX = formatTokenAmountByDecimals(
-    event.params.amountX,
-    tokenX.decimals
-  );
-  const amountY = formatTokenAmountByDecimals(
-    event.params.amountY,
-    tokenY.decimals
-  );
+  const totalAmountX = BigDecimal.fromString("0");
+  const totalAmountY = BigDecimal.fromString("0");
 
-  // Bin
-  trackBin(
-    lbPair,
-    event.params.id,
-    amountX, // amountXIn
-    BIG_DECIMAL_ZERO,
-    amountY, // amountYIn
-    BIG_DECIMAL_ZERO,
-    BIG_INT_ZERO,
-    BIG_INT_ZERO
-  );
+  event.params.ids.forEach((bidId, i) => {
+    const amounts = decodeAmounts(event.params.amounts[i]);
+    const amountX = formatTokenAmountByDecimals(amounts[0], tokenX.decimals);
+    const amountY = formatTokenAmountByDecimals(amounts[1], tokenY.decimals);
+
+    totalAmountX.plus(amountX);
+    totalAmountY.plus(amountY);
+
+    // Bin
+    trackBin(
+      lbPair,
+      bidId.toI32(),
+      amountX, // amountXIn
+      BIG_DECIMAL_ZERO,
+      amountY, // amountYIn
+      BIG_DECIMAL_ZERO,
+      BIG_INT_ZERO,
+      BIG_INT_ZERO
+    );
+  });
 
   // reset tvl aggregates until new amounts calculated
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
@@ -658,8 +606,8 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
 
   // LBPair
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
-  lbPair.reserveX = lbPair.reserveX.plus(amountX);
-  lbPair.reserveY = lbPair.reserveY.plus(amountY);
+  lbPair.reserveX = lbPair.reserveX.plus(totalAmountX);
+  lbPair.reserveY = lbPair.reserveY.plus(totalAmountY);
 
   lbPair.totalValueLockedAVAX = lbPair.reserveX
     .times(tokenX.derivedAVAX)
@@ -702,7 +650,7 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
 
   // TokenX
   tokenX.txCount = tokenX.txCount.plus(BIG_INT_ONE);
-  tokenX.totalValueLocked = tokenX.totalValueLocked.plus(amountX);
+  tokenX.totalValueLocked = tokenX.totalValueLocked.plus(totalAmountX);
   tokenX.totalValueLockedUSD = tokenX.totalValueLocked.times(
     tokenX.derivedAVAX.times(bundle.avaxPriceUSD)
   );
@@ -710,7 +658,7 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
 
   // TokenY
   tokenY.txCount = tokenY.txCount.plus(BIG_INT_ONE);
-  tokenY.totalValueLocked = tokenY.totalValueLocked.plus(amountY);
+  tokenY.totalValueLocked = tokenY.totalValueLocked.plus(totalAmountY);
   tokenY.totalValueLockedUSD = tokenY.totalValueLocked.times(
     tokenY.derivedAVAX.times(bundle.avaxPriceUSD)
   );
