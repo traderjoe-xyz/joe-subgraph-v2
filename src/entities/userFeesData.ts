@@ -8,6 +8,7 @@ import {
   UserBinLiquidity,
 } from "../../generated/schema";
 import { BIG_DECIMAL_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
+import { decodeAmounts } from "../utils";
 
 export function loadUserFeesData(lbPair: LBPair, user: User): UserFeesData {
   const id = lbPair.id.concat("-").concat(user.id);
@@ -65,9 +66,10 @@ export function loadUserFeesHourData(
 export function updateUserAccruedFeesDataSingleToken(
   lbPair: LBPair,
   bin: Bin,
-  fees: BigDecimal,
-  protocolSharePct: BigDecimal,
-  isTokenX: boolean,
+  feesX: BigDecimal,
+  feesY: BigDecimal,
+  protocolFeesX: BigDecimal,
+  protocolFeesY: BigDecimal,
   timestamp: BigInt
 ): void {
   const totalSupply = bin.totalSupply;
@@ -96,38 +98,33 @@ export function updateUserAccruedFeesDataSingleToken(
       continue;
     }
 
-    const providerFee = userLiquidity
-      .toBigDecimal()
-      .div(totalSupply.toBigDecimal())
-      .times(fees)
-      .times(BIG_DECIMAL_ONE.minus(protocolSharePct));
+    const providerFeeX = feesX.minus(protocolFeesX);
+    const providerFeeY = feesY.minus(protocolFeesY);
 
     const userFeesData = loadUserFeesData(lbPair, user);
     const userFeesHourData = loadUserFeesHourData(lbPair, user, timestamp);
 
-    if (isTokenX) {
-      userFeesData.accruedFeesX = userFeesData.accruedFeesX.plus(providerFee);
-      userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
-        providerFee
-      );
+    userFeesData.accruedFeesX = userFeesData.accruedFeesX.plus(providerFeeX);
+    userFeesHourData.accruedFeesX = userFeesHourData.accruedFeesX.plus(
+      providerFeeX
+    );
 
-      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(
-        providerFee.times(bin.priceY)
-      );
-      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
-        providerFee.times(bin.priceY)
-      );
-    } else {
-      userFeesData.accruedFeesY = userFeesData.accruedFeesY.plus(providerFee);
-      userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
-        providerFee
-      );
+    // userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(
+    //   providerFee.times(bin.priceY)
+    // );
+    // userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
+    //   providerFee.times(bin.priceY)
+    // );
 
-      userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(providerFee);
-      userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
-        providerFee
-      );
-    }
+    userFeesData.accruedFeesY = userFeesData.accruedFeesY.plus(providerFeeY);
+    userFeesHourData.accruedFeesY = userFeesHourData.accruedFeesY.plus(
+      providerFeeY
+    );
+
+    // userFeesData.accruedFeesL = userFeesData.accruedFeesL.plus(providerFee);
+    // userFeesHourData.accruedFeesL = userFeesHourData.accruedFeesL.plus(
+    //   providerFee
+    // );
 
     userFeesData.save();
     userFeesHourData.save();

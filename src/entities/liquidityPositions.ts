@@ -50,7 +50,7 @@ export function addLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
-  const bin = loadBin(lbPair, binId);
+  const bin = loadBin(lbPair, binId.toU32());
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(
@@ -119,7 +119,7 @@ export function removeLiquidityPosition(
   }
 
   const user = loadUser(userAddr);
-  const bin = loadBin(lbPair, binId);
+  const bin = loadBin(lbPair, binId.toU32());
 
   let liquidityPosition = getLiquidityPosition(lbPair, user, block);
   let userBinLiquidity = getUserBinLiquidity(

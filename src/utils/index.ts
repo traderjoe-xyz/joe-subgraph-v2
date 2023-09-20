@@ -39,4 +39,35 @@ export function isAccountApproved(
   return false;
 }
 
+// https://docs.traderjoexyz.com/guides/byte-32-decoding#liquidity-book-vs-uniswap-v3
+export function decodeAmounts(amounts: Bytes): [BigInt, BigInt] {
+  // Convert amounts to a BigInt
+  const amountsBigInt = BigInt.fromUnsignedBytes(amounts);
+
+  // Read the right 128 bits of the 256 bits
+  const amountsX = amountsBigInt.bitAnd(
+    BigInt.fromU32(2)
+      .pow(128)
+      .minus(BigInt.fromU32(1))
+  );
+
+  // Read the left 128 bits of the 256 bits
+  const amountsY = amountsBigInt.rightShift(128);
+
+  return [amountsX, amountsY];
+}
+
+// https://docs.traderjoexyz.com/guides/byte-32-decoding#decode-totalfees-and-protocolfees-from-swap-event
+export function decodeFees(feesBytes: Bytes): BigInt {
+  // Convert feesBytes to a BigInt
+  const feesBigInt = BigInt.fromUnsignedBytes(feesBytes);
+
+  // Retrieve the fee value from the right 128 bits
+  return feesBigInt.bitAnd(
+    BigInt.fromU32(2)
+      .pow(128)
+      .minus(BigInt.fromU32(1))
+  );
+}
+
 export * from "./pricing";

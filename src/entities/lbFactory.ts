@@ -10,7 +10,7 @@ import {
 export function loadLBFactory(id: Address = LBFACTORY_ADDRESS): LBFactory {
   let lbFactory = LBFactory.load(id.toHexString());
   const contract = LBFactoryABI.bind(id);
-  const flashloanFee = contract.try_flashLoanFee();
+  const flashloanFee = contract.try_getFlashLoanFee();
 
   if (!lbFactory) {
     lbFactory = new LBFactory(id.toHexString());

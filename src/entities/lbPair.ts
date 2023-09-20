@@ -23,25 +23,38 @@ export function createLBPair(
   block: ethereum.Block
 ): LBPair | null {
   const lbPairContract = LBPairABI.bind(lbPairAddr);
-  const tokenXCall = lbPairContract.try_tokenX();
-  const tokenYCall = lbPairContract.try_tokenY();
+  const tokenXCall = lbPairContract.try_getTokenX();
+  const tokenYCall = lbPairContract.try_getTokenY();
   if (tokenXCall.reverted || tokenYCall.reverted) {
     return null;
   }
 
-  const lbPairReservesAndIdCall = lbPairContract.try_getReservesAndId();
-  if (lbPairReservesAndIdCall.reverted) {
+  const lbPairReservesCall = lbPairContract.try_getReserves();
+  if (lbPairReservesCall.reverted) {
     return null;
   }
 
-  const lbPairFeeParamsCall = lbPairContract.try_feeParameters();
-  if (lbPairFeeParamsCall.reverted) {
+  const lbPairActiveIdCall = lbPairContract.try_getActiveId();
+  if (lbPairActiveIdCall.reverted) {
     return null;
   }
 
-  const activeId = lbPairReservesAndIdCall.value.getActiveId();
-  const binStep = BigInt.fromI32(lbPairFeeParamsCall.value.binStep);
-  const baseFactor = BigInt.fromI32(lbPairFeeParamsCall.value.baseFactor);
+  const lbPairBinStepCall = lbPairContract.try_getBinStep();
+  if (lbPairBinStepCall.reverted) {
+    return null;
+  }
+
+  const lbPairStaticFeeParametersCall = lbPairContract.try_getStaticFeeParameters();
+  if (lbPairStaticFeeParametersCall.reverted) {
+    return null;
+  }
+
+  const binStep = BigInt.fromI32(lbPairBinStepCall.value);
+  const baseFactor = BigInt.fromI32(
+    lbPairStaticFeeParametersCall.value.getBaseFactor()
+  );
+
+  const activeId = lbPairActiveIdCall.value;
 
   // base fee in 1e18 precision: baseFactor * binStep * 1e10
   const baseFee = binStep // 4 decimals

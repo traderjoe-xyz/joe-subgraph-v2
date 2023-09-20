@@ -4,7 +4,7 @@ import { BIG_DECIMAL_ONE, BIG_DECIMAL_ZERO, BIG_INT_ZERO } from "../constants";
 import { loadToken } from "../entities";
 import { getPriceYOfBin } from "../utils";
 
-export function loadBin(lbPair: LBPair, binId: BigInt): Bin {
+export function loadBin(lbPair: LBPair, binId: number): Bin {
   const id = lbPair.id.concat("#").concat(binId.toString());
   let bin = Bin.load(id);
 
@@ -29,7 +29,7 @@ export function loadBin(lbPair: LBPair, binId: BigInt): Bin {
 
 export function trackBin(
   lbPair: LBPair,
-  binId: BigInt,
+  binId: number,
   amountXIn: BigDecimal,
   amountXOut: BigDecimal,
   amountYIn: BigDecimal,
