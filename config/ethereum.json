@@ -1,0 +1,8 @@
+{
+  "network": "mainnet",
+  "lbfactory_address": "0xDC8d77b69155c7E68A95a4fb0f06a71FF90B943a",
+  "joe_dex_lens_address": "0x3008D2C0A3b7C676ff8bd948fdE9B5fC6a26A56f",
+  "joe_dex_lens_usd_decimals": 6,
+  "wavax_address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  "start_block": 47891979
+}
