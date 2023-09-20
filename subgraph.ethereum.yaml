@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: LBFactory
-    network: avalanche
+    network: mainnet
     source:
-      address: "0x8e42f2F4101563bF679975178e880FD87d3eFd4e"
+      address: "0xDC8d77b69155c7E68A95a4fb0f06a71FF90B943a"
       abi: LBFactory
-      startBlock: 28371397
+      startBlock: 17821282
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -40,18 +40,16 @@ dataSources:
           handler: handleLBPairCreated
         - event: LBPairIgnoredStateChanged(indexed address,bool)
           handler: handleLBPairIgnoredStateChanged
-        - event: PresetSet(indexed uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
-          handler: handlePresetSet
         - event: FeeRecipientSet(address,address)
           handler: handleFeeRecipientSet
       file: ./src/lbFactory.ts
 
   - kind: ethereum/contract
     name: LBPair
-    network: avalanche
+    network: mainnet
     source:
       abi: LBPair
-      startBlock: 28371397
+      startBlock: 17821282
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

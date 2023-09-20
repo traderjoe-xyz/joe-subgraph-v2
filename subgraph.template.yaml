@@ -40,8 +40,8 @@ dataSources:
           handler: handleLBPairCreated
         - event: LBPairIgnoredStateChanged(indexed address,bool)
           handler: handleLBPairIgnoredStateChanged
-        - event: FeeParametersSet(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
-          handler: handleFeeParametersSet
+        - event: FeeRecipientSet(address,address)
+          handler: handleFeeRecipientSet
       file: ./src/lbFactory.ts
 
   - kind: ethereum/contract
@@ -84,22 +84,20 @@ dataSources:
         - name: DexLens
           file: ./abis/DexLens.json
       eventHandlers:
-        - event: Swap(indexed address,indexed address,indexed uint256,bool,uint256,uint256,uint256,uint256)
+        - event: Swap(indexed address,indexed address,uint24,bytes32,bytes32,uint24,bytes32,bytes32)
           handler: handleSwap
-        - event: FlashLoan(indexed address,indexed address,address,uint256,uint256)
+        - event: FlashLoan(indexed address,indexed address,uint24,bytes32,bytes32,bytes32)
           handler: handleFlashLoan
-        - event: CompositionFee(indexed address,indexed address,indexed uint256,uint256,uint256)
+        - event: CompositionFees(indexed address,uint24,bytes32,bytes32)
           handler: handleCompositionFee
-        - event: DepositedToBin(indexed address,indexed address,indexed uint256,uint256,uint256)
+        - event: DepositedToBins(indexed address,indexed address,uint256[],bytes32[])
           handler: handleLiquidityAdded
-        - event: WithdrawnFromBin(indexed address,indexed address,indexed uint256,uint256,uint256)
+        - event: WithdrawnFromBins(indexed address,indexed address,uint256[],bytes32[])
           handler: handleLiquidityRemoved
-        - event: FeesCollected(indexed address,indexed address,uint256,uint256)
-          handler: handleFeesCollected
-        - event: ProtocolFeesCollected(indexed address,indexed address,uint256,uint256)
+        - event: CollectedProtocolFees(indexed address,bytes32)
           handler: handleProtocolFeesCollected
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
+        - event: StaticFeeParametersSet(indexed address,uint16,uint16,uint16,uint16,uint24,uint16,uint24)
+          handler: handleStaticFeeParametersSet
       file: ./src/lbPair.ts

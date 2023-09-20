@@ -9,6 +9,9 @@ type LBFactory @entity {
   # Contract address
   id: ID!
 
+  # Fee recipient
+  feeRecipient: Bytes!
+
   # Pair count
   pairCount: BigInt!
 
@@ -271,7 +274,7 @@ type LBPair @entity {
   tokenX: Token!
   tokenY: Token!
   binStep: BigInt!
-  activeId: BigInt!
+  activeId: Int!
 
   reserveX: BigDecimal!
   reserveY: BigDecimal!
@@ -324,15 +327,14 @@ type LBPairParameterSet @entity {
   id: ID!
   sender: Bytes!
   lbPair: LBPair!
-  binStep: BigInt!
-  baseFactor: BigInt!
-  filterPeriod: BigInt!
-  decayPeriod: BigInt!
-  reductionFactor: BigInt!
-  variableFeeControl: BigInt!
-  protocolShare: BigInt!
-  protocolSharePct: BigDecimal!
-  maxVolatilityAccumulated: BigInt!
+  baseFactor: Int!
+  filterPeriod: Int!
+  decayPeriod: Int!
+  reductionFactor: Int!
+  variableFeeControl: Int!
+  protocolShare: Int!
+  protocolSharePct: Int!
+  maxVolatilityAccumulator: Int!
 }
 
 type Bin @entity {
@@ -346,7 +348,7 @@ type Bin @entity {
   reserveX: BigDecimal!
   reserveY: BigDecimal!
 
-  binId: BigInt!
+  binId: Int!
 
   liquidityProviders: [String!]!
   liquidityProviderCount: BigInt!
@@ -471,38 +473,6 @@ type UserBinLiquidity @entity {
   timestamp: Int!
 }
 
-type UserFeesData @entity {
-  # {lbPairAddress}-{userAddress}
-  id: ID!
-
-  user: User!
-  lbPair: LBPair!
-
-  accruedFeesX: BigDecimal!
-  accruedFeesY: BigDecimal!
-  accruedFeesL: BigDecimal!
-
-  collectedFeesX: BigDecimal!
-  collectedFeesY: BigDecimal!
-}
-
-type UserFeesHourData @entity {
-  # {lbPairAddress}-{userAddress}-{hourId}
-  id: ID!
-  # hour start timestamp
-  date: Int!
-
-  user: User!
-  lbPair: LBPair!
-
-  accruedFeesX: BigDecimal!
-  accruedFeesY: BigDecimal!
-  accruedFeesL: BigDecimal!
-
-  collectedFeesX: BigDecimal!
-  collectedFeesY: BigDecimal!
-}
-
 type Transaction @entity {
   # transaction hash
   id: ID!
@@ -579,7 +549,7 @@ type Swap @entity {
   sender: Bytes!
   recipient: Bytes!
   origin: Bytes!
-  activeId: BigInt!
+  activeId: Int!
 
   amountXIn: BigDecimal!
   amountYIn: BigDecimal!
@@ -607,12 +577,12 @@ type Flash @entity {
   origin: Bytes!
   recipient: Bytes!
 
-  token: Token!
-
-  amount: BigDecimal!
+  amountX: BigDecimal!
+  amountY: BigDecimal!
   amountUSD: BigDecimal!
 
-  fees: BigDecimal!
+  feesX: BigDecimal!
+  feesY: BigDecimal!
   feesUSD: BigDecimal!
 
   logIndex: BigInt!

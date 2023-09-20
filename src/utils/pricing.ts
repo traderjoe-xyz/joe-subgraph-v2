@@ -5,11 +5,11 @@ import {
   BIG_DECIMAL_1E18,
   WAVAX_ADDRESS,
   JOE_DEX_LENS_ADDRESS,
-  JOE_DEX_LENS_USD_DECIMALS
+  JOE_DEX_LENS_USD_DECIMALS,
 } from "../constants";
 import { Token, LBPair } from "../../generated/schema";
 import { DexLens } from "../../generated/LBPair/DexLens";
-import { loadBundle, loadToken, } from "../entities";
+import { loadBundle, loadToken } from "../entities";
 
 export function getAvaxPriceInUSD(): BigDecimal {
   const dexLens = DexLens.bind(JOE_DEX_LENS_ADDRESS);
@@ -21,7 +21,9 @@ export function getAvaxPriceInUSD(): BigDecimal {
     return BIG_DECIMAL_ZERO;
   }
 
-  const priceUSD = priceUsdResult.value.toBigDecimal().div(JOE_DEX_LENS_USD_DECIMALS);
+  const priceUSD = priceUsdResult.value
+    .toBigDecimal()
+    .div(JOE_DEX_LENS_USD_DECIMALS);
 
   return priceUSD;
 }
@@ -60,13 +62,8 @@ export function updateAvaxInUsdPricing(): void {
 /**
  * Updates and tokenX/tokenY derivedAVAX pricing
  * @param {LBPair} lbPair
- * @param {BigInt | null} binId
  */
-export function updateTokensDerivedAvax(
-  lbPair: LBPair,
-  binId: BigInt | null
-): void {
-  const id = binId || lbPair.activeId;
+export function updateTokensDerivedAvax(lbPair: LBPair): void {
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
@@ -141,7 +138,7 @@ export function getTrackedVolumeUSD(
  * @param { BigInt } binStep
  */
 export function getPriceYOfBin(
-  binId: BigInt,
+  binId: number,
   binStep: BigInt,
   tokenX: Token,
   tokenY: Token
@@ -154,7 +151,7 @@ export function getPriceYOfBin(
   const bpVal = BIG_DECIMAL_ONE.plus(BIN_STEP.div(BASIS_POINT_MAX));
 
   // compute bpVal ** (id - 8388608)
-  const loop = binId.toI32() - REAL_SHIFT;
+  const loop = binId - REAL_SHIFT;
   const isPositive = loop > 0;
 
   let result = BIG_DECIMAL_ONE;

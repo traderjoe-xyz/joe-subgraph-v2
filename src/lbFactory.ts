@@ -3,16 +3,15 @@ import {
   FlashLoanFeeSet,
   LBPairCreated,
   LBPairIgnoredStateChanged,
-  FeeParametersSet,
+  FeeRecipientSet,
+  PresetSet,
 } from "../generated/LBFactory/LBFactory";
-import { BigDecimal } from "@graphprotocol/graph-ts";
-import { LBPairParameterSet } from "../generated/schema";
 import { loadLBFactory, createLBPair, loadBundle } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
 
 export function handleFlashLoanFeeSet(event: FlashLoanFeeSet): void {
   const contract = LBFactoryABI.bind(event.address);
-  const flashloanFee = contract.try_flashLoanFee();
+  const flashloanFee = contract.try_getFlashLoanFee();
   const lbFactory = loadLBFactory();
 
   if (flashloanFee.reverted) {
@@ -35,32 +34,6 @@ export function handleLBPairCreated(event: LBPairCreated): void {
   const lbFactory = loadLBFactory();
   lbFactory.pairCount = lbFactory.pairCount.plus(BIG_INT_ONE);
   lbFactory.save();
-}
-
-export function handleFeeParametersSet(event: FeeParametersSet): void {
-  const id = event.params.LBPair.toHexString();
-  let lbPairParameter = LBPairParameterSet.load(id);
-
-  if (!lbPairParameter) {
-    lbPairParameter = new LBPairParameterSet(id);
-    lbPairParameter.lbPair = event.params.LBPair.toHexString();
-  }
-
-  lbPairParameter.sender = event.params.sender;
-  lbPairParameter.binStep = event.params.binStep;
-  lbPairParameter.baseFactor = event.params.baseFactor;
-  lbPairParameter.filterPeriod = event.params.filterPeriod;
-  lbPairParameter.decayPeriod = event.params.decayPeriod;
-  lbPairParameter.reductionFactor = event.params.reductionFactor;
-  lbPairParameter.variableFeeControl = event.params.variableFeeControl;
-  lbPairParameter.protocolShare = event.params.protocolShare;
-  lbPairParameter.protocolSharePct = event.params.protocolShare
-    .toBigDecimal()
-    .div(BigDecimal.fromString("1e4"));
-  lbPairParameter.maxVolatilityAccumulated =
-    event.params.maxVolatilityAccumulated;
-
-  lbPairParameter.save();
 }
 
 export function handleLBPairIgnoredStateChanged(
@@ -88,5 +61,11 @@ export function handleLBPairIgnoredStateChanged(
   }
   lbFactory.ignoredLbPairs = ignoredLbPairs;
 
+  lbFactory.save();
+}
+
+export function handleFeeRecipientSet(event: FeeRecipientSet): void {
+  const lbFactory = loadLBFactory();
+  lbFactory.feeRecipient = event.params.newRecipient;
   lbFactory.save();
 }
