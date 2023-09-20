@@ -9,6 +9,9 @@ type LBFactory @entity {
   # Contract address
   id: ID!
 
+  # Fee recipient
+  feeRecipient: Bytes!
+
   # Pair count
   pairCount: BigInt!
 

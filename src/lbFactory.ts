@@ -3,6 +3,8 @@ import {
   FlashLoanFeeSet,
   LBPairCreated,
   LBPairIgnoredStateChanged,
+  FeeRecipientSet,
+  PresetSet,
 } from "../generated/LBFactory/LBFactory";
 import { loadLBFactory, createLBPair, loadBundle } from "./entities";
 import { BIG_INT_ONE, BIG_INT_ZERO } from "./constants";
@@ -59,5 +61,11 @@ export function handleLBPairIgnoredStateChanged(
   }
   lbFactory.ignoredLbPairs = ignoredLbPairs;
 
+  lbFactory.save();
+}
+
+export function handleFeeRecipientSet(event: FeeRecipientSet): void {
+  const lbFactory = loadLBFactory();
+  lbFactory.feeRecipient = event.params.newRecipient;
   lbFactory.save();
 }
