@@ -21,6 +21,6 @@ export const LBFACTORY_ADDRESS = Address.fromString('0xDC8d77b69155c7E68A95a4fb0
 
 export const JOE_DEX_LENS_ADDRESS = Address.fromString('0x3008D2C0A3b7C676ff8bd948fdE9B5fC6a26A56f');
 
-export const JOE_DEX_LENS_USD_DECIMALS = BigDecimal.fromString("1e6");
+export const JOE_DEX_LENS_USD_DECIMALS = BigDecimal.fromString("1e18");
 
 export const WAVAX_ADDRESS = Address.fromString('0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2');
