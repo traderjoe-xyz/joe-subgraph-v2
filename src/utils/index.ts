@@ -57,17 +57,4 @@ export function decodeAmounts(amounts: Bytes): [BigInt, BigInt] {
   return [amountsX, amountsY];
 }
 
-// https://docs.traderjoexyz.com/guides/byte-32-decoding#decode-totalfees-and-protocolfees-from-swap-event
-export function decodeFees(feesBytes: Bytes): BigInt {
-  // Convert feesBytes to a BigInt
-  const feesBigInt = BigInt.fromUnsignedBytes(feesBytes);
-
-  // Retrieve the fee value from the right 128 bits
-  return feesBigInt.bitAnd(
-    BigInt.fromU32(2)
-      .pow(128)
-      .minus(BigInt.fromU32(1))
-  );
-}
-
 export * from "./pricing";
