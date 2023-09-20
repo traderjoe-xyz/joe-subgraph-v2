@@ -92,7 +92,10 @@ export function handleSwap(event: SwapEvent): void {
   const amountYIn = amountsIn[1];
 
   const fmtAmountXIn = formatTokenAmountByDecimals(amountXIn, tokenIn.decimals);
-  const fmtAmountYIn = formatTokenAmountByDecimals(amountYIn, tokenIn.decimals);
+  const fmtAmountYIn = formatTokenAmountByDecimals(
+    amountYIn,
+    tokenOut.decimals
+  );
 
   const amountsOut = decodeAmounts(event.params.amountsOut);
   const amountXOut = amountsOut[0];
@@ -100,7 +103,7 @@ export function handleSwap(event: SwapEvent): void {
 
   const fmtAmountXOut = formatTokenAmountByDecimals(
     amountXOut,
-    tokenOut.decimals
+    tokenIn.decimals
   );
   const fmtAmountYOut = formatTokenAmountByDecimals(
     amountYOut,
@@ -114,7 +117,7 @@ export function handleSwap(event: SwapEvent): void {
   );
   const totalFeesY = formatTokenAmountByDecimals(
     totalFees[1],
-    tokenIn.decimals
+    tokenOut.decimals
   );
   const feesUSD = totalFeesX
     .times(tokenIn.derivedAVAX.times(bundle.avaxPriceUSD))
