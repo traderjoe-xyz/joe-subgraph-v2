@@ -42,13 +42,14 @@ export function isAccountApproved(
 // https://docs.traderjoexyz.com/guides/byte-32-decoding#liquidity-book-vs-uniswap-v3
 export function decodeAmounts(amounts: Bytes): Array<BigInt> {
   // Convert amounts to a BigInt
+  amounts.reverse();
   const amountsBigInt = BigInt.fromUnsignedBytes(amounts);
 
   // Read the right 128 bits of the 256 bits
   const amountsX = amountsBigInt.bitAnd(
-    BigInt.fromU32(2)
+    BigInt.fromI32(2)
       .pow(128)
-      .minus(BigInt.fromU32(1))
+      .minus(BigInt.fromI32(1))
   );
 
   // Read the left 128 bits of the 256 bits
