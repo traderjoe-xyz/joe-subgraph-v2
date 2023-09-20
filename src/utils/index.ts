@@ -40,7 +40,7 @@ export function isAccountApproved(
 }
 
 // https://docs.traderjoexyz.com/guides/byte-32-decoding#liquidity-book-vs-uniswap-v3
-export function decodeAmounts(amounts: Bytes): [BigInt, BigInt] {
+export function decodeAmounts(amounts: Bytes): Array<BigInt> {
   // Convert amounts to a BigInt
   const amountsBigInt = BigInt.fromUnsignedBytes(amounts);
 

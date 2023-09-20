@@ -1,0 +1,105 @@
+specVersion: 0.0.4
+description: Joe-v2 Liquidity Book subgraph
+repository: https://github.com/traderjoe-xyz/joe-subgraph-v2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LBFactory
+    network: mainnet
+    source:
+      address: "0xDC8d77b69155c7E68A95a4fb0f06a71FF90B943a"
+      abi: LBFactory
+      startBlock: 17821282
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - LBFactory
+        - LBPair
+        - Token
+        - Bundle
+      abis:
+        - name: LBFactory
+          file: ./abis/LBFactory.json
+        - name: LBPair
+          file: ./abis/LBPair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+        - name: DexLens
+          file: ./abis/DexLens.json
+      eventHandlers:
+        - event: FlashLoanFeeSet(uint256,uint256)
+          handler: handleFlashLoanFeeSet
+        - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
+          handler: handleLBPairCreated
+        - event: LBPairIgnoredStateChanged(indexed address,bool)
+          handler: handleLBPairIgnoredStateChanged
+        - event: PresetSet(indexed uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handlePresetSet
+        - event: FeeRecipientSet(address,address)
+          handler: handleFeeRecipientSet
+      file: ./src/lbFactory.ts
+
+  - kind: ethereum/contract
+    name: LBPair
+    network: mainnet
+    source:
+      abi: LBPair
+      startBlock: 17821282
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Bundle
+        - Bin
+        - LBFactory
+        - HourData
+        - DayData
+        - LBPair
+        - LBPairHourData
+        - LBPairDayData
+        - Token
+        - TokenHourData
+        - TokenDayData
+        - User
+        - LiquidityPosition
+        - UserBinLiquidity
+        - Transaction
+        - Mint
+        - Burn
+        - Swap
+        - Candle
+      abis:
+        - name: LBFactory
+          file: ./abis/LBFactory.json
+        - name: LBPair
+          file: ./abis/LBPair.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: DexLens
+          file: ./abis/DexLens.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,uint24,bytes32,bytes32,uint24,bytes32,bytes32)
+          handler: handleSwap
+        - event: FlashLoan(indexed address,indexed address,uint24,bytes32,bytes32,bytes32)
+          handler: handleFlashLoan
+        - event: CompositionFees(indexed address,uint24,bytes32,bytes32)
+          handler: handleCompositionFee
+        - event: DepositedToBins(indexed address,indexed address,uint256[],bytes32[])
+          handler: handleLiquidityAdded
+        - event: WithdrawnFromBins(indexed address,indexed address,uint256[],bytes32[])
+          handler: handleLiquidityRemoved
+        - event: CollectedProtocolFees(indexed address,bytes32)
+          handler: handleProtocolFeesCollected
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: StaticFeeParametersSet(indexed address,uint16,uint16,uint16,uint16,uint24,uint16,uint24)
+          handler: handleStaticFeeParametersSet
+      file: ./src/lbPair.ts

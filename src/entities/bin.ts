@@ -14,7 +14,7 @@ export function loadBin(lbPair: LBPair, binId: number): Bin {
 
     bin = new Bin(id);
     bin.lbPair = lbPair.id;
-    bin.binId = binId;
+    bin.binId = binId as u32;
     bin.reserveX = BIG_DECIMAL_ZERO;
     bin.reserveY = BIG_DECIMAL_ZERO;
     bin.totalSupply = BIG_INT_ZERO;

@@ -380,7 +380,9 @@ export function handleFlashLoan(event: FlashLoan): void {
   traderJoeDayData.feesUSD = traderJoeDayData.feesUSD.plus(feesUSD);
   traderJoeDayData.save();
 
-  [tokenX, tokenY].forEach((token, i) => {
+  const tokens = [tokenX, tokenY];
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
     const tokenHourData = loadTokenHourData(
       event.block.timestamp,
       tokenX,
@@ -399,7 +401,7 @@ export function handleFlashLoan(event: FlashLoan): void {
     token.save();
     tokenHourData.save();
     tokenDayData.save();
-  });
+  }
 
   lbPair.txCount = lbPair.txCount.plus(BIG_INT_ONE);
   lbPair.feesTokenX = lbPair.feesTokenX.plus(feesX);
@@ -578,7 +580,9 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
   const totalAmountX = BigDecimal.fromString("0");
   const totalAmountY = BigDecimal.fromString("0");
 
-  event.params.ids.forEach((bidId, i) => {
+  for (let i = 0; i < event.params.ids.length; i++) {
+    const bidId = event.params.ids[i];
+
     const amounts = decodeAmounts(event.params.amounts[i]);
     const amountX = formatTokenAmountByDecimals(amounts[0], tokenX.decimals);
     const amountY = formatTokenAmountByDecimals(amounts[1], tokenY.decimals);
@@ -586,7 +590,6 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
     totalAmountX.plus(amountX);
     totalAmountY.plus(amountY);
 
-    // Bin
     trackBin(
       lbPair,
       bidId.toI32(),
@@ -597,7 +600,7 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
       BIG_INT_ZERO,
       BIG_INT_ZERO
     );
-  });
+  }
 
   // reset tvl aggregates until new amounts calculated
   lbFactory.totalValueLockedAVAX = lbFactory.totalValueLockedAVAX.minus(
@@ -692,12 +695,12 @@ export function handleLiquidityRemoved(event: WithdrawnFromBins): void {
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 
   // track bins
-  event.params.amounts.forEach((val, i) => {
+  for (let i = 0; i < event.params.amounts.length; i++) {
+    const val = event.params.amounts[i];
     const amounts = decodeAmounts(val);
     const fmtAmountX = formatTokenAmountByDecimals(amounts[0], tokenX.decimals);
     const fmtAmountY = formatTokenAmountByDecimals(amounts[1], tokenY.decimals);
 
-    // Bin
     trackBin(
       lbPair,
       event.params.ids[i].toU32(),
@@ -708,7 +711,7 @@ export function handleLiquidityRemoved(event: WithdrawnFromBins): void {
       BIG_INT_ZERO,
       BIG_INT_ZERO
     );
-  });
+  }
 
   // total amounts
   const totalAmountX = event.params.amounts
