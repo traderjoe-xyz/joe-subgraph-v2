@@ -34,11 +34,12 @@
     "start:node": "rm -rf ./graph_data && docker-compose up -d"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.32.0",
-    "@graphprotocol/graph-ts": "0.27.0",
-    "mustache": "^4.1.0"
+    "@graphprotocol/graph-cli": "0.60.0",
+    "@graphprotocol/graph-ts": "0.31.0",
+    "mustache": "^4.2.0"
   },
   "repository": "https://github.com/traderjoe-xyz/joe-subgraph-v2.git",
   "author": "traderjoexyz",
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "yarn@4.0.0"
 }
