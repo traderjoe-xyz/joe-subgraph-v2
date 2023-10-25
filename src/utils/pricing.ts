@@ -64,9 +64,7 @@ export function updateAvaxInUsdPricing(): void {
  */
 export function updateTokensDerivedAvax(
   lbPair: LBPair,
-  binId: BigInt | null
 ): void {
-  const id = binId || lbPair.activeId;
   const tokenX = loadToken(Address.fromString(lbPair.tokenX));
   const tokenY = loadToken(Address.fromString(lbPair.tokenY));
 

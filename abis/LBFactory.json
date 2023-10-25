@@ -3,33 +3,17 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_feeRecipient",
+        "name": "feeRecipient",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "_flashLoanFee",
+        "name": "flashLoanFee",
         "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "bp",
-        "type": "uint256"
-      }
-    ],
-    "name": "BinHelper__BinStepOverflows",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BinHelper__IdOverflows",
-    "type": "error"
   },
   {
     "inputs": [],
@@ -51,58 +35,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "lowerBound",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
         "name": "binStep",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint256",
-        "name": "higherBound",
         "type": "uint256"
       }
     ],
-    "name": "LBFactory__BinStepRequirementsBreached",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "filterPeriod",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint16",
-        "name": "decayPeriod",
-        "type": "uint16"
-      }
-    ],
-    "name": "LBFactory__DecreasingPeriods",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "LBFactory__FactoryLockIsAlreadyInTheSameState",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "fees",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxFees",
-        "type": "uint256"
-      }
-    ],
-    "name": "LBFactory__FeesAboveMax",
+    "name": "LBFactory__BinStepTooLow",
     "type": "error"
   },
   {
@@ -119,17 +56,6 @@
       }
     ],
     "name": "LBFactory__FlashLoanFeeAboveMax",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "LBFactory__FunctionIsLockedForUsers",
     "type": "error"
   },
   {
@@ -167,6 +93,27 @@
       }
     ],
     "name": "LBFactory__LBPairAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "tokenX",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IERC20",
+        "name": "tokenY",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "binStep",
+        "type": "uint256"
+      }
+    ],
+    "name": "LBFactory__LBPairDoesNotExist",
     "type": "error"
   },
   {
@@ -209,17 +156,22 @@
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "protocolShare",
-        "type": "uint16"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "max",
+        "name": "binStep",
         "type": "uint256"
       }
     ],
-    "name": "LBFactory__ProtocolShareOverflows",
+    "name": "LBFactory__PresetIsLockedForUsers",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LBFactory__PresetOpenStateIsAlreadyInTheSameState",
     "type": "error"
   },
   {
@@ -242,22 +194,6 @@
       }
     ],
     "name": "LBFactory__QuoteAssetNotWhitelisted",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "reductionFactor",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint256",
-        "name": "max",
-        "type": "uint256"
-      }
-    ],
-    "name": "LBFactory__ReductionFactorOverflows",
     "type": "error"
   },
   {
@@ -294,19 +230,8 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "x",
-        "type": "uint256"
-      },
-      {
-        "internalType": "int256",
-        "name": "y",
-        "type": "int256"
-      }
-    ],
-    "name": "Math128x128__PowerUnderflow",
+    "inputs": [],
+    "name": "PairParametersHelper__InvalidParameter",
     "type": "error"
   },
   {
@@ -335,95 +260,25 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "SafeCast__Exceeds16Bits",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
         "name": "x",
         "type": "uint256"
+      },
+      {
+        "internalType": "int256",
+        "name": "y",
+        "type": "int256"
       }
     ],
-    "name": "SafeCast__Exceeds16Bits",
+    "name": "Uint128x128Math__PowUnderflow",
     "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "unlocked",
-        "type": "bool"
-      }
-    ],
-    "name": "FactoryLockedStatusUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "contract ILBPair",
-        "name": "LBPair",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "binStep",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "baseFactor",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "filterPeriod",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "decayPeriod",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "reductionFactor",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "variableFeeControl",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "protocolShare",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "maxVolatilityAccumulated",
-        "type": "uint256"
-      }
-    ],
-    "name": "FeeParametersSet",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -578,6 +433,25 @@
         "internalType": "uint256",
         "name": "binStep",
         "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "bool",
+        "name": "isOpen",
+        "type": "bool"
+      }
+    ],
+    "name": "PresetOpenStateChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "binStep",
+        "type": "uint256"
       }
     ],
     "name": "PresetRemoved",
@@ -631,13 +505,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "maxVolatilityAccumulated",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "sampleLifetime",
+        "name": "maxVolatilityAccumulator",
         "type": "uint256"
       }
     ],
@@ -671,100 +539,16 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "LBPairImplementation",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_BIN_STEP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_FEE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_PROTOCOL_SHARE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MIN_BIN_STEP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_quoteAsset",
+        "name": "quoteAsset",
         "type": "address"
       }
     ],
     "name": "addQuoteAsset",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "allLBPairs",
-    "outputs": [
-      {
-        "internalType": "contract ILBPair",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -778,22 +562,22 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_tokenX",
+        "name": "tokenX",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
-        "name": "_tokenY",
+        "name": "tokenY",
         "type": "address"
       },
       {
         "internalType": "uint24",
-        "name": "_activeId",
+        "name": "activeId",
         "type": "uint24"
       },
       {
         "internalType": "uint16",
-        "name": "_binStep",
+        "name": "binStep",
         "type": "uint16"
       }
     ],
@@ -801,7 +585,7 @@
     "outputs": [
       {
         "internalType": "contract ILBPair",
-        "name": "_LBPair",
+        "name": "pair",
         "type": "address"
       }
     ],
@@ -809,49 +593,10 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "creationUnlocked",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "feeRecipient",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "flashLoanFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "contract ILBPair",
-        "name": "_LBPair",
+        "name": "pair",
         "type": "address"
       }
     ],
@@ -866,7 +611,7 @@
     "outputs": [
       {
         "internalType": "uint256[]",
-        "name": "presetsBinStep",
+        "name": "binStepWithPreset",
         "type": "uint256[]"
       }
     ],
@@ -877,12 +622,12 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_tokenX",
+        "name": "tokenX",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
-        "name": "_tokenY",
+        "name": "tokenY",
         "type": "address"
       }
     ],
@@ -912,8 +657,66 @@
           }
         ],
         "internalType": "struct ILBFactory.LBPairInformation[]",
-        "name": "LBPairsAvailable",
+        "name": "lbPairsAvailable",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFeeRecipient",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "feeRecipient",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getFlashLoanFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "flashLoanFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLBPairAtIndex",
+    "outputs": [
+      {
+        "internalType": "contract ILBPair",
+        "name": "lbPair",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLBPairImplementation",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "lbPairImplementation",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -923,17 +726,17 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_tokenA",
+        "name": "tokenA",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
-        "name": "_tokenB",
+        "name": "tokenB",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "_binStep",
+        "name": "binStep",
         "type": "uint256"
       }
     ],
@@ -963,7 +766,7 @@
           }
         ],
         "internalType": "struct ILBFactory.LBPairInformation",
-        "name": "",
+        "name": "lbPairInformation",
         "type": "tuple"
       }
     ],
@@ -972,11 +775,37 @@
   },
   {
     "inputs": [],
+    "name": "getMaxFlashLoanFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMinBinStep",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "minBinStep",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getNumberOfLBPairs",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "lbPairNumber",
         "type": "uint256"
       }
     ],
@@ -989,8 +818,21 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "numberOfQuoteAssets",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getOpenBinSteps",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "openBinStep",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -999,9 +841,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "_binStep",
-        "type": "uint16"
+        "internalType": "uint256",
+        "name": "binStep",
+        "type": "uint256"
       }
     ],
     "name": "getPreset",
@@ -1038,13 +880,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "maxVolatilityAccumulated",
+        "name": "maxVolatilityAccumulator",
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
-        "name": "sampleLifetime",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "isOpen",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1054,15 +896,15 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_index",
+        "name": "index",
         "type": "uint256"
       }
     ],
-    "name": "getQuoteAsset",
+    "name": "getQuoteAssetAtIndex",
     "outputs": [
       {
         "internalType": "contract IERC20",
-        "name": "",
+        "name": "asset",
         "type": "address"
       }
     ],
@@ -1073,7 +915,7 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_token",
+        "name": "token",
         "type": "address"
       }
     ],
@@ -1081,7 +923,7 @@
     "outputs": [
       {
         "internalType": "bool",
-        "name": "",
+        "name": "isQuote",
         "type": "bool"
       }
     ],
@@ -1118,7 +960,7 @@
     "inputs": [
       {
         "internalType": "uint16",
-        "name": "_binStep",
+        "name": "binStep",
         "type": "uint16"
       }
     ],
@@ -1131,7 +973,7 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_quoteAsset",
+        "name": "quoteAsset",
         "type": "address"
       }
     ],
@@ -1157,21 +999,8 @@
   {
     "inputs": [
       {
-        "internalType": "bool",
-        "name": "_locked",
-        "type": "bool"
-      }
-    ],
-    "name": "setFactoryLockedState",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
-        "name": "_feeRecipient",
+        "name": "feeRecipient",
         "type": "address"
       }
     ],
@@ -1184,52 +1013,52 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_tokenX",
+        "name": "tokenX",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
-        "name": "_tokenY",
+        "name": "tokenY",
         "type": "address"
       },
       {
         "internalType": "uint16",
-        "name": "_binStep",
+        "name": "binStep",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_baseFactor",
+        "name": "baseFactor",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_filterPeriod",
+        "name": "filterPeriod",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_decayPeriod",
+        "name": "decayPeriod",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_reductionFactor",
+        "name": "reductionFactor",
         "type": "uint16"
       },
       {
         "internalType": "uint24",
-        "name": "_variableFeeControl",
+        "name": "variableFeeControl",
         "type": "uint24"
       },
       {
         "internalType": "uint16",
-        "name": "_protocolShare",
+        "name": "protocolShare",
         "type": "uint16"
       },
       {
         "internalType": "uint24",
-        "name": "_maxVolatilityAccumulated",
+        "name": "maxVolatilityAccumulator",
         "type": "uint24"
       }
     ],
@@ -1242,7 +1071,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_flashLoanFee",
+        "name": "flashLoanFee",
         "type": "uint256"
       }
     ],
@@ -1255,22 +1084,22 @@
     "inputs": [
       {
         "internalType": "contract IERC20",
-        "name": "_tokenX",
+        "name": "tokenX",
         "type": "address"
       },
       {
         "internalType": "contract IERC20",
-        "name": "_tokenY",
+        "name": "tokenY",
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_binStep",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "binStep",
+        "type": "uint16"
       },
       {
         "internalType": "bool",
-        "name": "_ignored",
+        "name": "ignored",
         "type": "bool"
       }
     ],
@@ -1283,7 +1112,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_LBPairImplementation",
+        "name": "newLBPairImplementation",
         "type": "address"
       }
     ],
@@ -1309,51 +1138,69 @@
     "inputs": [
       {
         "internalType": "uint16",
-        "name": "_binStep",
+        "name": "binStep",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_baseFactor",
+        "name": "baseFactor",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_filterPeriod",
+        "name": "filterPeriod",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_decayPeriod",
+        "name": "decayPeriod",
         "type": "uint16"
       },
       {
         "internalType": "uint16",
-        "name": "_reductionFactor",
+        "name": "reductionFactor",
         "type": "uint16"
       },
       {
         "internalType": "uint24",
-        "name": "_variableFeeControl",
+        "name": "variableFeeControl",
         "type": "uint24"
       },
       {
         "internalType": "uint16",
-        "name": "_protocolShare",
+        "name": "protocolShare",
         "type": "uint16"
       },
       {
         "internalType": "uint24",
-        "name": "_maxVolatilityAccumulated",
+        "name": "maxVolatilityAccumulator",
         "type": "uint24"
       },
       {
-        "internalType": "uint16",
-        "name": "_sampleLifetime",
-        "type": "uint16"
+        "internalType": "bool",
+        "name": "isOpen",
+        "type": "bool"
       }
     ],
     "name": "setPreset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "binStep",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bool",
+        "name": "isOpen",
+        "type": "bool"
+      }
+    ],
+    "name": "setPresetOpenState",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
