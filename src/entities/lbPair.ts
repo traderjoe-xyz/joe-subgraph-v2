@@ -27,11 +27,6 @@ export function createLBPair(
     return null;
   }
 
-  const lbPairReservesCall = lbPairContract.try_getReserves();
-  if (lbPairReservesCall.reverted) {
-    return null;
-  }
-
   const lbPairActiveIdCall = lbPairContract.try_getActiveId();
   if (lbPairActiveIdCall.reverted) {
     return null;
@@ -42,20 +37,8 @@ export function createLBPair(
     return null;
   }
 
-  const lbPairStaticFeeParametersCall = lbPairContract.try_getStaticFeeParameters();
-  if (lbPairStaticFeeParametersCall.reverted) {
-    return null;
-  }
-
   const activeId = BigInt.fromI32(lbPairActiveIdCall.value);
   const binStep = BigInt.fromI32(lbPairBinStepCall.value);
-  const baseFactor = BigInt.fromI32(lbPairStaticFeeParametersCall.value.getBaseFactor());
-
-  // base fee in 1e18 precision: baseFactor * binStep * 1e10
-  const baseFee = binStep // 4 decimals
-    .times(baseFactor) // 4 decimals
-    .toBigDecimal()
-    .times(BIG_DECIMAL_1E10);
 
   const tokenX = loadToken(tokenXCall.value);
   const tokenY = loadToken(tokenYCall.value);

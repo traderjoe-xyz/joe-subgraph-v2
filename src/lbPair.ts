@@ -106,7 +106,7 @@ export function handleSwap(event: SwapEvent): void {
   tokenY.save();
 
   // Trace
-  const trace = loadTrace(event.transaction.hash, event.logIndex, 0);
+  const trace = loadTrace(event.transaction.hash, event.logIndex, 0, lbPair.id);
   trace.lbPair = lbPair.id;
   trace.binId = BigInt.fromI32(event.params.id);
   trace.amountXIn = amountXIn;
@@ -148,7 +148,7 @@ export function handleCompositionFee(event: CompositionFees): void {
     BIG_INT_ZERO
   );
 
-  const trace = loadTrace(event.transaction.hash, event.logIndex, 0);
+  const trace = loadTrace(event.transaction.hash, event.logIndex, 0, lbPair.id);
   trace.lbPair = lbPair.id;
   trace.binId = BigInt.fromI32(event.params.id);
   trace.amountXIn = BIG_DECIMAL_ZERO;
@@ -199,7 +199,7 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
       BIG_INT_ZERO
     );
 
-    const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+    const trace = loadTrace(event.transaction.hash, event.logIndex, i, lbPair.id);
     trace.lbPair = lbPair.id;
     trace.binId = binId;
     trace.amountXIn = amountX;
@@ -261,7 +261,7 @@ export function handleLiquidityRemoved(event: WithdrawnFromBins): void {
       BIG_INT_ZERO
     );
 
-    const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+    const trace = loadTrace(event.transaction.hash, event.logIndex, i, lbPair.id);
     trace.lbPair = lbPair.id;
     trace.binId = binId;
     trace.amountXIn = BIG_DECIMAL_ZERO;
@@ -315,7 +315,7 @@ export function handleTransferBatch(event: TransferBatch): void {
         BIG_INT_ZERO
       );
 
-      const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+      const trace = loadTrace(event.transaction.hash, event.logIndex, i, lbPair.id);
       trace.lbPair = lbPair.id;
       trace.binId = event.params.ids[i];
       trace.amountXIn = BIG_DECIMAL_ZERO;
@@ -340,7 +340,7 @@ export function handleTransferBatch(event: TransferBatch): void {
         event.params.amounts[i] // burned
       );
 
-      const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+      const trace = loadTrace(event.transaction.hash, event.logIndex, i, lbPair.id);
       trace.lbPair = lbPair.id;
       trace.binId = event.params.ids[i];
       trace.amountXIn = BIG_DECIMAL_ZERO;
