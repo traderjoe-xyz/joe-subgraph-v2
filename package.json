@@ -21,7 +21,7 @@
     "build:arbitrum": "graph build subgraph.arbitrum.yaml",
     "build:bsc": "graph build subgraph.bsc.yaml",
     "build:chapel": "graph build subgraph.chapel.yaml",
-    "deploy:avax": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2 subgraph.avax.yaml",
+    "deploy:avax": "graph deploy --node https://api.thegraph.com/deploy/ vuquang23/traderjoe-v21-avalanche subgraph.avax.yaml",
     "deploy:fuji": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-fuji subgraph.fuji.yaml",
     "deploy:arbgoerli": "graph deploy --node https://api.thegraph.com/deploy/ traderjoe-xyz/joe-v2-arb-goerli subgraph.arbgoerli.yaml",
     "deploy:arbitrum": "graph deploy --node https://api.thegraph.com/deploy/ vuquang23/traderjoe-v21-arbitrum subgraph.arbitrum.yaml",
