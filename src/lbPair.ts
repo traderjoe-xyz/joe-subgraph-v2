@@ -107,6 +107,7 @@ export function handleSwap(event: SwapEvent): void {
 
   // Trace
   const trace = loadTrace(event.transaction.hash, event.logIndex, 0);
+  trace.lbPair = lbPair.id;
   trace.binId = BigInt.fromI32(event.params.id);
   trace.amountXIn = amountXIn;
   trace.amountXOut = amountXOut;
@@ -148,6 +149,7 @@ export function handleCompositionFee(event: CompositionFees): void {
   );
 
   const trace = loadTrace(event.transaction.hash, event.logIndex, 0);
+  trace.lbPair = lbPair.id;
   trace.binId = BigInt.fromI32(event.params.id);
   trace.amountXIn = BIG_DECIMAL_ZERO;
   trace.amountXOut = protocolCFeesX;
@@ -198,6 +200,7 @@ export function handleLiquidityAdded(event: DepositedToBins): void {
     );
 
     const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+    trace.lbPair = lbPair.id;
     trace.binId = binId;
     trace.amountXIn = amountX;
     trace.amountXOut = BIG_DECIMAL_ZERO;
@@ -259,6 +262,7 @@ export function handleLiquidityRemoved(event: WithdrawnFromBins): void {
     );
 
     const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+    trace.lbPair = lbPair.id;
     trace.binId = binId;
     trace.amountXIn = BIG_DECIMAL_ZERO;
     trace.amountXOut = amountX;
@@ -312,6 +316,7 @@ export function handleTransferBatch(event: TransferBatch): void {
       );
 
       const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+      trace.lbPair = lbPair.id;
       trace.binId = event.params.ids[i];
       trace.amountXIn = BIG_DECIMAL_ZERO;
       trace.amountXOut = BIG_DECIMAL_ZERO;
@@ -336,6 +341,7 @@ export function handleTransferBatch(event: TransferBatch): void {
       );
 
       const trace = loadTrace(event.transaction.hash, event.logIndex, i);
+      trace.lbPair = lbPair.id;
       trace.binId = event.params.ids[i];
       trace.amountXIn = BIG_DECIMAL_ZERO;
       trace.amountXOut = BIG_DECIMAL_ZERO;

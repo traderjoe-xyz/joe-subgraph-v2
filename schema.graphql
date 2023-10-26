@@ -60,6 +60,7 @@ type Trace @entity {
 
   txHash: Bytes!
 
+  lbPair: String!
   binId: BigInt!
 
   amountXIn: BigDecimal!
