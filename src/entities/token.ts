@@ -25,15 +25,7 @@ export function loadToken(address: Address): Token {
     token.name = getName(address);
     token.decimals = getDecimals(address);
     token.totalSupply = getTotalSupply(address);
-
-    token.volume = BIG_DECIMAL_ZERO;
-    token.volumeUSD = BIG_DECIMAL_ZERO;
-    token.untrackedVolumeUSD = BIG_DECIMAL_ZERO;
     token.txCount = BIG_INT_ZERO;
-    token.totalValueLocked = BIG_DECIMAL_ZERO;
-    token.totalValueLockedUSD = BIG_DECIMAL_ZERO;
-    token.derivedAVAX = BIG_DECIMAL_ZERO;
-    token.feesUSD = BIG_DECIMAL_ZERO;
 
     token.save();
   }

@@ -1,8 +1,8 @@
 {
   "network": "arbitrum-one",
-  "lbfactory_address": "0x1886D09C9Ade0c5DB822D85D21678Db67B6c2982",
+  "lbfactory_address": "0x8e42f2F4101563bF679975178e880FD87d3eFd4e",
   "joe_dex_lens_address": "0xf450749aeA1c5feF27Ae0237C56FecC43f6bE244",
   "joe_dex_lens_usd_decimals": 6,
   "wavax_address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
-  "start_block": 47891979
+  "start_block": 77473199
 }

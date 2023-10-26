@@ -3322,6 +3322,7 @@ __metadata:
   dependencies:
     "@graphprotocol/graph-cli": "npm:0.60.0"
     "@graphprotocol/graph-ts": "npm:0.31.0"
+    matchstick-as: "npm:^0.6.0"
     mustache: "npm:^4.2.0"
   languageName: unknown
   linkType: soft
@@ -3627,6 +3628,15 @@ __metadata:
     socks-proxy-agent: "npm:^7.0.0"
     ssri: "npm:^10.0.0"
   checksum: c161bde51dbc03382f9fac091734526a64dd6878205db6c338f70d2133df797b5b5166bff3091cf7d4785869d4b21e99a58139c1790c2fb1b5eec00f528f5f0b
+  languageName: node
+  linkType: hard
+
+"matchstick-as@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "matchstick-as@npm:0.6.0"
+  dependencies:
+    wabt: "npm:1.0.24"
+  checksum: ada0c5039d4b5b85c60600b19338f8b8dd2e566d3afac4da12c0cf612f3ae97d5e0db8ac0ca501975b3e815b1d9a8d8a028a8cc2be24a6c87241242050f64204
   languageName: node
   linkType: hard
 
@@ -5329,6 +5339,23 @@ __metadata:
     core-util-is: "npm:1.0.2"
     extsprintf: "npm:^1.2.0"
   checksum: 37ccdf8542b5863c525128908ac80f2b476eed36a32cb944de930ca1e2e78584cc435c4b9b4c68d0fc13a47b45ff364b4be43aa74f8804f9050140f660fb660d
+  languageName: node
+  linkType: hard
+
+"wabt@npm:1.0.24":
+  version: 1.0.24
+  resolution: "wabt@npm:1.0.24"
+  bin:
+    wasm-decompile: bin/wasm-decompile
+    wasm-interp: bin/wasm-interp
+    wasm-objdump: bin/wasm-objdump
+    wasm-opcodecnt: bin/wasm-opcodecnt
+    wasm-strip: bin/wasm-strip
+    wasm-validate: bin/wasm-validate
+    wasm2c: bin/wasm2c
+    wasm2wat: bin/wasm2wat
+    wat2wasm: bin/wat2wasm
+  checksum: d3fa20e3c783a3f0d0c293ffb98fab9047ee941cb00ba71922802d2acc8a1f8c5d133fb0e966f21ebc92a72ae5cb4b65b986566de0b1eac184e14fba6a5b0cdc
   languageName: node
   linkType: hard
 

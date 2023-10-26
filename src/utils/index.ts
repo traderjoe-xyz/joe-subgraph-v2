@@ -1,5 +1,5 @@
-import { BigInt, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
-import { BIG_INT_ZERO, BIG_INT_ONE, BIG_DECIMAL_ZERO } from "../constants";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BIG_DECIMAL_ZERO, BIG_INT_ONE, BIG_INT_ZERO } from "../constants";
 
 export function formatDecimalsToExponent(decimals: BigInt): BigDecimal {
   let bd = BigDecimal.fromString("1");
@@ -39,4 +39,28 @@ export function isAccountApproved(
   return false;
 }
 
-export * from "./pricing";
+export function isSwapForY(
+  amountsInBytes32: Bytes,
+): bool {
+  const amountsIn = decodeAmounts(amountsInBytes32);
+  const amountYIn = amountsIn[1];
+  return amountYIn.equals(BIG_INT_ZERO);
+}
+
+export function decodeAmounts(amounts: Bytes): Array<BigInt> {
+  const t = Bytes.fromHexString(amounts.toHexString());
+  t.reverse();
+  const amountsBigInt = BigInt.fromUnsignedBytes(t);
+
+  // Read the right 128 bits of the 256 bits
+  const amountsX = amountsBigInt.bitAnd(
+    BigInt.fromI32(2)
+      .pow(128)
+      .minus(BigInt.fromI32(1))
+  );
+
+  // Read the left 128 bits of the 256 bits
+  const amountsY = amountsBigInt.rightShift(128);
+
+  return [amountsX, amountsY];
+}

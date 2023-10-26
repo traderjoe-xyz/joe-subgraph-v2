@@ -4,3 +4,4 @@ generated/
 build/
 graph_data/
 .yarn
+tests/.bin

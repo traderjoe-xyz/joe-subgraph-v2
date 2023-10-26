@@ -19,7 +19,6 @@ dataSources:
         - LBFactory
         - LBPair
         - Token
-        - Bundle
       abis:
         - name: LBFactory
           file: ./abis/LBFactory.json
@@ -34,14 +33,8 @@ dataSources:
         - name: DexLens
           file: ./abis/DexLens.json
       eventHandlers:
-        - event: FlashLoanFeeSet(uint256,uint256)
-          handler: handleFlashLoanFeeSet
         - event: LBPairCreated(indexed address,indexed address,indexed uint256,address,uint256)
           handler: handleLBPairCreated
-        - event: LBPairIgnoredStateChanged(indexed address,bool)
-          handler: handleLBPairIgnoredStateChanged
-        - event: FeeParametersSet(indexed address,indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
-          handler: handleFeeParametersSet
       file: ./src/lbFactory.ts
 
   - kind: ethereum/contract
@@ -55,25 +48,10 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
-        - Bundle
         - Bin
         - LBFactory
-        - HourData
-        - DayData
         - LBPair
-        - LBPairHourData
-        - LBPairDayData
         - Token
-        - TokenHourData
-        - TokenDayData
-        - User
-        - LiquidityPosition
-        - UserBinLiquidity
-        - Transaction
-        - Mint
-        - Burn
-        - Swap
-        - Candle
       abis:
         - name: LBFactory
           file: ./abis/LBFactory.json
@@ -84,22 +62,14 @@ dataSources:
         - name: DexLens
           file: ./abis/DexLens.json
       eventHandlers:
-        - event: Swap(indexed address,indexed address,indexed uint256,bool,uint256,uint256,uint256,uint256)
+        - event: Swap(indexed address,indexed address,uint24,bytes32,bytes32,uint24,bytes32,bytes32)
           handler: handleSwap
-        - event: FlashLoan(indexed address,indexed address,address,uint256,uint256)
-          handler: handleFlashLoan
-        - event: CompositionFee(indexed address,indexed address,indexed uint256,uint256,uint256)
-          handler: handleCompositionFee
-        - event: DepositedToBin(indexed address,indexed address,indexed uint256,uint256,uint256)
+        - event: DepositedToBins(indexed address,indexed address,uint256[],bytes32[])
           handler: handleLiquidityAdded
-        - event: WithdrawnFromBin(indexed address,indexed address,indexed uint256,uint256,uint256)
+        - event: WithdrawnFromBins(indexed address,indexed address,uint256[],bytes32[])
           handler: handleLiquidityRemoved
-        - event: FeesCollected(indexed address,indexed address,uint256,uint256)
-          handler: handleFeesCollected
-        - event: ProtocolFeesCollected(indexed address,indexed address,uint256,uint256)
-          handler: handleProtocolFeesCollected
-        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleTransferSingle
         - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
           handler: handleTransferBatch
+        - event: CompositionFees(indexed address,uint24,bytes32,bytes32)
+          handler: handleCompositionFee
       file: ./src/lbPair.ts
